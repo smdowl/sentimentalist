@@ -48,7 +48,7 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 		this.extractors = new FeatureExtractor[1];
 		this.extractors[0] = new UserFeatures();
 		
-		// Time discritizer config
+		// Time discretizer config
 		this.timeBinner = new TimeBinner();
 	}
 		
@@ -57,7 +57,7 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 			throws IOException {
 		
 
-		// Since the example file has the tweets as JSON obejects with no separators
+		// Since the example file has the tweets as JSON objects with no separators
 		// between them I use this the GSON json parser to consume them one at a 
 		// time and than re-serialize and pass them on to twitter4j.
 		JsonReader reader = new JsonReader(new StringReader(value.toString()));
