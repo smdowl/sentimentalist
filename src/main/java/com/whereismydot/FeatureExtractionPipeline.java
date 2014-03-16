@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import com.whereismydot.extractors.UserFeatures;
 
 import twitter4j.Logger;
 import twitter4j.Status;
@@ -34,10 +35,20 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 	private final FeatureExtractor extractors[];
 	private final TimeBinner	   timeBinner;
 	
-	
+	/**
+	 * This is the constructor that's called by the Hadoop framework so configure 
+	 * whatever extractors or filters you plan on using in here.
+	 */
 	public FeatureExtractionPipeline(){
+	
+		// Filter config
 		this.filters    = new TweetFilter[0];
-		this.extractors = new FeatureExtractor[0];
+		
+		// Extractor config 
+		this.extractors = new FeatureExtractor[1];
+		this.extractors[0] = new UserFeatures();
+		
+		// Time discritizer config
 		this.timeBinner = new TimeBinner();
 	}
 		
