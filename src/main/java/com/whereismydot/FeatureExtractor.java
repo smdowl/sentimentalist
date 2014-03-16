@@ -3,6 +3,7 @@
  */
 package com.whereismydot;
 
+import java.util.List;
 import java.util.Map;
 
 import twitter4j.Status;
@@ -20,6 +21,7 @@ public interface FeatureExtractor {
 	 * @param tweet
 	 * @return Features present in the tweet.
 	 */
-	public Map<String,Double> extract(Status tweet);
+	public Map<String,Double> extract(List<Status> tweets);
 	
+
 }
