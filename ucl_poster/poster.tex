@@ -159,37 +159,38 @@ Tweets contain a great deal of information including, the text itself, linking b
 
 In their raw form, Tweets are not convinient for inference. As such we will focus a great deal of our time distilling the information contained within the Tweets into a form that we can use easily, ensuring all important aspects of the Tweets are preserved.
 This approach gives a nice layers of abstraction between the Information Retreval and the Machine Learning steps in the pipeline. 
-
 We will be gathering these features using two independent MapReduce jobs.
-Firstly, we will run a global job to gather statistics that depend on the entire dataset (for example tf/idf).
-Having run this, we can perform another map the splits by time segment such that the reducer can then create a full feature vector for each time slice as we see fit.
-Archetecturally, there will be an abstract Extractor component within the reducer that is given the full list of tweets to process.
-This component will be the central component of change in order to explore different options in this phase.
-The Extractor will also have access to another variable global stats file tuned to the needs of the specific Extractor implementation. 
-The statistics available and the manor with which they are gathered will again be an area of experimentation.
 
-\Subhead{Extractor}
-
-\sf
-Key local features that initially be calculated will be things like
-\begin{itemize}
-\item entity mentions
-\item sentiment
-\item word frequencies
-\item user ID
-\item number of re-tweets
-\end{itemize}
 
 \Subhead{Global Statistics}
 
 \sf
-We wil use the other MapReduce job to gather global user or corpus statistics such as:
+Firstly, we will run a global job to gather statistics that depend on the entire dataset (for example tf/idf).
+The statistics available and the manor with which they are gathered will be a significant area of experimentation.
+
+Some statistics that we plan to start with are:
 \begin{itemize}
-\item user average sentiment
-\item inverse document frequency
-\item cliques of users (strongly connected groups)
+\item user average sentiment - to help us determine if someone good opinion of an entity is only because they are generally positive. This could be global or regarding a specific company.
+\item inverse document frequency - to be used with term frequency within tweets to potentially highlight particularly significant phrases
+\item cliques of users (strongly connected groups) - experiment with the effect of an entire connected group having a particular sentiment or sudden change of sentiment
 \end{itemize}
 
+\Subhead{Extractor}
+
+Having gathered global statistics, we can perform another map the splits by time segment such that the reducer can then create a full feature vector for each time slice as we see fit.
+Archetecturally, there will be an abstract Extractor component within the reducer that is given the full list of tweets to process.
+This component will be the central component of change in order to explore different options in feature extraction.
+The Extractor will also have access to whatever global statistics produced previously in order to compute more complex features
+
+\sf
+Key local features that initially be calculated will be things like
+\begin{itemize}
+\item entity mentions - a base feature which will be joined with a number of other to attribute features to the company whose stock we are interested in
+\item sentiment - tied to a specific entity or connected group of users
+\item word frequencies - again tied to a entity
+\item user ID - which users are mentioning a company
+\item number of re-tweets - potentially linked to other statistics so that they can be weighted accordingly
+\end{itemize}
 
 \bigskip
 \hrule
