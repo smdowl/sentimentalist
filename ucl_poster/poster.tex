@@ -231,18 +231,26 @@ For the regression task we will also attempt to describe the stock market as a G
 %----------------------------------------------------------------------%
 \begin{textblock}{7}(16,2.4)
 
-\Head{Sectioning}
+\Head{Performance Evaluation}
 
-\Subhead{First Subsection}
+\Subhead{ML algorithm perfomance}
 
 \sf
-Aenean feugiat, mauris vitae accumsan venenatis, tortor nunc facilisis velit, vel aliquam felis dui non ante. Aenean commodo, sem vel malesuada placerat, erat lacus lacinia magna, quis euismod quam nulla vitae turpis. Vivamus sapien. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nunc a dolor. Sed diam leo, fringilla non, fermentum non, ultricies tempor, dolor. Mauris vehicula, urna ac bibendum scelerisque, enim nisl vehicula libero, id blandit enim lacus et neque. Nunc posuere elit at erat. Integer commodo, eros dapibus blandit facilisis, dolor ipsum dictum dui, sit amet iaculis enim elit sed magna. Nunc libero nunc, malesuada sit amet, tincidunt at, pharetra ut, arcu.
+To demonstrate the effectiveness of our learning algorithms we proceed by spiting the data into testing and training sets. Than we predict the future stock price using the training set and compute the mean squared error of the prediction using the test set.
+
+By carrying out the above procedure with different sets of test and training data we will be able to establish the predictive power of our model as well as determine how far into the future we will be able to make effective predictions.
+
+If the system will be used for training than the complex regression problem can be reduced to a simpler classification problem. Instead of predicting the exact price we will instead classify whether stock is going to go up or down after a specific amount of time. When evaluating this approach we intend to use the number of misclassification as a metric for determining the predictive power of our algorithm.
+
 
 \bigskip
 
-\Subhead{Second Subsection}
+\Subhead{Back-testing}
 
-Integer ante. Mauris tincidunt adipiscing mi. Donec sollicitudin, lacus quis pellentesque placerat, quam elit pharetra lacus, sit amet placerat nisi quam in lorem. Etiam id nulla a est vestibulum tempus. Nam et nisl non arcu venenatis semper. Duis sed libero. Cras lectus. In semper urna in leo. Sed mattis lacinia arcu. Phasellus ut metus. Phasellus mi dolor, condimentum ut, ornare nec, tempus ac, mi. Integer ante sem, vestibulum in, gravida vel, condimentum non, ipsum.
+While mean square error in prediction is useful in evaluating algorithm effectiveness, low mean square error does not directly translate into trading performance.  
+
+The simple price model will need be further extended to incorporate stock liquidity and ensure that gains can be realised. Further optimisation is possible by incorporating trading fees as well as liquidity rebates to ensure that the system not only maximises prediction power but also profitability.
+
 
 \bigskip
 \hrule
@@ -254,7 +262,7 @@ Integer ante. Mauris tincidunt adipiscing mi. Donec sollicitudin, lacus quis pel
 \Head{Discussion and Conclusions}
 
 \sf
-Etiam sit amet nisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Phasellus pharetra lacus. Aliquam erat volutpat. Donec leo. Mauris dapibus, magna sed hendrerit volutpat, massa magna euismod metus, vel gravida purus odio eget neque. Proin nibh turpis, commodo at, viverra sed, auctor vel, turpis. Mauris massa lacus, malesuada at, consectetuer at, condimentum non, nibh. Sed laoreet, lorem non tristique sodales, mauris nisi molestie dolor, ac volutpat nisl augue id nibh. Mauris orci. Donec non lacus. Duis ut arcu. Aliquam sed lacus eget dui sollicitudin pellentesque. Nunc lacus nisi, semper nec, pellentesque non, dapibus sollicitudin, metus. Aenean ac enim et est sollicitudin ultricies. Integer vitae magna vitae velit condimentum dapibus. Aenean nec sem ut massa condimentum faucibus. 
+
 
 Proin dignissim nunc in nulla. Vivamus non leo. Nulla ultrices tempor dui. Curabitur nec metus. Aliquam sed libero. Cras orci odio, molestie a, suscipit in, placerat vel, nunc. Vestibulum congue, nunc in faucibus scelerisque, ante tortor dapibus nibh, eu tristique diam urna ac magna. Proin cursus. Morbi quam ligula, fermentum vel, dapibus sit amet, euismod nec, justo. Suspendisse potenti. Nulla eu elit. Pellentesque quam est, pretium ac, suscipit sed, viverra id, sapien.
 Donec tempor semper tortor. Nunc vulputate. Aliquam vitae metus ut sem euismod accumsan. Duis tincidunt lacus sed ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Quisque nec nisl at erat ornare tempus. Etiam eros odio, ultricies non, hendrerit et, vestibulum in, felis. Vivamus gravida. 
