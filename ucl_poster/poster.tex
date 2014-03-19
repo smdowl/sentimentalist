@@ -95,24 +95,24 @@
 %----------------------------------------------------------------------%
 %           First column.                                              %
 %----------------------------------------------------------------------%
-\begin{textblock}{7}(0,2.4)
+\begin{textblock}{7}(0,2.3)
 \Head{Introduction}
 
 \sf % Selects sans serif family: part of the UCL corporate image!
-Trying to predict the direction of stock markets with a certain degree of confidence has always been the dream of all traders. With the massive increase of available data - financial stocks tick data or social media data (facebook, twitter, etc.) for example - there has been a strong interest in developing mathematical models that leverage those in order to predict and profit from price movements.
+Trying to predict the direction of stock markets with a certain degree of confidence has always been the dream of many people. With the massive increase of available data - financial stocks tick data or social media data (facebook, twitter, etc.) for example - there has been a strong interest in developing mathematical models that leverage those in order to predict and profit from price movements.
 
-A recent and popular model involves estimating the sentiment (i.e. the mood) of a relevant live stream of tweets as a predictor of market changes. One assumption the model makes is that stock prices are led by the behaviour of a large group of people and that this behaviour is correlated to the overall mood of that group of person. Another model would be to just look at tweets and pick out the ones which relate to financial news and try to take a position before the whole market has had time to react to that news event.
+A recent and popular model involves estimating the sentiment (i.e. the mood) of a relevant live stream of tweets as a predictor of market changes. One assumption the model makes is that stock prices are led by the behaviour of a large group of people and that this behaviour is correlated to the overall mood of that group of person.
 
 
 \bigskip
 \hrule
 \end{textblock}
 
-\begin{textblock}{7}(0,5)
+\begin{textblock}{7}(0,4.55)
 \Head{Pipeline}
 \begin{figure*}
 \begin{center}
-\includegraphics[scale=1.2]{Graph_IRDM_pipeline}
+\includegraphics[scale=1.25]{Graph_IRDM_pipeline}
 \end{center}
 \caption{A diagram of our pipeline.}
 \end{figure*}
@@ -121,7 +121,7 @@ A recent and popular model involves estimating the sentiment (i.e. the mood) of 
 \hrule
 \end{textblock}
 
-\begin{textblock}{7}(0,8.8)
+\begin{textblock}{7}(0,8.05)
 \Head{Feature Extraction}
 
 \sf
@@ -140,13 +140,13 @@ The statistics available and the manner in which they are gathered will be a sig
 \begin{itemize}
 \item user average sentiment - to help us reduce bias from general opinion. This could be global or regarding a specific company.
 \item inverse document frequency - to be used with term frequency within tweets to potentially highlight particularly significant phrases
-\item cliques of users (strongly connected groups) - experiment with the effect of an entire connected group having a particular sentiment or sudden change of sentiment
+\item cliques of users (strongly connected groups) - experiment with the effect of an entire connected group having a particular sentiment or sudden change of sentiment.
 \end{itemize}
 
 
 \end{textblock}
 
-\begin{textblock}{7}(8,2.4)
+\begin{textblock}{7}(8,2.2)
 
 \Subhead{Extractor}
 
@@ -206,7 +206,7 @@ The models are:
 %----------------------------------------------------------------------%
 %           Third column.                                              %
 %----------------------------------------------------------------------%
-\begin{textblock}{7}(16,2.4)
+\begin{textblock}{7}(16,2.3)
 
 \Head{Performance Evaluation}
 
