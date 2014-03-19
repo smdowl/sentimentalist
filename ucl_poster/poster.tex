@@ -77,7 +77,7 @@
 
 \title{Sample UCL-styled A0 scientific poster \LaTeX}
 
-\author{Helen Wilson (with credit to Ed Long, CoMPLEX)\\ University College London}
+\author{Shaun Dowling, Alessandro Ialongo, Andrey Levushkin, Matthieu Louis\\ University College London}
 
 \begin{document}
 %----------------------------------------------------------------------%
@@ -154,11 +154,11 @@ Figures (and labels using the \LaTeX\ picture environment) work as you would exp
 \Head{Feature Extraction}
 
 \sf
-The key objective of this project is to use information contain within Twitter posts to predict the mood of the markets towards certain stocks. 
-Tweets contain a great deal of information including, the text itself, linking between users, linking to entities (either explicitly view a tag or plain text), network effect via re-tweets.
+The key objective of this project is to use information contained within Twitter posts to predict the mood of the markets towards certain stocks. 
+Tweets contain a great deal of information, including the text itself, linking between users, linking to entities (either explicitly view a tag or plain text) and network effect via re-tweets.
 
-In their raw form, Tweets are not convinient for inference. As such we will focus a great deal of our time distilling the information contained within the Tweets into a form that we can use easily, ensuring all important aspects of the Tweets are preserved.
-This approach gives a nice layers of abstraction between the Information Retreval and the Machine Learning steps in the pipeline. 
+In their raw form, Tweets are not convenient for inference. As such we will focus a great deal of our time distilling the information contained within the Tweets into a form that we can use easily, ensuring all important aspects of the Tweets are preserved.
+This approach gives a nice layer of abstraction between the Information Retrieval and the Machine Learning steps in the pipeline. 
 We will be gathering these features using two independent MapReduce jobs.
 
 
@@ -166,19 +166,19 @@ We will be gathering these features using two independent MapReduce jobs.
 
 \sf
 Firstly, we will run a global job to gather statistics that depend on the entire dataset (for example tf/idf).
-The statistics available and the manor with which they are gathered will be a significant area of experimentation.
+The statistics available and the mannerr in which they are gathered will be a significant area of experimentation.
 
 Some statistics that we plan to start with are:
 \begin{itemize}
-\item user average sentiment - to help us determine if someone good opinion of an entity is only because they are generally positive. This could be global or regarding a specific company.
+\item user average sentiment - to help us determine if someone's good opinion of an entity is only because they are generally positive. This could be global or regarding a specific company.
 \item inverse document frequency - to be used with term frequency within tweets to potentially highlight particularly significant phrases
 \item cliques of users (strongly connected groups) - experiment with the effect of an entire connected group having a particular sentiment or sudden change of sentiment
 \end{itemize}
 
 \Subhead{Extractor}
 
-Having gathered global statistics, we can perform another map the splits by time segment such that the reducer can then create a full feature vector for each time slice as we see fit.
-Archetecturally, there will be an abstract Extractor component within the reducer that is given the full list of tweets to process.
+Having gathered global statistics, we can split with another map the Tweets by time segment such that the reducer can then create a full feature vector for each time slice as we see fit.
+Architecturally, there will be an abstract Extractor component within the reducer that is given the full list of tweets to process.
 This component will be the central component of change in order to explore different options in feature extraction.
 The Extractor will also have access to whatever global statistics produced previously in order to compute more complex features
 
@@ -199,55 +199,28 @@ Key local features that initially be calculated will be things like
 %----------------------------------------------------------------------%
 %           Second column.                                             %
 %----------------------------------------------------------------------%
-\begin{textblock}{7}(8,2.4)
-\Head{Use of Colour}
-
-\sf
-With the {\tt color} package you can use as much colour as you like: but the \textcolor{Red}{Red} and \textcolor{DarkBlue}{DarkBlue} colours defined here are more useful than the obvious \textcolor{red}{red} and \textcolor{blue}{blue} versions, which tend to seem too bright when printed.
-
-Use spacing as well as colour to highlight a key question or issue: 
-\vspace*{1.15\baselineskip}
-\begin{center}
-\textcolor{Red}{Who will rid me of this turbulent priest?}
-\end{center} 
-\vspace*{1.15\baselineskip}
-Praesent elementum malesuada mauris. Duis aliquet dolor ut nunc. Pellentesque euismod augue a odio. 
-
-\bigskip
-\hrule
-\end{textblock}
 
 \begin{textblock}{7}(8,5.25)
 
-\Head{Equations and Tables}
+\Head{Machine Learning}
 
 \sf
-Of course, the principal reason for choosing \LaTeX\ is its ability with equations:  
-\[ 
-   U_\mathrm{doublet} = \frac{mg}{2\pi\mu a}\left( \int_0^\infty \left\{ 1
-       - \frac{2\sinh^2{s} - 2s^2}{\sinh{2s}+2s}\right\}\,\ds
-   \right)^{-1} \approx \frac{1.55mg}{6\pi\mu a}, \] 
-but it's equally easy to include tables: 
-\begin{center} 
-\begin{tabular}{cccccccccccr}
-\hline
-  && \multicolumn{2}{c}{$U_1$}  && \multicolumn{2}{c}{$U_2$} 
-  && \multicolumn{2}{c}{$U_3$} & $U_3$ \\ 
-$L$ &&    MR   &   SD   &&   MR   &   SD   &&   MR    &   SD & error \\ 
-\hline
-2.01 &&0.65528 &0.64739 &&0.63461 &0.62691 &&0.00498 &0.00451 & 9\%\\ 
-2.10 &&0.73857 &0.73126 &&0.59718 &0.58784 &&0.03517 &0.02570 &27\%\\ 
-2.50 &&0.87765 &0.87482 &&0.49545 &0.48829 &&0.07393 &0.05853 &21\%\\ 
-3.00 &&0.93905 &0.93806 &&0.41694 &0.41356 &&0.07824 &0.06970 &11\%\\ 
-4.00 &&0.97964 &0.97945 &&0.31859 &0.31774 &&0.06925 &0.06639 & 4\%\\ 
-6.00 &&0.99581 &0.99579 &&0.21586 &0.21575 &&0.05078 &0.05019 & 1\%\\ 
-\hline
-\end{tabular} 
-\end{center}
-and, of course, images:
-\begin{center}
-\rotatebox{-90}{\scalebox{2.22}{\includegraphics{fig2.eps}}}
-\end{center}
+The feature extraction process provides the raw material on which to construct models to explain the data and to formulate predictions about stock prices given new Tweets. In our project we will consider three main statistical models to uncover the patterns in the data:
+\begin{itemize}
+\item Linear Regression
+\item Support Vector Machine (SVM)
+\item Gaussian Process
+\end{itemize}
+Each of these models will make use of a portion of the available Twitter data (between 70\% and 90\% of the data, ordered chronologically) in combination with stock price data to extract the optimal parameters (according to a loss function). The parameterised models will then be used to predict the more recent performance of the relevant stocks given the remaining portion of the Twitter data. These predictions will then be evaluated against the real-world performance. 
+
+\Subhead{Linear Regression}
+We will use regularised linear regression with the MSE (mean squared error) loss function (ridge regression) to give us a simple baseline on our predictive performance. With this simple model, we hope to find a linear relation (i.e. linear coefficients) between the features previously extracted and the stock prices. The (Tikhonov) regularisation will be parameterised by a lambda value which will determine the extent to which more complex (larger) coefficients will be penalised in our MSE loss function.
+
+\Subhead{SVM}
+When predicting simple increase or decreases in stock prices (see evaluation), the problem becomes a classification rather than a regression one. Thus we can use a support vector machine (experimenting with possible kernels and respective parameters) to fit a hyperplane in the feature space between the time splits in the Twitter data that corresponded to increases in the relevant stock prices from those that corresponded to decreases. 
+
+\Subhead{Gaussian Process}
+For the regression task we will also attempt to describe the stock market as a Gaussian interaction of multiple samples defined by a suitable (kernel) covariance matrix. Defining this matrix will allows us to model periodicities, and the decay of correlation between adjacent samples. Out of the three, this model is the most elaborate as it allows for the greatest flexibility on the relation between the features and the stock prices. In fact the kernel covariance can encode very complex nonlinear relations between features and data-points.  This requires also a higher degree of cross-validation to select the most effective kernel and its hyperparameters.
 
 \bigskip
 \hrule
