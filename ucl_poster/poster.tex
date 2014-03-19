@@ -12,8 +12,6 @@
 % lots of graphics, because they can take some time to process and
 % display. (\documentclass[a0,draft]{a0poster})
 \usepackage[latin1]{inputenc}
-\usepackage{tikz}
-\usetikzlibrary{shapes,arrows}
 \pagestyle{empty}
 \renewcommand{\d}{\mathrm{d}}
 \newcommand{\sgn}[1]{\mathop{\mathrm{sgn}}#1}
@@ -75,7 +73,7 @@
 }
 \makeatother
 
-\title{Sample UCL-styled A0 scientific poster \LaTeX}
+\title{Information Retrieval and Data Mining - Project 6}
 
 \author{Shaun Dowling, Alessandro Ialongo, Andrey Levushkin, Matthieu Louis\\ University College London}
 
@@ -112,43 +110,17 @@ A recent and popular model involves estimating the sentiment (i.e. the mood) of 
 
 \begin{textblock}{7}(0,4.52)
 
-\Head{First Piece of Content}
+\Head{Pipeline}
 
 \sf 
-It is worth fiddling around a bit with positioning of the text blocks to get the spacing even. I like a vertical gap of about 0.4 ``block units'' between the horizontal bar at the end of one block and the beginning of the next. There are contruction lines at the end of the \TeX\ file to help with this.
+BlaBla
 
-
-
-% Define block styles
-\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
-    text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
-\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
-    text width=5em, text centered, rounded corners, minimum height=4em]
-\tikzstyle{line} = [draw, -latex']
-\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
-    minimum height=2em]
-    
-\begin{tikzpicture}[node distance = 2cm, auto]
-    % Place nodes
-    \node [block] (init) {Tweets};    
-    \node [block, below of=init, left] (feat1) {Feature Extraction};
-    \node [block, below of=init, right] (feat2) {Global Feature Extraction};
-    %\node [block, left of=evaluate, node distance=3cm] (update) {update model};
-    \node [block, below of=feat1, node distance=3cm] (ml) {Machine Learning};
-    \node [block, below of=ml] (eva) {Evaluation};
-    % Draw edges
-    \path [line] (init) -- (feat1);
-    \path [line] (init) -- (feat2);
-    \path [line] (feat1) -- (ml);
-    %\path [line] (feat2) -| node [near start] {yes} (update);
-    \path [line] (feat2) -- (ml);
-    \path [line] (ml) -- (eva);
-    %\path [line,dashed] (expert) -- (init);
-\end{tikzpicture}
-
-
-Figures (and labels using the \LaTeX\ picture environment) work as you would expect. 
-
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=1.5]{Graph_IRDM_pipeline}
+\end{center}
+\caption{A diagram of our pipeline.}
+\end{figure*}
 \bigskip
 \hrule
 \end{textblock}
@@ -217,13 +189,20 @@ The feature extraction process provides the raw material on which to construct m
 Each of these models will make use of a portion of the available Twitter data (between 70\% and 90\% of the data, ordered chronologically) in combination with stock price data to extract the optimal parameters (according to a loss function). The parameterised models will then be used to predict the more recent performance of the relevant stocks given the remaining portion of the Twitter data. These predictions will then be evaluated against the real-world performance. 
 
 \Subhead{Linear Regression}
-We will use regularised linear regression with the MSE (mean squared error) loss function (ridge regression) to give us a simple baseline on our predictive performance. With this simple model, we hope to find a linear relation (i.e. linear coefficients) between the features previously extracted and the stock prices. The (Tikhonov) regularisation will be parameterised by a lambda value which will determine the extent to which more complex (larger) coefficients will be penalised in our MSE loss function.
+\\We will use regularised linear regression with the MSE (mean squared error) loss function (ridge regression) to give us a simple baseline on our predictive performance. With this simple model, we hope to find a linear relation (i.e. linear coefficients) between the features previously extracted and the stock prices. The (Tikhonov) regularisation will be parameterised by a lambda value which will determine the extent to which more complex (larger) coefficients will be penalised in our MSE loss function.
 
 \Subhead{SVM}
-When predicting simple increase or decreases in stock prices (see evaluation), the problem becomes a classification rather than a regression one. Thus we can use a support vector machine (experimenting with possible kernels and respective parameters) to fit a hyperplane in the feature space between the time splits in the Twitter data that corresponded to increases in the relevant stock prices from those that corresponded to decreases. 
+\\When predicting simple increase or decreases in stock prices (see evaluation), the problem becomes a classification rather than a regression one. Thus we can use a support vector machine (experimenting with possible kernels and respective parameters) to fit a hyperplane in the feature space between the time splits in the Twitter data that corresponded to increases in the relevant stock prices from those that corresponded to decreases. 
 
 \Subhead{Gaussian Process}
-For the regression task we will also attempt to describe the stock market as a Gaussian interaction of multiple samples defined by a suitable (kernel) covariance matrix. Defining this matrix will allows us to model periodicities, and the decay of correlation between adjacent samples. Out of the three, this model is the most elaborate as it allows for the greatest flexibility on the relation between the features and the stock prices. In fact the kernel covariance can encode very complex nonlinear relations between features and data-points.  This requires also a higher degree of cross-validation to select the most effective kernel and its hyperparameters.
+\\For the regression task we will also attempt to describe the stock market as a Gaussian interaction of multiple samples defined by a suitable (kernel) covariance matrix. Defining this matrix will allows us to model periodicities, and the decay of correlation between adjacent samples. Out of the three, this model is the most elaborate as it allows for the greatest flexibility on the relation between the features and the stock prices. In fact the kernel covariance can encode very complex nonlinear relations between features and data-points.  This requires also a higher degree of cross-validation to select the most effective kernel and its hyperparameters.
+
+%\begin{figure*}
+%\begin{center}
+%\includegraphics[scale=1.5]{gaussian_processes}
+%\end{center}
+%\caption{An example of a Gaussian Process Model.}
+%\end{figure*}
 
 \bigskip
 \hrule
@@ -243,7 +222,7 @@ To demonstrate the effectiveness of our learning algorithms we proceed by splitt
 
 \begin{figure*}
 \begin{center}
-\includegraphics[scale=0.7]{mse.eps}
+\includegraphics[scale=0.9]{mse.eps}
 
 \end{center}
 \caption{The arrow demonstrates the differences between the predicted price and the actual price in the test set that we hope to minimise.}
