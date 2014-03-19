@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.11.5)  19 MAR 2014 12:36
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.11.5)  19 MAR 2014 14:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -561,12 +561,12 @@ Overfull \hbox (235.58873pt too wide) in paragraph at lines 85--91
 []$ 
  []
 
-<Graph_IRDM_pipeline.jpg, id=5, 550.04697pt x 176.62788pt>
+<Graph_IRDM_pipeline.jpg, id=5, 565.07913pt x 324.20322pt>
 File: Graph_IRDM_pipeline.jpg Graphic file (type jpg)
 
 <use Graph_IRDM_pipeline.jpg>
 Package pdftex.def Info: Graph_IRDM_pipeline.jpg used on input line 120.
-(pdftex.def)             Requested size: 825.06844pt x 264.94116pt.
+(pdftex.def)             Requested size: 791.10538pt x 453.88141pt.
 LaTeX Font Info:    Try loading font information for OMS+phv on input line 148.
 
 
@@ -620,7 +620,7 @@ Here is how much of TeX's memory you used:
 exlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/tex
 live/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texl
 ive/2013/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb>
-Output written on poster.pdf (1 page, 1173838 bytes).
+Output written on poster.pdf (1 page, 2240149 bytes).
 PDF statistics:
  35 PDF objects out of 1000 (max. 8388607)
  24 compressed objects within 1 object stream
