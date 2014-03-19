@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Arch Linux) (format=pdflatex 2013.12.20)  19 MAR 2014 09:39
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Arch Linux) (format=pdflatex 2013.12.20)  19 MAR 2014 10:31
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -622,21 +622,44 @@ File: omsphv.fd
 )
 LaTeX Font Info:    Font shape `OMS/phv/m/n' in size <24.88> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 173.
+Package epstopdf Info: Source file: <mse.eps>
+(epstopdf)                    date: 2014-03-19 18:45:32
+(epstopdf)                    size: 11164 bytes
+(epstopdf)             Output file: <mse-eps-converted-to.pdf>
+(epstopdf)                    date: 2014-03-19 10:30:38
+(epstopdf)                    size: 7866 bytes
+(epstopdf)             Command: <repstopdf --outfile=mse-eps-converted-to.pdf m
+se.eps>
+(epstopdf)             \includegraphics on input line 243.
+runsystem(repstopdf --outfile=mse-eps-converted-to.pdf mse.eps)...executed safe
+ly (allowed).
+
+Package epstopdf Info: Result file: <mse-eps-converted-to.pdf>
+(epstopdf)                    date: 2014-03-19 10:31:26
+(epstopdf)                    size: 7866 bytes.
+
+<mse-eps-converted-to.pdf, id=5, 1104.125pt x 613.29124pt>
+File: mse-eps-converted-to.pdf Graphic file (type pdf)
+
+<use mse-eps-converted-to.pdf>
+Package pdftex.def Info: mse-eps-converted-to.pdf used on input line 243.
+(pdftex.def)             Requested size: 772.88225pt x 429.30093pt.
  [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
 
 Non-PDF special ignored!
-Non-PDF special ignored! <./ucl_bar_black-eps-converted-to.pdf>] (./poster.aux)
+Non-PDF special ignored! <./ucl_bar_black-eps-converted-to.pdf> <./mse-eps-conv
+erted-to.pdf>] (./poster.aux)
 
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 82.12pt have occurred.
 
  ) 
 Here is how much of TeX's memory you used:
- 12749 strings out of 493311
- 258249 string characters out of 6143649
- 348268 words of memory out of 5000000
- 15926 multiletter control sequences out of 15000+600000
+ 12755 strings out of 493311
+ 258377 string characters out of 6143649
+ 347121 words of memory out of 5000000
+ 15931 multiletter control sequences out of 15000+600000
  22482 words of font info for 54 fonts, out of 8000000 for 9000
  957 hyphenation exceptions out of 8191
  56i,9n,56p,674b,669s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -644,10 +667,10 @@ Here is how much of TeX's memory you used:
 ts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-dist/fonts/type1/public
 /amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.
 pfb>
-Output written on poster.pdf (1 page, 42929 bytes).
+Output written on poster.pdf (1 page, 47205 bytes).
 PDF statistics:
- 27 PDF objects out of 1000 (max. 8388607)
- 19 compressed objects within 1 object stream
+ 34 PDF objects out of 1000 (max. 8388607)
+ 24 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 18 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 23 words of extra memory for PDF output out of 10000 (max. 10000000)
 

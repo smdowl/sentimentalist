@@ -233,12 +233,21 @@ For the regression task we will also attempt to describe the stock market as a G
 
 \Head{Performance Evaluation}
 
-\Subhead{ML algorithm perfomance}
+\Subhead{ML algorithm performance}
 
 \sf
-To demonstrate the effectiveness of our learning algorithms we proceed by spiting the data into testing and training sets. Than we predict the future stock price using the training set and compute the mean squared error of the prediction using the test set.
+To demonstrate the effectiveness of our learning algorithms we proceed by splitting the data into testing and training sets. Than we predict the future stock price using the training set and compute the mean squared error of the prediction using the test set. An example of discrepancy between the predicted and actual price that we hope to minimise is shown below.
 
-By carrying out the above procedure with different sets of test and training data we will be able to establish the predictive power of our model as well as determine how far into the future we will be able to make effective predictions.
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.7]{mse.eps}
+
+\end{center}
+\caption{The arrow demonstrates the differences between the predicted price and the actual price in the test set that we hope to minimise.}
+\end{figure*}
+
+
+By carrying out the above procedure with different sets of test and training data we will be able to establish the predictive power of our model as well as determine how far into the future we will be able to make effective predictions. It is expected that the performance of the prediction will deteriorate for predictions further into the future as shown in the figure above.
 
 If the system will be used for training than the complex regression problem can be reduced to a simpler classification problem. Instead of predicting the exact price we will instead classify whether stock is going to go up or down after a specific amount of time. When evaluating this approach we intend to use the number of misclassification as a metric for determining the predictive power of our algorithm.
 
@@ -258,24 +267,19 @@ The simple price model will need be further extended to incorporate stock liquid
 
 
 \begin{textblock}{7}(16,6.85)
+\bigskip
+\bigskip
+\bigskip
+\bigskip
 
-\Head{Discussion and Conclusions}
 
 \sf
 
 
-Proin dignissim nunc in nulla. Vivamus non leo. Nulla ultrices tempor dui. Curabitur nec metus. Aliquam sed libero. Cras orci odio, molestie a, suscipit in, placerat vel, nunc. Vestibulum congue, nunc in faucibus scelerisque, ante tortor dapibus nibh, eu tristique diam urna ac magna. Proin cursus. Morbi quam ligula, fermentum vel, dapibus sit amet, euismod nec, justo. Suspendisse potenti. Nulla eu elit. Pellentesque quam est, pretium ac, suscipit sed, viverra id, sapien.
-Donec tempor semper tortor. Nunc vulputate. Aliquam vitae metus ut sem euismod accumsan. Duis tincidunt lacus sed ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Quisque nec nisl at erat ornare tempus. Etiam eros odio, ultricies non, hendrerit et, vestibulum in, felis. Vivamus gravida. 
-
-\begin{itemize}
-\item First concluding point; we expected this to be so because of the contruction of the argument and blah. 
-\item Second concluding point: this one is counterintuitive but we can justify it by reference to the extended discussion above.
-\item Third and \textcolor{Red}{most important concluding point}: this is the one we're excited about.
-\end{itemize}
 
 \vspace*{4mm} % Sometimes you will have to fudge the final spacing.
 \bigskip
-\hrule
+
 \end{textblock}
 
 %----------------------------------------------------------------------%
