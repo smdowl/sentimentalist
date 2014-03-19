@@ -180,19 +180,15 @@ Key local features that initially be calculated will be things like
 \Head{Machine Learning}
 
 \sf
-The feature extraction process provides the raw material on which to construct models to explain the data and to formulate predictions about stock prices given new Tweets. In our project we will consider three main statistical models to uncover the patterns in the data:
-\begin{itemize}
-\item Linear Regression
-\item Support Vector Machine (SVM)
-\item Gaussian Process
-\end{itemize}
-Each of these models will make use of a portion of the available Twitter data (between 70\% and 90\% of the data, ordered chronologically) in combination with stock price data to extract the optimal parameters (according to a loss function). The parameterised models will then be used to predict the more recent performance of the relevant stocks given the remaining portion of the Twitter data. These predictions will then be evaluated against the real-world performance. 
+The feature extraction process provides the raw material on which to construct models to explain the data and to formulate predictions about stock prices given new Tweets. In our project we will consider three main statistical models to uncover the patterns in the data.
+Each of these models will make use of a portion of the available Twitter data (between 70\% and 90\% of the data, ordered chronologically) in combination with stock prices to extract the optimal parameters (according to a loss function). The parameterised models will then be used to predict the more recent performance of the relevant stocks given the remaining portion of the Twitter data. These predictions will then be evaluated against the real-world performance. 
+The models are:
 
 \Subhead{Linear Regression}
-\\We will use regularised linear regression with the MSE (mean squared error) loss function (ridge regression) to give us a simple baseline on our predictive performance. With this simple model, we hope to find a linear relation (i.e. linear coefficients) between the features previously extracted and the stock prices. The (Tikhonov) regularisation will be parameterised by a lambda value which will determine the extent to which more complex (larger) coefficients will be penalised in our MSE loss function.
+\\We will use regularised linear regression (ridge regression) with the mean squared error loss function to give us a simple baseline on our predictive performance. With this model, we hope to find a linear relation (i.e. linear coefficients) between the features previously extracted and stock prices. The regularisation will be parameterised by a lambda value which will determine the extent to which more complex (larger) coefficients will be penalised in our loss function.
 
-\Subhead{SVM}
-\\When predicting simple increase or decreases in stock prices (see evaluation), the problem becomes a classification rather than a regression one. Thus we can use a support vector machine (experimenting with possible kernels and respective parameters) to fit a hyperplane in the feature space between the time splits in the Twitter data that corresponded to increases in the relevant stock prices from those that corresponded to decreases. 
+\Subhead{Support Vector Machine}
+\\When predicting simple increase or decreases in stock prices (see Evaluation section), the problem becomes a classification rather than a regression one. Thus we can use a support vector machine (experimenting with possible kernels and respective parameters) to fit a hyperplane in the feature space between the time splits in the Twitter data that corresponded to increases in the relevant stock prices from those that corresponded to decreases. 
 
 \Subhead{Gaussian Process}
 \\For the regression task we will also attempt to describe the stock market as a Gaussian interaction of multiple samples defined by a suitable (kernel) covariance matrix. Defining this matrix will allows us to model periodicities, and the decay of correlation between adjacent samples. Out of the three, this model is the most elaborate as it allows for the greatest flexibility on the relation between the features and the stock prices. In fact the kernel covariance can encode very complex nonlinear relations between features and data-points.  This requires also a higher degree of cross-validation to select the most effective kernel and its hyperparameters.

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.11.5)  19 MAR 2014 14:36
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.11.5)  19 MAR 2014 20:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -583,17 +583,17 @@ Package epstopdf Info: Source file: <mse.eps>
 (epstopdf)                    size: 7866 bytes
 (epstopdf)             Command: <repstopdf --outfile=mse-eps-converted-to.pdf m
 se.eps>
-(epstopdf)             \includegraphics on input line 225.
+(epstopdf)             \includegraphics on input line 221.
 Package epstopdf Info: Output file is already uptodate.
 
 <mse-eps-converted-to.pdf, id=6, 1104.125pt x 613.29124pt>
 File: mse-eps-converted-to.pdf Graphic file (type pdf)
 
 <use mse-eps-converted-to.pdf>
-Package pdftex.def Info: mse-eps-converted-to.pdf used on input line 225.
+Package pdftex.def Info: mse-eps-converted-to.pdf used on input line 221.
 (pdftex.def)             Requested size: 993.70334pt x 551.95702pt.
 
-Overfull \hbox (34.05371pt too wide) in paragraph at lines 225--226
+Overfull \hbox (34.05371pt too wide) in paragraph at lines 221--222
  [] 
  []
 
@@ -620,7 +620,7 @@ Here is how much of TeX's memory you used:
 exlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/tex
 live/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texl
 ive/2013/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb>
-Output written on poster.pdf (1 page, 2240149 bytes).
+Output written on poster.pdf (1 page, 2240110 bytes).
 PDF statistics:
  35 PDF objects out of 1000 (max. 8388607)
  24 compressed objects within 1 object stream
