@@ -96,7 +96,7 @@
 %           First column.                                              %
 %----------------------------------------------------------------------%
 \begin{textblock}{7}(0,2.4)
-\Head{Introductory segment}
+\Head{Introduction}
 
 \sf % Selects sans serif family: part of the UCL corporate image!
 Trying to predict the direction of stock markets with a certain degree of confidence has always been the dream of all traders. With the massive increase of available data - financial stocks tick data or social media data (facebook, twitter, etc.) for example - there has been a strong interest in developing mathematical models that leverage those in order to predict and profit from price movements.
@@ -108,50 +108,49 @@ A recent and popular model involves estimating the sentiment (i.e. the mood) of 
 \hrule
 \end{textblock}
 
-\begin{textblock}{7}(0,4.52)
-
+\begin{textblock}{7}(0,5)
 \Head{Pipeline}
-
-\sf 
-BlaBla
-
 \begin{figure*}
 \begin{center}
-\includegraphics[scale=1.4]{Graph_IRDM_pipeline}
+\includegraphics[scale=1.2]{Graph_IRDM_pipeline}
 \end{center}
 \caption{A diagram of our pipeline.}
 \end{figure*}
+
 \bigskip
 \hrule
 \end{textblock}
 
-\begin{textblock}{7}(0,8.20)
+\begin{textblock}{7}(0,8.8)
 \Head{Feature Extraction}
 
 \sf
 The key objective of this project is to use information contained within Twitter posts to predict the mood of the markets towards certain stocks. 
-Tweets contain a great deal of information, including the text itself, linking between users, linking to entities (either explicitly view a tag or plain text) and network effect via re-tweets.
+Tweets contain a great deal of information, links between users, links to entities (either explicitly view a tag or plain text) and network effect via re-tweets.
 
-In their raw form, Tweets are not convenient for inference. As such we will focus a great deal of our time distilling the information contained within the Tweets into a form that we can use easily, ensuring all important aspects of the Tweets are preserved.
+In their raw form, Tweets are not convenient for inference. As such we will focus a great deal of our time distilling the information contained within the Tweets while ensuring all important aspects are preserved.
 This approach gives a nice layer of abstraction between the Information Retrieval and the Machine Learning steps in the pipeline. 
 We will be gathering these features using two independent MapReduce jobs.
-
 
 \Subhead{Global Statistics}
 
 \sf
 Firstly, we will run a global job to gather statistics that depend on the entire dataset (for example tf/idf).
-The statistics available and the mannerr in which they are gathered will be a significant area of experimentation.
-
-Some statistics that we plan to start with are:
+The statistics available and the manner in which they are gathered will be a significant area of experimentation.Some statistics that we plan to start with are:
 \begin{itemize}
-\item user average sentiment - to help us determine if someone's good opinion of an entity is only because they are generally positive. This could be global or regarding a specific company.
+\item user average sentiment - to help us reduce bias from general opinion. This could be global or regarding a specific company.
 \item inverse document frequency - to be used with term frequency within tweets to potentially highlight particularly significant phrases
 \item cliques of users (strongly connected groups) - experiment with the effect of an entire connected group having a particular sentiment or sudden change of sentiment
 \end{itemize}
 
+
+\end{textblock}
+
+\begin{textblock}{7}(8,2.4)
+
 \Subhead{Extractor}
 
+\sf
 Having gathered global statistics, we can split with another map the Tweets by time segment such that the reducer can then create a full feature vector for each time slice as we see fit.
 Architecturally, there will be an abstract Extractor component within the reducer that is given the full list of tweets to process.
 This component will be the central component of change in order to explore different options in feature extraction.
@@ -169,13 +168,13 @@ Key local features that initially be calculated will be things like
 
 \bigskip
 \hrule
-\end{textblock}
+
 
 %----------------------------------------------------------------------%
 %           Second column.                                             %
 %----------------------------------------------------------------------%
 
-\begin{textblock}{7}(8,5.25)
+
 
 \Head{Machine Learning}
 

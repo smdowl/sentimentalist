@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.11.5)  19 MAR 2014 14:36
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2014.3.18)  19 MAR 2014 20:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -525,7 +525,7 @@ LaTeX Warning: File `ucl_bar_black.eps' not found on input line 86.
 
 Package epstopdf Info: Source file: <ucl_bar_black.eps>
 (epstopdf)             Output file: <ucl_bar_black-eps-converted-to.pdf>
-(epstopdf)                    date: 2014-03-18 19:24:21
+(epstopdf)                    date: 2014-03-18 23:40:28
 (epstopdf)                    size: 9189 bytes
 (epstopdf)             Command: <repstopdf --outfile=ucl_bar_black-eps-converte
 d-to.pdf ucl_bar_black.eps>
@@ -561,39 +561,44 @@ Overfull \hbox (235.58873pt too wide) in paragraph at lines 85--91
 []$ 
  []
 
+
+Underfull \hbox (badness 10000) in paragraph at lines 112--114
+
+ []
+
 <Graph_IRDM_pipeline.jpg, id=5, 565.07913pt x 324.20322pt>
 File: Graph_IRDM_pipeline.jpg Graphic file (type jpg)
 
 <use Graph_IRDM_pipeline.jpg>
-Package pdftex.def Info: Graph_IRDM_pipeline.jpg used on input line 120.
-(pdftex.def)             Requested size: 791.10538pt x 453.88141pt.
-LaTeX Font Info:    Try loading font information for OMS+phv on input line 148.
+Package pdftex.def Info: Graph_IRDM_pipeline.jpg used on input line 115.
+(pdftex.def)             Requested size: 678.09155pt x 389.04192pt.
+LaTeX Font Info:    Try loading font information for OMS+phv on input line 141.
 
 
 (/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/omsphv.fd
 File: omsphv.fd 
 )
 LaTeX Font Info:    Font shape `OMS/phv/m/n' in size <24.88> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 148.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 141.
 Package epstopdf Info: Source file: <mse.eps>
-(epstopdf)                    date: 2014-03-19 11:26:18
+(epstopdf)                    date: 2014-03-19 11:56:43
 (epstopdf)                    size: 11164 bytes
 (epstopdf)             Output file: <mse-eps-converted-to.pdf>
-(epstopdf)                    date: 2014-03-19 11:26:18
+(epstopdf)                    date: 2014-03-19 11:56:43
 (epstopdf)                    size: 7866 bytes
 (epstopdf)             Command: <repstopdf --outfile=mse-eps-converted-to.pdf m
 se.eps>
-(epstopdf)             \includegraphics on input line 225.
+(epstopdf)             \includegraphics on input line 224.
 Package epstopdf Info: Output file is already uptodate.
 
 <mse-eps-converted-to.pdf, id=6, 1104.125pt x 613.29124pt>
 File: mse-eps-converted-to.pdf Graphic file (type pdf)
 
 <use mse-eps-converted-to.pdf>
-Package pdftex.def Info: mse-eps-converted-to.pdf used on input line 225.
+Package pdftex.def Info: mse-eps-converted-to.pdf used on input line 224.
 (pdftex.def)             Requested size: 993.70334pt x 551.95702pt.
 
-Overfull \hbox (34.05371pt too wide) in paragraph at lines 225--226
+Overfull \hbox (34.05371pt too wide) in paragraph at lines 224--225
  [] 
  []
 
@@ -620,7 +625,7 @@ Here is how much of TeX's memory you used:
 exlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/tex
 live/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texl
 ive/2013/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb>
-Output written on poster.pdf (1 page, 2240149 bytes).
+Output written on poster.pdf (1 page, 2243096 bytes).
 PDF statistics:
  35 PDF objects out of 1000 (max. 8388607)
  24 compressed objects within 1 object stream
