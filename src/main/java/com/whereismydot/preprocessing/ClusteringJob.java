@@ -41,9 +41,7 @@ public class ClusteringJob extends MapReduceBase implements
                 continue;
             }
 
-            String json = TwitterObjectFactory.getRawJSON(status.tweet);
-
-            out.collect(key, new Text(json));
+            out.collect(key, new Text(status.toString()));
         }
     }
 
