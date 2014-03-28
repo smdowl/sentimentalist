@@ -11,6 +11,7 @@ public class UserFeatures implements FeatureExtractor {
 	@Override
 	public Map<String, Double> extract(List<Status> tweets) {
 		Map <String,Double> features = new HashMap<String, Double>();
+        
 		for (Status tweet : tweets){
 			features.put("user:" + tweet.getUser().getId(), 1.0);
 		}
