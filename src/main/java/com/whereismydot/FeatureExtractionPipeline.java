@@ -78,13 +78,11 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 		        
 					String cleanJson = gson.toJson(elem);
 					tweet = TwitterObjectFactory.createStatus(cleanJson);
-				
-					// Filter out irrelevant tweets
-					for (TweetFilter filter : filters){
-						if (!filter.isRelevant(tweet)){
-							return;
-						}
-					}
+
+                    // Filter out irrelevant tweets
+					if (!isRelevant(tweet))
+                        continue;
+
 					long timeBin   = timeBinner.timeBin(tweet.getCreatedAt());
 					LongWritable t = new LongWritable(timeBin);
 					Text         v = new Text(cleanJson);
@@ -108,6 +106,15 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 			
 		Logger.getLogger(getClass()).error("Done mapping");
 	}
+
+    private boolean isRelevant(Status tweet) {
+        for (TweetFilter filter : filters) {
+            if (!filter.isRelevant(tweet))
+                return false;
+        }
+
+        return true;
+    }
 
 	@Override
 	public void reduce(LongWritable time, Iterator<Text> tweetJsonIter,
