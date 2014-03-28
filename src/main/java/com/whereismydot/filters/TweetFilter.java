@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.whereismydot;
+package com.whereismydot.filters;
 
 import twitter4j.Status;
 

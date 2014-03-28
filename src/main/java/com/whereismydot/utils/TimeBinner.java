@@ -1,4 +1,4 @@
-package com.whereismydot;
+package com.whereismydot.utils;
 
 import java.util.Calendar;
 import java.util.Date;

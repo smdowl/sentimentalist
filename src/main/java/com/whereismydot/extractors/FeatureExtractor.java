@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.whereismydot;
+package com.whereismydot.extractors;
 
 import java.util.List;
 import java.util.Map;

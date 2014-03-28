@@ -6,8 +6,6 @@ import java.util.Map;
 
 import twitter4j.Status;
 
-import com.whereismydot.FeatureExtractor;
-
 public class UserFeatures implements FeatureExtractor {
 
 	@Override
