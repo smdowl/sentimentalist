@@ -13,12 +13,15 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 public class AugStatus {
-    private static JsonParser parser = new JsonParser();
-    private static Gson gson = new Gson();
 
     public Status tweet;
 
     public AugStatus(Reader reader) throws TwitterException {
+
+        // Instantiating these every time may take a while...
+        JsonParser parser = new JsonParser();
+        Gson gson = new Gson();
+
         JsonReader jsonReader = new JsonReader(reader);
 
         JsonElement elem =  parser.parse(jsonReader);
