@@ -121,16 +121,7 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 			OutputCollector<LongWritable, Map<String, Double>> out, Reporter reporter)
 			throws IOException {
 		
-		List<Status> tweets = new ArrayList<Status>();
-		
-		// First parse all the tweets
-		while(tweetJsonIter.hasNext()){
-			try {
-				tweets.add(TwitterObjectFactory.createStatus(tweetJsonIter.next().toString()));
-			} catch (TwitterException e) {
-				error("Failed to parse tweet in the reducer.", e);
-			}
-		}
+		List<Status> tweets = parseTweets(tweetJsonIter);
 		
 		// Now get features out of them
 		Map<String, Double> result = new HashMap<String, Double>();
@@ -140,6 +131,21 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 		
 		out.collect(time, result);
 	}
+
+    private List<Status> parseTweets(Iterator<Text> tweetJsonIter) {
+        List<Status> tweets = new ArrayList<Status>();
+
+        // First parse all the tweets
+        while (tweetJsonIter.hasNext()) {
+            try {
+                tweets.add(TwitterObjectFactory.createStatus(tweetJsonIter.next().toString()));
+            } catch (TwitterException e) {
+                error("Failed to parse tweet in the reducer.", e);
+            }
+        }
+
+        return tweets;
+    }
 
 	private void error(String msg, Exception e){
 		Logger.getLogger(getClass()).error(msg, e);
