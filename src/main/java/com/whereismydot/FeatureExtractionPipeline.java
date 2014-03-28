@@ -8,6 +8,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.whereismydot.extractors.FeatureExtractor;
+import com.whereismydot.filters.TweetFilter;
+import com.whereismydot.utils.TimeBinner;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -31,9 +34,9 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 		Reducer<LongWritable, Text, LongWritable, Map<String, Double>>, 
 		Mapper<LongWritable, Text, LongWritable, Text> {
 
-	private final TweetFilter      filters[]; 
+	private final TweetFilter filters[];
 	private final FeatureExtractor extractors[];
-	private final TimeBinner	   timeBinner;
+	private final TimeBinner timeBinner;
 	
 	/**
 	 * This is the constructor that's called by the Hadoop framework so configure 
