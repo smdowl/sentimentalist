@@ -43,6 +43,15 @@ public class AugStatus {
 
     }
 
+    public AugStatus(String json) throws TwitterException {
+
+        JsonParser parser = new JsonParser();
+        JsonElement elem =  parser.parse(json);
+
+        obj = elem.getAsJsonObject();
+        tweet = TwitterObjectFactory.createStatus(json);
+    }
+
     public String toString() {
         return obj.toString();
     }
