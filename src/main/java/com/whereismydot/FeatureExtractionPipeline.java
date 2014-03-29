@@ -60,51 +60,23 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 			throws IOException {
 		
 
-		// Since the example file has the tweets as JSON objects with no separators
-		// between them I use this the GSON json parser to consume them one at a 
-		// time and than re-serialize and pass them on to twitter4j.
-		JsonReader reader = new JsonReader(new StringReader(value.toString()));
-        reader.setLenient(true);
+        String json = value.toString();
 
-		JsonParser parser = new JsonParser();
-		Gson gson = new Gson();
-		long count = 0;
-		
-		try{
-			while(reader.hasNext()){
-				Status tweet;
-				try {
-					JsonElement elem =  parser.parse(reader);
-		        
-					String cleanJson = gson.toJson(elem);
-					tweet = TwitterObjectFactory.createStatus(cleanJson);
+        Status tweet;
+        try {
+            tweet = TwitterObjectFactory.createStatus(json);
+        } catch (TwitterException e) {
+            error("Failed to parse tweet in mapper.", e);
+            return;
+        }
 
-                    // Filter out irrelevant tweets
-					if (!isRelevant(tweet))
-                        continue;
+        // Filter out irrelevant tweets
+        if (!isRelevant(tweet))
+            return;
 
-					long timeBin   = timeBinner.timeBin(tweet.getCreatedAt());
-					LongWritable t = new LongWritable(timeBin);
-					Text         v = new Text(cleanJson);
-					out.collect(t, v);
-				
-					reporter.progress();
-					count++;
-				
-				} catch (TwitterException e) {
-					error("Failed to parse tweet in mapper.", e);
-				}
-			}
-		} catch(Exception e){
-			if(reader.hasNext()){	
-				String msg = "Failed to parse json -- assuming we have reached "
-						   + "the end of valid input after " + count + " tweets.";
-				
-				error(msg, e);
-			}
-		}
-			
-		Logger.getLogger(getClass()).error("Done mapping");
+        long timeBin   = timeBinner.timeBin(tweet.getCreatedAt());
+        LongWritable t = new LongWritable(timeBin);
+        out.collect(t, value);
 	}
 
     private boolean isRelevant(Status tweet) {
