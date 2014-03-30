@@ -51,6 +51,7 @@ public class UsersJob extends MapReduceBase implements
             Text> out, Reporter reporter) throws IOException {
 
         int count = 0;
+        int retweetCount = 0;
         double aveTweetLength = 0;
 
         Map<String, Integer> hashtags = new HashMap<String, Integer>();
@@ -69,6 +70,8 @@ public class UsersJob extends MapReduceBase implements
             count++;
 
             aveTweetLength += status.tweet.getText().length();
+
+            retweetCount += status.tweet.getFavoriteCount();
 
             for (HashtagEntity hashtag : status.tweet.getHashtagEntities()) {
                 String tag = hashtag.getText();
@@ -99,10 +102,10 @@ public class UsersJob extends MapReduceBase implements
 
         JsonObject output = new JsonObject();
         output.add("count", new JsonPrimitive(count));
+        output.add("retweet_count", new JsonPrimitive(retweetCount));
         output.add("ave_length", new JsonPrimitive(aveTweetLength));
         output.add("hashtags", gson.toJsonTree(hashtags));
         output.add("user_mentions", gson.toJsonTree(userMentions));
-
 
         out.collect(key, new Text(output.toString()));
     }
