@@ -27,14 +27,7 @@ public class UsersStatsJob extends MapReduceBase implements
     public void map(LongWritable key, Text value, OutputCollector<LongWritable, Text> out, Reporter reporter)
             throws IOException {
 
-        AugStatus status;
-
-        try {
-            status = new AugStatus(value.toString());
-        } catch (TwitterException e) {
-            e.printStackTrace();
-            return;
-        }
+        AugStatus status = AugStatus.parseOrNull(value.toString());
 
         User user = status.tweet.getUser();
         LongWritable userId = new LongWritable(user.getId());
@@ -59,21 +52,13 @@ public class UsersStatsJob extends MapReduceBase implements
         Map<Long, Integer> replied = new HashMap<Long, Integer>();
 
         while (values.hasNext()) {
-            AugStatus status;
 
-            try {
-                status = new AugStatus(values.next().toString());
-            } catch (TwitterException e) {
-                e.printStackTrace();
-                continue;
-            }
+            AugStatus status = AugStatus.parseOrNull(values.next().toString());
 
             count++;
 
             aveTweetLength += status.tweet.getText().length();
-
             retweetCount += status.tweet.getRetweetCount();
-
             favouritesCount += status.tweet.getFavoriteCount();
 
             for (HashtagEntity hashtag : status.tweet.getHashtagEntities()) {
