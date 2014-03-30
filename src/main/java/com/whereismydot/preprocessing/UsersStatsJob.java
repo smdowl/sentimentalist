@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class UsersStatusJob extends MapReduceBase implements
+public class UsersStatsJob extends MapReduceBase implements
         Reducer<LongWritable, Text, LongWritable, Text>,
         Mapper<LongWritable, Text, LongWritable, Text> {
 
@@ -117,9 +117,9 @@ public class UsersStatusJob extends MapReduceBase implements
 
     public static void main(String[] args) throws IOException {
 
-        JobConf job = new JobConf(UsersStatusJob.class);
-        job.setMapperClass(UsersStatusJob.class);
-        job.setReducerClass(UsersStatusJob.class);
+        JobConf job = new JobConf(UsersStatsJob.class);
+        job.setMapperClass(UsersStatsJob.class);
+        job.setReducerClass(UsersStatsJob.class);
 
         job.setInputFormat(TextInputFormat.class);
         job.setOutputFormat(TextOutputFormat.class);

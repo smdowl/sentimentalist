@@ -88,6 +88,11 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
         return true;
     }
 
+    /**
+     * Load all tweets into memory, assuming that the number of tweets for a given time slice will
+     * not exceed memory limits. Then, create a full feature vector from all tweets and output the
+     * result/
+     */
 	@Override
 	public void reduce(LongWritable time, Iterator<Text> tweetJsonIter,
 			OutputCollector<LongWritable, Map<String, Double>> out, Reporter reporter)
