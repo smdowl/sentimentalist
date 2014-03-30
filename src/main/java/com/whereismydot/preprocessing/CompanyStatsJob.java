@@ -21,14 +21,7 @@ public class CompanyStatsJob extends MapReduceBase implements
     public void map(LongWritable key, Text value, OutputCollector<Text, Text> out, Reporter reporter)
             throws IOException {
 
-        AugStatus status;
-
-        try {
-            status = new AugStatus(value.toString());
-        } catch (TwitterException e) {
-            e.printStackTrace();
-            return;
-        }
+        AugStatus status = AugStatus.parseOrNull(value.toString());
 
         String companyMention = classifier.getCompanyMentioned(status.tweet);
 
