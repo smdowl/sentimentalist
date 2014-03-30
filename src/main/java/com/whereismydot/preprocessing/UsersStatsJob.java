@@ -3,21 +3,20 @@ package com.whereismydot.preprocessing;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
 import com.whereismydot.dataobjects.AugStatus;
-import com.whereismydot.utils.CountUtils;
+import com.whereismydot.utils.Counter;
+
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
 import twitter4j.HashtagEntity;
-import twitter4j.TwitterException;
 import twitter4j.User;
 import twitter4j.UserMentionEntity;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 public class UsersStatsJob extends MapReduceBase implements
         Reducer<LongWritable, Text, LongWritable, Text>,
@@ -47,9 +46,9 @@ public class UsersStatsJob extends MapReduceBase implements
         int favouritesCount = 0;
         double aveTweetLength = 0;
 
-        Map<String, Integer> hashtags = new HashMap<String, Integer>();
-        Map<Long, Integer> userMentions = new HashMap<Long, Integer>();
-        Map<Long, Integer> replied = new HashMap<Long, Integer>();
+        Counter<String> hashtags = new Counter<String>();
+        Counter<Long> userMentions = new Counter<Long>();
+        Counter<Long> replied = new Counter<Long>();
 
         while (values.hasNext()) {
 
@@ -63,16 +62,16 @@ public class UsersStatsJob extends MapReduceBase implements
 
             for (HashtagEntity hashtag : status.tweet.getHashtagEntities()) {
                 String tag = hashtag.getText();
-                CountUtils.increment(hashtags, tag);
+                hashtags.increment(tag);
             }
 
             for (UserMentionEntity mention : status.tweet.getUserMentionEntities()) {
                 Long userId = mention.getId();
-                CountUtils.increment(userMentions, userId);
+                userMentions.increment(userId);
             }
 
             Long repliedId = status.tweet.getInReplyToUserId();
-            CountUtils.increment(replied, repliedId);
+            replied.increment(repliedId);
         }
 
         // Make sure at least some json was well formed.
@@ -88,8 +87,9 @@ public class UsersStatsJob extends MapReduceBase implements
         output.add("retweet_count", new JsonPrimitive(retweetCount));
         output.add("favourite_count", new JsonPrimitive(favouritesCount));
         output.add("ave_length", new JsonPrimitive(aveTweetLength));
-        output.add("hashtags", gson.toJsonTree(hashtags));
-        output.add("user_mentions", gson.toJsonTree(userMentions));
+        output.add("hashtags", gson.toJsonTree(hashtags.counts));
+        output.add("user_mentions", gson.toJsonTree(userMentions.counts));
+        output.add("replied", gson.toJsonTree(replied.counts));
 
         out.collect(key, new Text(output.toString()));
     }
