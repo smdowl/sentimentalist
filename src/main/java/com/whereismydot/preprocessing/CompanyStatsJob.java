@@ -1,7 +1,11 @@
 package com.whereismydot.preprocessing;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.whereismydot.dataobjects.AugStatus;
 import com.whereismydot.utils.CompanyClassifier;
+import com.whereismydot.utils.Counter;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -9,11 +13,16 @@ import org.apache.hadoop.mapred.*;
 import twitter4j.TwitterException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 public class CompanyStatsJob extends MapReduceBase implements
         Reducer<Text, Text, Text, Text>,
         Mapper<LongWritable, Text, Text, Text> {
+
+    private static int MIN_WORDCOUNT = 2;
 
     private static CompanyClassifier classifier = new CompanyClassifier();
 
@@ -34,22 +43,31 @@ public class CompanyStatsJob extends MapReduceBase implements
             Text> out, Reporter reporter) throws IOException {
 
         Integer count = 0;
+
+        Counter<String> wordCounts = new Counter<String>();
+
         while (values.hasNext()) {
 
-            Text value = values.next();
+            AugStatus status = AugStatus.parseOrNull(values.next().toString());
+
+            StringTokenizer tokenizer = new StringTokenizer(status.tweet.getText());
+
+            while (tokenizer.hasMoreTokens())
+                wordCounts.increment(tokenizer.nextToken());
+
             count++;
 
-//            AugStatus status;
-//
-//            try {
-//                status = new AugStatus(value.toString());
-//            } catch (TwitterException e) {
-//                e.printStackTrace();
-//                continue;
-//            }
         }
 
-        out.collect(key, new Text(count.toString()));
+        wordCounts.filterCounts(MIN_WORDCOUNT);
+
+        Gson gson = new Gson();
+
+        JsonObject output = new JsonObject();
+        output.add("count", new JsonPrimitive(count));
+        output.add("word_counts", gson.toJsonTree(wordCounts.counts));
+
+        out.collect(key, new Text(output.toString()));
     }
 
     public static void main(String[] args) throws IOException {
