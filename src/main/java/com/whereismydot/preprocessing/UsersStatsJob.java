@@ -12,10 +12,12 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
 import twitter4j.HashtagEntity;
+import twitter4j.URLEntity;
 import twitter4j.User;
 import twitter4j.UserMentionEntity;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Iterator;
 
 public class UsersStatsJob extends MapReduceBase implements
@@ -49,6 +51,7 @@ public class UsersStatsJob extends MapReduceBase implements
         Counter<String> hashtags = new Counter<String>();
         Counter<Long> userMentions = new Counter<Long>();
         Counter<Long> repliedTo = new Counter<Long>();
+        Counter<String> urls = new Counter<String>();
 
         while (values.hasNext()) {
 
@@ -70,8 +73,14 @@ public class UsersStatsJob extends MapReduceBase implements
                 userMentions.increment(userId);
             }
 
+            for (URLEntity urlEntity : status.tweet.getURLEntities()) {
+                URL url = new URL(urlEntity.getExpandedURL());
+                urls.increment(url.getHost());
+            }
+
             Long repliedId = status.tweet.getInReplyToUserId();
-            repliedTo.increment(repliedId);
+            if (repliedId > 0)
+                repliedTo.increment(repliedId);
         }
 
         // Make sure at least some json was well formed.
@@ -89,6 +98,7 @@ public class UsersStatsJob extends MapReduceBase implements
         output.add("ave_length", new JsonPrimitive(aveTweetLength));
         output.add("hashtags", gson.toJsonTree(hashtags.counts));
         output.add("user_mentions", gson.toJsonTree(userMentions.counts));
+        output.add("urls_mentions", gson.toJsonTree(urls.counts));
         output.add("replied_to", gson.toJsonTree(repliedTo.counts));
 
         out.collect(key, new Text(output.toString()));
