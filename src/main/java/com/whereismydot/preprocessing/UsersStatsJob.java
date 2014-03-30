@@ -48,7 +48,7 @@ public class UsersStatsJob extends MapReduceBase implements
 
         Counter<String> hashtags = new Counter<String>();
         Counter<Long> userMentions = new Counter<Long>();
-        Counter<Long> replied = new Counter<Long>();
+        Counter<Long> repliedTo = new Counter<Long>();
 
         while (values.hasNext()) {
 
@@ -71,7 +71,7 @@ public class UsersStatsJob extends MapReduceBase implements
             }
 
             Long repliedId = status.tweet.getInReplyToUserId();
-            replied.increment(repliedId);
+            repliedTo.increment(repliedId);
         }
 
         // Make sure at least some json was well formed.
@@ -89,7 +89,7 @@ public class UsersStatsJob extends MapReduceBase implements
         output.add("ave_length", new JsonPrimitive(aveTweetLength));
         output.add("hashtags", gson.toJsonTree(hashtags.counts));
         output.add("user_mentions", gson.toJsonTree(userMentions.counts));
-        output.add("replied", gson.toJsonTree(replied.counts));
+        output.add("replied_to", gson.toJsonTree(repliedTo.counts));
 
         out.collect(key, new Text(output.toString()));
     }
