@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import twitter4j.Status;
+import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterObjectFactory;
 
@@ -13,12 +14,12 @@ import java.io.InputStreamReader;
 
 public class TwitterTest {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         Status tweet = getExampleTweet();
         System.out.println(tweet);
     }
 
-    public static Status getExampleTweet() throws TwitterException {
+    public static Status getExampleTweet() {
         JsonParser parser = new JsonParser();
         Gson gson = new Gson();
 
@@ -28,7 +29,13 @@ public class TwitterTest {
         JsonElement elem =  parser.parse(reader);
         String cleanJson = gson.toJson(elem);
 
-        return TwitterObjectFactory.createStatus(cleanJson);
+        Status status = null;
+        try {
+            status = TwitterObjectFactory.createStatus(cleanJson);
+        } catch (TwitterException e) {
+            e.printStackTrace();
+        }
 
+        return status;
     }
 }
