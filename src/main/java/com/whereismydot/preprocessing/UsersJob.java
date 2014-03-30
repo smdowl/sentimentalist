@@ -56,6 +56,7 @@ public class UsersJob extends MapReduceBase implements
 
         Map<String, Integer> hashtags = new HashMap<String, Integer>();
         Map<Long, Integer> userMentions = new HashMap<Long, Integer>();
+        Map<Long, Integer> replied = new HashMap<Long, Integer>();
 
         while (values.hasNext()) {
             AugStatus status;
@@ -75,21 +76,16 @@ public class UsersJob extends MapReduceBase implements
 
             for (HashtagEntity hashtag : status.tweet.getHashtagEntities()) {
                 String tag = hashtag.getText();
-
-                if (!hashtags.containsKey(tag))
-                    hashtags.put(tag, 0);
-
-                hashtags.put(tag, hashtags.get(tag) + 1);
+                increment(hashtags, tag);
             }
 
             for (UserMentionEntity mention : status.tweet.getUserMentionEntities()) {
                 Long userId = mention.getId();
-
-                if (!userMentions.containsKey(userId))
-                    userMentions.put(userId, 0);
-
-                userMentions.put(userId, userMentions.get(userId) + 1);
+                increment(userMentions, userId);
             }
+
+            Long repliedId = status.tweet.getInReplyToUserId();
+            increment(replied, repliedId);
         }
 
         // Make sure at least some json was well formed.
@@ -108,6 +104,13 @@ public class UsersJob extends MapReduceBase implements
         output.add("user_mentions", gson.toJsonTree(userMentions));
 
         out.collect(key, new Text(output.toString()));
+    }
+
+    private <K> void increment(Map<K, Integer> map, K key) {
+        if (!map.containsKey(key))
+            map.put(key, 0);
+
+        map.put(key, map.get(key) + 1);
     }
 
     public static void main(String[] args) throws IOException {
