@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.whereismydot.dataobjects.AugStatus;
+import com.whereismydot.utils.CountUtils;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -77,16 +78,16 @@ public class UsersStatsJob extends MapReduceBase implements
 
             for (HashtagEntity hashtag : status.tweet.getHashtagEntities()) {
                 String tag = hashtag.getText();
-                increment(hashtags, tag);
+                CountUtils.increment(hashtags, tag);
             }
 
             for (UserMentionEntity mention : status.tweet.getUserMentionEntities()) {
                 Long userId = mention.getId();
-                increment(userMentions, userId);
+                CountUtils.increment(userMentions, userId);
             }
 
             Long repliedId = status.tweet.getInReplyToUserId();
-            increment(replied, repliedId);
+            CountUtils.increment(replied, repliedId);
         }
 
         // Make sure at least some json was well formed.
@@ -106,13 +107,6 @@ public class UsersStatsJob extends MapReduceBase implements
         output.add("user_mentions", gson.toJsonTree(userMentions));
 
         out.collect(key, new Text(output.toString()));
-    }
-
-    private <K> void increment(Map<K, Integer> map, K key) {
-        if (!map.containsKey(key))
-            map.put(key, 0);
-
-        map.put(key, map.get(key) + 1);
     }
 
     public static void main(String[] args) throws IOException {
