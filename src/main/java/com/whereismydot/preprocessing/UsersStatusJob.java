@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.whereismydot.dataobjects.AugStatus;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
@@ -15,12 +14,11 @@ import twitter4j.User;
 import twitter4j.UserMentionEntity;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class UsersJob extends MapReduceBase implements
+public class UsersStatusJob extends MapReduceBase implements
         Reducer<LongWritable, Text, LongWritable, Text>,
         Mapper<LongWritable, Text, LongWritable, Text> {
 
@@ -52,6 +50,7 @@ public class UsersJob extends MapReduceBase implements
 
         int count = 0;
         int retweetCount = 0;
+        int favouritesCount = 0;
         double aveTweetLength = 0;
 
         Map<String, Integer> hashtags = new HashMap<String, Integer>();
@@ -72,7 +71,9 @@ public class UsersJob extends MapReduceBase implements
 
             aveTweetLength += status.tweet.getText().length();
 
-            retweetCount += status.tweet.getFavoriteCount();
+            retweetCount += status.tweet.getRetweetCount();
+
+            favouritesCount += status.tweet.getFavoriteCount();
 
             for (HashtagEntity hashtag : status.tweet.getHashtagEntities()) {
                 String tag = hashtag.getText();
@@ -99,6 +100,7 @@ public class UsersJob extends MapReduceBase implements
         JsonObject output = new JsonObject();
         output.add("count", new JsonPrimitive(count));
         output.add("retweet_count", new JsonPrimitive(retweetCount));
+        output.add("favourite_count", new JsonPrimitive(favouritesCount));
         output.add("ave_length", new JsonPrimitive(aveTweetLength));
         output.add("hashtags", gson.toJsonTree(hashtags));
         output.add("user_mentions", gson.toJsonTree(userMentions));
@@ -115,9 +117,9 @@ public class UsersJob extends MapReduceBase implements
 
     public static void main(String[] args) throws IOException {
 
-        JobConf job = new JobConf(UsersJob.class);
-        job.setMapperClass(UsersJob.class);
-        job.setReducerClass(UsersJob.class);
+        JobConf job = new JobConf(UsersStatusJob.class);
+        job.setMapperClass(UsersStatusJob.class);
+        job.setReducerClass(UsersStatusJob.class);
 
         job.setInputFormat(TextInputFormat.class);
         job.setOutputFormat(TextOutputFormat.class);
