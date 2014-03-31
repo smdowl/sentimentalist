@@ -14,6 +14,7 @@ import java.util.Properties;
 
 public class SentimentAnalyser {
 
+    // OK seems to return 2
     private static int INDIFFERENT_SENTIMENT = 2;
 
     public static int getSentiment(String text) {
@@ -48,7 +49,6 @@ public class SentimentAnalyser {
 
         System.setErr(err);
 
-        // OK seems to return 2 so reset this to 0
         mainSentiment -= INDIFFERENT_SENTIMENT;
 
         return mainSentiment;
@@ -57,10 +57,11 @@ public class SentimentAnalyser {
     public static void main(String[] args) {
 
         String[] sentences = {
-                "today is absolutely wonderfully beautiful",
-                "today is very nice",
-                "today is ok",
-                "today is a horrible day"
+                "absolutely wonderfully fantastic",
+                "very nice",
+                "ok",
+                "pretty bad",
+                "disgusting, terrible and awful"
         };
 
         for (String s : sentences)
