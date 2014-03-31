@@ -6,6 +6,7 @@ import com.google.gson.JsonPrimitive;
 import com.whereismydot.dataobjects.AugStatus;
 import com.whereismydot.utils.CompanyClassifier;
 import com.whereismydot.utils.Counter;
+import com.whereismydot.utils.SentimentAnalyser;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -42,9 +43,10 @@ public class CompanyStatsJob extends MapReduceBase implements
     public void reduce(Text key, Iterator<Text> values, OutputCollector<Text,
             Text> out, Reporter reporter) throws IOException {
 
-        Integer count = 0;
+        double count = 0.0;
 
         Counter<String> wordCounts = new Counter<String>();
+        int sentiment = 0;
 
         while (values.hasNext()) {
 
@@ -54,6 +56,8 @@ public class CompanyStatsJob extends MapReduceBase implements
 
             while (tokenizer.hasMoreTokens())
                 wordCounts.increment(tokenizer.nextToken());
+
+            sentiment += SentimentAnalyser.getSentiment(status.tweet.getText());
 
             count++;
 
@@ -65,6 +69,7 @@ public class CompanyStatsJob extends MapReduceBase implements
 
         JsonObject output = new JsonObject();
         output.add("count", new JsonPrimitive(count));
+        output.add("ave_sentiment", new JsonPrimitive(sentiment / count));
         output.add("word_counts", gson.toJsonTree(wordCounts.counts));
 
         out.collect(key, new Text(output.toString()));
