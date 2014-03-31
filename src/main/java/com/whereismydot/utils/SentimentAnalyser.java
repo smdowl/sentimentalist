@@ -14,6 +14,8 @@ import java.util.Properties;
 
 public class SentimentAnalyser {
 
+    private static int INDIFFERENT_SENTIMENT = 2;
+
     public static int getSentiment(String text) {
         Properties properties = new Properties();
         properties.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
@@ -27,7 +29,6 @@ public class SentimentAnalyser {
         StanfordCoreNLP pipeline = new StanfordCoreNLP(properties);
 
         int mainSentiment = 0;
-
 
         if (text != null && text.length() > 0) {
             int longest = 0;
@@ -46,6 +47,9 @@ public class SentimentAnalyser {
         }
 
         System.setErr(err);
+
+        // OK seems to return 2 so reset this to 0
+        mainSentiment -= INDIFFERENT_SENTIMENT;
 
         return mainSentiment;
     }
