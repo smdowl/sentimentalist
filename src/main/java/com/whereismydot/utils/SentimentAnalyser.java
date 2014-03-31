@@ -14,8 +14,8 @@ import java.util.Properties;
 
 public class SentimentAnalyser {
 
-    // OK seems to return 2
-    private static int INDIFFERENT_SENTIMENT = 2;
+    // OK seems to return 2 but then from experimentation the most common is 1
+    private static int INDIFFERENT_SENTIMENT = 1;
 
     public static int getSentiment(String text) {
         Properties properties = new Properties();
