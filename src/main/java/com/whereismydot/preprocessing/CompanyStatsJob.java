@@ -11,6 +11,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
+import twitter4j.HashtagEntity;
 import twitter4j.TwitterException;
 
 import java.io.IOException;
@@ -45,12 +46,18 @@ public class CompanyStatsJob extends MapReduceBase implements
 
         double count = 0.0;
 
+        Counter<String> hashtags = new Counter<String>();
         Counter<String> wordCounts = new Counter<String>();
         int sentiment = 0;
 
         while (values.hasNext()) {
 
             AugStatus status = AugStatus.parseOrNull(values.next().toString());
+
+            for (HashtagEntity hashtag : status.tweet.getHashtagEntities()) {
+                String tag = hashtag.getText();
+                hashtags.increment(tag);
+            }
 
             StringTokenizer tokenizer = new StringTokenizer(status.tweet.getText());
 
@@ -63,14 +70,18 @@ public class CompanyStatsJob extends MapReduceBase implements
 
         }
 
+        if (count == 0)
+            return;
+
         wordCounts.filterCounts(MIN_WORDCOUNT);
 
         Gson gson = new Gson();
 
         JsonObject output = new JsonObject();
         output.add("count", new JsonPrimitive(count));
+        output.add("hashtags", gson.toJsonTree(hashtags.counts));
         output.add("ave_sentiment", new JsonPrimitive(sentiment / count));
-        output.add("word_counts", gson.toJsonTree(wordCounts.counts));
+//        output.add("word_counts", gson.toJsonTree(wordCounts.counts));
 
         out.collect(key, new Text(output.toString()));
     }
