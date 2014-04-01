@@ -1,4 +1,9 @@
-.idea/**
 target/
 .DS_STORE
+
+# Generated job scripts
+src/main/jobflows/**
+
+# idea project file
+.idea/**
 *.iml
