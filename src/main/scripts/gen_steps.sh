@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # gen_steps.sh
 # Create the json file that is requried for elastic-mapreduce to run. 
 # You pass what you would like to call the job and the path of the main class
