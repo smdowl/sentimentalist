@@ -19,12 +19,12 @@ echo "[
          \"ActionOnFailure\": \"CONTINUE\", 
          \"HadoopJarStep\": 
          { 
-            \"MainClass\": \"com.whereismydot.$mainclass\", 
-            \"Jar\": \"s3://sentimentalist/jars/$USER/Sentimentalist-1.0-SNAPSHOT.jar\", 
+            \"MainClass\": \"com.whereismydot.$mainclass\",
+            \"Jar\": \"s3://sentimentalist/jars/$USER/Sentimentalist-1.0-SNAPSHOT.jar\",
             \"Args\": 
             [ 
                \"s3://sentimentalist/test-data/mini_1.json\", 
-               \"s3://sentimentalist/output/$USER/test\"
+               \"s3://sentimentalist/output/$USER/$jobname\"
             ] 
          } 
       } 

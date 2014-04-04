@@ -11,4 +11,6 @@ mainclass=$2
 
 sh src/main/scripts/gen_steps.sh $jobname $mainclass
 
-elastic-mapreduce --create --name $jobname --log-uri s3://sentimentalist/logs/$USER --json src/main/jobflows/$jobname.json --bootstrap-action s3://sentimentalist/setup/setup-node.sh --bootstrap-name add-libs
+elastic-mapreduce --create --name $jobname --log-uri s3://sentimentalist/logs/$USER --json src/main/jobflows/$jobname.json \
+--bootstrap-action s3://elasticmapreduce/bootstrap-actions/configure-hadoop --bootstrap-name hadoop-conf --args "-m,fs.s3.canned.acl=PublicRead" \
+--bootstrap-action s3://sentimentalist/setup/setup-node.sh --bootstrap-name add-libs
