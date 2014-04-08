@@ -12,25 +12,21 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class UserPageRankJob extends MapReduceBase implements
-        Mapper<LongWritable, Text, Text, Text>,
+        Mapper<Text, Text, Text, Text>,
         Reducer<Text, Text, Text, Text> {
 
     private Gson gson = new Gson();
 
     @Override
-    public void map(LongWritable key, Text value, OutputCollector<Text, Text> out, Reporter reporter)
+    public void map(Text userId, Text value, OutputCollector<Text, Text> out, Reporter reporter)
             throws IOException {
 
-        String[] comps = value.toString().split("\t");
-        String userId = comps[0];
-        String json = comps[1];
-
         List<String> adjacencyList = new LinkedList<>();
-        adjacencyList = (List<String>) gson.fromJson(json, adjacencyList.getClass());
+        adjacencyList = (List<String>) gson.fromJson(value.toString(), adjacencyList.getClass());
 
         Double p = 1.0 / adjacencyList.size();
 
-        out.collect(new Text(userId), new Text(json));
+        out.collect(userId, value);
 
         for (String otherId : adjacencyList) {
             out.collect(new Text(otherId), new Text(p.toString()));
@@ -43,6 +39,7 @@ public class UserPageRankJob extends MapReduceBase implements
 
         while (values.hasNext())
             out.collect(key, values.next());
+
     }
 
     public static void main(String[] args) throws IOException {
@@ -54,7 +51,7 @@ public class UserPageRankJob extends MapReduceBase implements
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(Text.class);
 
-        job.setInputFormat(TextInputFormat.class);
+        job.setInputFormat(KeyValueTextInputFormat.class);
         job.setOutputFormat(TextOutputFormat.class);
 
         FileInputFormat.setInputPaths(job, new Path(args[0]));
