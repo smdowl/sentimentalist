@@ -18,11 +18,11 @@ import java.util.*;
  * i.e. user A follows user B and C => A: [B, C]
  */
 public class UserGraphJob extends MapReduceBase implements
-        Mapper<LongWritable, Text, LongWritable, LongWritable>,
-        Reducer<LongWritable, LongWritable, LongWritable, Text> {
+        Mapper<LongWritable, Text, Text, Text>,
+        Reducer<Text, Text, Text, Text> {
 
     @Override
-    public void map(LongWritable key, Text value, OutputCollector<LongWritable, LongWritable> out, Reporter reporter)
+    public void map(LongWritable key, Text value, OutputCollector<Text, Text> out, Reporter reporter)
             throws IOException {
         Status status = TwitterParser.parseOrNull(value.toString());
 
@@ -32,23 +32,23 @@ public class UserGraphJob extends MapReduceBase implements
             return;
 
         User user = status.getUser();
-        LongWritable userId = new LongWritable(user.getId());
+        Text userId = new Text("" + user.getId());
 
-        out.collect(userId, new LongWritable(retweetFrom.getUser().getId()));
+        out.collect(userId, new Text("" + retweetFrom.getUser().getId()));
     }
 
     /**
      * Take all followed users and output a map of transition (or retweet) probabilities for this user
      */
     @Override
-    public void reduce(LongWritable userId, Iterator<LongWritable> followIds, OutputCollector<LongWritable, Text> out,
+    public void reduce(Text userId, Iterator<Text> followIds, OutputCollector<Text, Text> out,
                        Reporter reporter) throws IOException {
 
-        Set<Long> adjacencyList = new HashSet<>();
+        Set<String> adjacencyList = new HashSet<>();
 
         while (followIds.hasNext()) {
-            LongWritable followId = followIds.next();
-            adjacencyList.add(followId.get());
+            Text followId = followIds.next();
+            adjacencyList.add(followId.toString());
         }
 
         Gson gson = new Gson();
@@ -63,8 +63,9 @@ public class UserGraphJob extends MapReduceBase implements
         job.setMapperClass(UserGraphJob.class);
         job.setReducerClass(UserGraphJob.class);
 
-        job.setMapOutputKeyClass(LongWritable.class);
-        job.setMapOutputValueClass(LongWritable.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(Text.class);
+
         job.setInputFormat(TextInputFormat.class);
         job.setOutputFormat(TextOutputFormat.class);
 
