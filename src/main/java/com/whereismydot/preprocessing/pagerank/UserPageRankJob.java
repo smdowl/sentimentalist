@@ -35,7 +35,7 @@ public class UserPageRankJob extends MapReduceBase implements
 
         Double p = 1.0 / adjacenyList.size();
 
-        out.collect(new LongWritable(userId), value);
+        out.collect(new LongWritable(userId), new Text(json));
 
         for (Long otherId : adjacenyList) {
             out.collect(new LongWritable(otherId), new Text(p.toString()));
