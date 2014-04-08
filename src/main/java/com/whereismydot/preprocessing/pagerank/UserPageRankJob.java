@@ -2,14 +2,11 @@ package com.whereismydot.preprocessing.pagerank;
 
 import com.google.gson.Gson;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class UserPageRankJob extends MapReduceBase implements
         Mapper<Text, Text, Text, Text>,
@@ -21,9 +18,10 @@ public class UserPageRankJob extends MapReduceBase implements
     public void map(Text userId, Text value, OutputCollector<Text, Text> out, Reporter reporter)
             throws IOException {
 
-        List<String> adjacencyList = new LinkedList<>();
-        adjacencyList = (List<String>) gson.fromJson(value.toString(), adjacencyList.getClass());
+        HashMap<String, Object> node = new HashMap<>();
+        node = gson.fromJson(value.toString(), node.getClass());
 
+        List<String> adjacencyList = (List<String>) node.get("adjacency");
         Double p = 1.0 / adjacencyList.size();
 
         out.collect(userId, value);

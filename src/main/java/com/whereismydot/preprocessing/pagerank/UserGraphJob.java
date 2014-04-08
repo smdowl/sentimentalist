@@ -34,7 +34,8 @@ public class UserGraphJob extends MapReduceBase implements
         User user = status.getUser();
         Text userId = new Text("" + user.getId());
 
-        out.collect(userId, new Text("" + retweetFrom.getUser().getId()));
+        String retweetIdString = String.valueOf(retweetFrom.getUser().getId());
+        out.collect(userId, new Text(retweetIdString));
     }
 
     /**
@@ -51,8 +52,12 @@ public class UserGraphJob extends MapReduceBase implements
             adjacencyList.add(followId.toString());
         }
 
+        Map<String, Object> output = new HashMap<>();
+        output.put("page_rank", 0.0);
+        output.put("adjacency", adjacencyList);
+
         Gson gson = new Gson();
-        String json = gson.toJson(adjacencyList);
+        String json = gson.toJson(output);
 
         out.collect(userId, new Text(json));
     }
