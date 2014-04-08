@@ -1,9 +1,6 @@
 package com.whereismydot.preprocessing.pagerank;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import com.whereismydot.utils.TwitterParser;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -77,8 +74,8 @@ public class UserGraphJob extends MapReduceBase implements
         job.setInputFormat(TextInputFormat.class);
         job.setOutputFormat(TextOutputFormat.class);
 
-        FileInputFormat.setInputPaths(job, new Path("/Users/shaundowling/Google Drive/UCL/IRDM/groupcw/example/slice.json"));
-        FileOutputFormat.setOutputPath(job, new Path("/Users/shaundowling/Google Drive/UCL/IRDM/groupcw/example/graph"));
+        FileInputFormat.setInputPaths(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         JobClient.runJob(job);
     }
