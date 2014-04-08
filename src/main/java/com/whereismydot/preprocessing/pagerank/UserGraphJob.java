@@ -51,14 +51,8 @@ public class UserGraphJob extends MapReduceBase implements
             adjacencyList.add(followId.get());
         }
 
-        Map<Long, Double> transitions = new HashMap<>();
-        for (Long id : adjacencyList) {
-            double transitionProb = 1.0/adjacencyList.size();
-            transitions.put(id, transitionProb);
-        }
-
         Gson gson = new Gson();
-        String json = gson.toJson(transitions);
+        String json = gson.toJson(adjacencyList);
 
         out.collect(userId, new Text(json));
     }
