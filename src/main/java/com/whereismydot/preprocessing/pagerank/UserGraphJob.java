@@ -40,19 +40,28 @@ public class UserGraphJob extends MapReduceBase implements
         out.collect(userId, new LongWritable(retweetFrom.getUser().getId()));
     }
 
+    /**
+     * Take all followed users and output a map of transition (or retweet) probabilities for this user
+     */
     @Override
     public void reduce(LongWritable userId, Iterator<LongWritable> followIds, OutputCollector<LongWritable, Text> out,
                        Reporter reporter) throws IOException {
 
-        List<Long> adjacencyList = new LinkedList<Long>();
+        Set<Long> adjacencyList = new HashSet<>();
 
         while (followIds.hasNext()) {
             LongWritable followId = followIds.next();
             adjacencyList.add(followId.get());
         }
 
+        Map<Long, Double> transitions = new HashMap<>();
+        for (Long id : adjacencyList) {
+            double transitionProb = 1.0/adjacencyList.size();
+            transitions.put(id, transitionProb);
+        }
+
         Gson gson = new Gson();
-        String json = gson.toJson(adjacencyList);
+        String json = gson.toJson(transitions);
 
         out.collect(userId, new Text(json));
     }
