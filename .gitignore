@@ -7,3 +7,4 @@ src/main/jobflows/**
 # idea project file
 .idea/**
 *.iml
+classes/**
