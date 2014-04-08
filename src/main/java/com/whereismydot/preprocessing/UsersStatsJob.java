@@ -4,17 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import com.whereismydot.dataobjects.AugStatus;
 import com.whereismydot.utils.Counter;
 
+import com.whereismydot.utils.TwitterParser;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
-import twitter4j.HashtagEntity;
-import twitter4j.URLEntity;
-import twitter4j.User;
-import twitter4j.UserMentionEntity;
+import twitter4j.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -28,9 +25,9 @@ public class UsersStatsJob extends MapReduceBase implements
     public void map(LongWritable key, Text value, OutputCollector<LongWritable, Text> out, Reporter reporter)
             throws IOException {
 
-        AugStatus status = AugStatus.parseOrNull(value.toString());
+        Status status = TwitterParser.parseOrNull(value.toString());
 
-        User user = status.tweet.getUser();
+        User user = status.getUser();
         LongWritable userId = new LongWritable(user.getId());
 
         out.collect(userId, value);
@@ -55,30 +52,30 @@ public class UsersStatsJob extends MapReduceBase implements
 
         while (values.hasNext()) {
 
-            AugStatus status = AugStatus.parseOrNull(values.next().toString());
+            Status status = TwitterParser.parseOrNull(values.next().toString());
 
             count++;
 
-            aveTweetLength += status.tweet.getText().length();
-            retweetCount += status.tweet.getRetweetCount();
-            favouritesCount += status.tweet.getFavoriteCount();
+            aveTweetLength += status.getText().length();
+            retweetCount += status.getRetweetCount();
+            favouritesCount += status.getFavoriteCount();
 
-            for (HashtagEntity hashtag : status.tweet.getHashtagEntities()) {
+            for (HashtagEntity hashtag : status.getHashtagEntities()) {
                 String tag = hashtag.getText();
                 hashtags.increment(tag);
             }
 
-            for (UserMentionEntity mention : status.tweet.getUserMentionEntities()) {
+            for (UserMentionEntity mention : status.getUserMentionEntities()) {
                 Long userId = mention.getId();
                 userMentions.increment(userId);
             }
 
-            for (URLEntity urlEntity : status.tweet.getURLEntities()) {
+            for (URLEntity urlEntity : status.getURLEntities()) {
                 URL url = new URL(urlEntity.getExpandedURL());
                 urls.increment(url.getHost());
             }
 
-            Long repliedId = status.tweet.getInReplyToUserId();
+            Long repliedId = status.getInReplyToUserId();
             if (repliedId > 0)
                 repliedTo.increment(repliedId);
         }

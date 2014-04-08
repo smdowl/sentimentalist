@@ -1,6 +1,7 @@
 package experimentation;
 
-import com.whereismydot.dataobjects.AugStatus;
+import com.whereismydot.utils.TwitterParser;
+import twitter4j.Status;
 import twitter4j.TwitterException;
 
 import java.io.BufferedReader;
@@ -17,7 +18,7 @@ public class MiniDataTest {
         String line;
         while ((line = br.readLine()) != null) {
 
-            AugStatus status = new AugStatus(line);
+            Status status = TwitterParser.parseOrNull(line);
             System.out.println(status);
 
         }

@@ -2,13 +2,14 @@ package com.whereismydot.preprocessing;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.whereismydot.dataobjects.AugStatus;
 import com.whereismydot.utils.SentimentAnalyser;
+import com.whereismydot.utils.TwitterParser;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
 import twitter4j.HashtagEntity;
+import twitter4j.Status;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -21,9 +22,9 @@ public class HashtagStatsJob extends MapReduceBase implements
     public void map(LongWritable key, Text value, OutputCollector<Text, Text> out, Reporter reporter)
             throws IOException {
 
-        AugStatus status = AugStatus.parseOrNull(value.toString());
+        Status status = TwitterParser.parseOrNull(value.toString());
 
-        for (HashtagEntity hashtag : status.tweet.getHashtagEntities()) {
+        for (HashtagEntity hashtag : status.getHashtagEntities()) {
             String tag = hashtag.getText();
             out.collect(new Text(tag), value);
         }
@@ -38,9 +39,9 @@ public class HashtagStatsJob extends MapReduceBase implements
 
         while (values.hasNext()) {
 
-            AugStatus status = AugStatus.parseOrNull(values.next().toString());
+            Status status = TwitterParser.parseOrNull(values.next().toString());
 
-            sentiment += SentimentAnalyser.getSentiment(status.tweet.getText());
+            sentiment += SentimentAnalyser.getSentiment(status.getText());
 
             count++;
 
