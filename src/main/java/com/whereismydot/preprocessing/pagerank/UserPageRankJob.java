@@ -43,7 +43,12 @@ public class UserPageRankJob extends MapReduceBase implements
             if (isNode(next))
                 node = parseNode(next);
             else
-                sum += getPageRank(node);
+                sum += Double.parseDouble(next);
+        }
+
+        if (node == null) {
+            node = new HashMap<>();
+            node.put("adjacency", new LinkedList<String>());
         }
 
         node.put("page_rank", sum);
@@ -57,7 +62,7 @@ public class UserPageRankJob extends MapReduceBase implements
         try {
             double num = Double.parseDouble(json);
         } catch (Exception e) {
-            isNode = false;
+            isNode = true;
         }
 
         return isNode;
@@ -67,10 +72,6 @@ public class UserPageRankJob extends MapReduceBase implements
         HashMap<String, Object> node = new HashMap<>();
         node = gson.fromJson(json, node.getClass());
         return node;
-    }
-
-    private double getPageRank(Map<String, Object> node) {
-        return (double) node.get("page_rank");
     }
 
     public static void main(String[] args) throws IOException {
