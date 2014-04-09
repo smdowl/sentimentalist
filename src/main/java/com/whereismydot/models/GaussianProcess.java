@@ -5,49 +5,59 @@ import java.util.List;
 import Jama.Matrix;
 
 public class GaussianProcess<T> implements Model<T, Double>{
-	public interface BasisFunction<T>{
-		
-		public int size();
-		
-		public Matrix apply(T features);
-		 
-	}
 
-	private final BasisFunction basis;
-	private final double 	    sigma2;
-	private  	  Matrix        Cinv;        
+	private final Kernel<T> kernel;
+	private final double 	sigma2;
+	private final double    beta;
+
+	private Matrix  Cinv;        
+	private List<T> trainingX;
+	private Matrix  trainingY; 
 	
-	public GaussianProcess(BasisFunction basis, double sigma2){
-		this.basis  = basis;
-		this.sigma2 = sigma2; 
+	public GaussianProcess(Kernel<T> kernel, double sigma2){
+		this.kernel = kernel;
+		this.sigma2 = sigma2;
+		this.beta   = 0.5;
 	}
 	
 
 	@Override
 	public void train(List<T> x, List<Double> y) {
 		
-		Matrix R = new Matrix(basis.size(), x.size());
 		
-		int i = 0;
-		for(T features : x){
-			R.setMatrix(i, i, 0, basis.size(),basis.apply(features));
-			i++;
+		this.trainingX = x;
+		this.trainingY = new Matrix(y.size(), 1);
+		
+		for(int i = 0; i < y.size(); i++){
+			trainingY.set(i, 0, y.get(i));
 		}
 		
-		Matrix Q = R.times(R.transpose()).times(sigma2);
+		Matrix C = new Matrix(x.size(), x.size());
 		
-		Matrix C = Q.plus(Matrix.identity(Q.getRowDimension(), Q.getColumnDimension()).times(sigma2));
+		for(int i = 0; i < x.size(); i++){
+			for(int j = 0; j < x.size(); j ++){
+				C.set(i, j, kernel.apply(x.get(i), x.get(j)));
+			}
+		}
+		
+		for(int i = 0; i < x.size(); i++){
+			C.set(i, i, C.get(i,i) + beta);
+		}
 		
 		Cinv = C.inverse();
-		// TODO 
-		
 	}
 
 	@Override
 	public Double predict(T x) {
-		// TODO Auto-generated method stub
-		return null;
+		Matrix k = new Matrix(Cinv.getRowDimension(), 1);
+		
+		for(int i = 0; i < trainingX.size(); i++){
+			k.set(i, 0, kernel.apply(trainingX.get(i), x));
+		}
+		
+		Matrix mean = k.times(Cinv).times(trainingY);
+		
+		return mean.get(0, 0);
 	}
-	
 	 
 }
