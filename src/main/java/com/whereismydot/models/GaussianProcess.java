@@ -7,7 +7,6 @@ import Jama.Matrix;
 public class GaussianProcess<T> implements Model<T, Double>{
 
 	private final Kernel<T> kernel;
-	private final double 	sigma2;
 	private final double    beta;
 
 	private Matrix  Cinv;        
@@ -16,7 +15,6 @@ public class GaussianProcess<T> implements Model<T, Double>{
 	
 	public GaussianProcess(Kernel<T> kernel, double sigma2){
 		this.kernel = kernel;
-		this.sigma2 = sigma2;
 		this.beta   = 0.5;
 	}
 	
@@ -55,7 +53,7 @@ public class GaussianProcess<T> implements Model<T, Double>{
 			k.set(i, 0, kernel.apply(trainingX.get(i), x));
 		}
 		
-		Matrix mean = k.times(Cinv).times(trainingY);
+		Matrix mean = k.transpose().times(Cinv).times(trainingY);
 		
 		return mean.get(0, 0);
 	}

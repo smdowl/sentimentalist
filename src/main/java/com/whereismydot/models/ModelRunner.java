@@ -1,19 +1,53 @@
 package com.whereismydot.models;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+
+import org.apache.commons.lang.CharSet;
+import org.apache.tools.ant.taskdefs.PathConvert.MapEntry;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
+import edu.stanford.nlp.classify.LinearClassifier;
 
 public class ModelRunner implements Runnable{
 
-	private final Map<String, Double> features;
+	private final List<Map<String, Double>> features;
 	private final List<List<Double>>  prices;
-
-
+	
+	private final int foldSize;
+	private final int foldCount;
+	
 	private final List<Model<Map<String, Double>, Double>>  regressionModels;
 	private final List<Model<Map<String, Double>, Boolean>> classificationModels;
 
+	public static class Fold{
+		public final List<Double> prices;
+		public final List<Map<String, Double>> features;
+		public final Map<String, Double> x; 
+		public final Double y;
+		
+		public Fold(List<Map<String, Double>> features, List<Double> prices, 
+				Map<String, Double> x, Double y){
+			this.features = features;
+			this.prices   = prices;
+			this.x 		  = x;
+			this.y 	      = y;
+		}
+	}
+	
 	public static void main(String[] args) {
 		
 		if(args.length < 2){
@@ -23,7 +57,7 @@ public class ModelRunner implements Runnable{
 		}
 		
 		// Load all the data
-		Map<String, Double> features;
+		List<Map<String, Double>> features;
 		List<List<Double>>  prices;
 		try{ 
 			features = readFeatureVectors(args[0]);
@@ -41,18 +75,17 @@ public class ModelRunner implements Runnable{
 		// Specify which models should be evaluated.
 		List<Model<Map<String, Double>, Double>> regressionModels
 			= new ArrayList<Model<Map<String, Double>, Double>>();
-	
-		regressionModels.add(new GaussianProcess<Map<String, Double>>(null, 0));
+		
+		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Linear(), 0));
 		
 		List<Model<Map<String, Double>, Boolean>> classificationnModels
 			= new ArrayList<Model<Map<String, Double>, Boolean>>();
 		
 		new ModelRunner(features, prices, regressionModels, classificationnModels).run();
 		
-		System.out.println("Done");
 	}
 	
-	public ModelRunner(Map<String, Double> features, List<List<Double>> prices,
+	public ModelRunner(List<Map<String, Double>> features, List<List<Double>> prices,
 			List<Model<Map<String, Double>, Double>> regressionModels,
 			List<Model<Map<String, Double>, Boolean>> classificationModels){
 		this.features = features;
@@ -60,33 +93,120 @@ public class ModelRunner implements Runnable{
 		
 		this.regressionModels     = regressionModels;
 		this.classificationModels = classificationModels;
+
+		// Set how many folds to run what fold size to use. 
+		this.foldSize  = 200;
+		this.foldCount = 10;
 	}
 
 	@Override
 	public void run() {
-		for(List<Double> stock : prices){
-			for(Model<Map<String, Double>, Double> model : regressionModels){
-				// TODO Train the model on the subset of the data and evaluate 
-				// the prediction for different subsets of the data.
+		
+		double[][] regressionResults = new double[prices.size()][regressionModels.size()];
+		
+		for(int stockIdx = 0; stockIdx < prices.size(); stockIdx++){
+			Fold fold = randomFold(foldSize, stockIdx);
+			
+			for(int modelIdx = 0; modelIdx < regressionModels.size(); modelIdx++){
+				
+				Model<Map<String, Double>, Double> model = regressionModels.get(modelIdx);
+				model.train(fold.features, fold.prices);
+				
+				double error = (fold.y - model.predict(fold.x));
+				
+				regressionResults[stockIdx][modelIdx] += error * error;
+			}
+			
+			//Normalise the MSE 
+			for(int i = 0; i < regressionResults.length; i++){
+				for(int j = 0; j < regressionResults[i].length; j++){
+					regressionResults[i][j] /= foldCount;
+				}
 			}
 			
 			for(Model<Map<String, Double>, Boolean> model : classificationModels){
 				// TODO Train the model on the subset of the data and evaluate 
 				// the prediction for different subsets of the data.
 			}
-		}	
-		
-		
+			
+			printResult("Regression results", regressionResults);
+		}		
 	}
 	
-	static private Map<String, Double> readFeatureVectors(String path) throws IOException{
-		//TODO
-		return null;
+	private void printResult(String title, double[][] results){
+		System.out.println("Results for:" + title);
+		
+		int colWidth = 18;
+		
+		System.out.print(pad("", colWidth));
+		for(int i = 0; i < results[0].length; i++){
+			System.out.print(pad("| Model " + i, colWidth));
+		}
+		System.out.println();
+		
+		for(int stock = 0; stock < results.length; stock++){
+			System.out.print(pad("Stock number " + stock, colWidth));
+			for(int model = 0; model < results[stock].length; model++){
+				System.out.print(pad("| " + results[stock][model], colWidth));
+			}
+			System.out.println();
+		}
+	}
+	
+	private String pad(String str, int length){
+		if(str.length() < length){
+			int padding = length - str.length();
+			for(int i = 0; i < padding; i++){
+				str += " ";
+			}
+		}
+		return str;
+	}
+	
+	private Fold randomFold(int size, int priceIdx){
+		int startIdx 		  = new Random().nextInt(features.size() - size - 1);
+		
+		List<Double> subPrice = prices.get(priceIdx).subList(startIdx,startIdx + size);
+		List<Map<String, Double>> subFeatures = features.subList(startIdx, startIdx + size);
+		
+		Map<String,Double> x  = features.get(startIdx + size + 1);
+		double			   y  = prices.get(priceIdx).get(startIdx + size + 1);
+		
+		return new Fold(subFeatures, subPrice, x, y);
+	}
+	
+	static private List<Map<String, Double>> readFeatureVectors(String path) throws IOException{
+		
+		
+		List<String> lines = Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8);
+		List<Map<String, Double>> result = new ArrayList<Map<String, Double>>(lines.size());
+		JsonParser parser = new JsonParser();
+		
+		for(String line : lines){
+			int splitIdx = line.indexOf(" ");
+			String idxString = line.substring(0, splitIdx);
+			int idx      = Integer.valueOf(idxString);
+			
+			JsonElement json = parser.parse(line.substring(splitIdx));
+			Map<String, Double> features = new HashMap<String, Double>();
+			for(Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()){
+				features.put(entry.getKey(), entry.getValue().getAsDouble());
+			}
+			
+			result.add(features);
+		
+		}
+		
+		return result;
 	}
 	
 	static private List<Double> readStockPrices(String path)throws IOException{
-		//TODO
-		return null;
+		List<String> lines = Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8);
+		List<Double> result = new ArrayList<Double>(lines.size());
+		for(String line : lines){
+			result.add(Double.valueOf(line));
+		}
+		return result;
 	}
 	
 
