@@ -1,10 +1,8 @@
 package com.whereismydot.models;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,14 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
-import org.apache.commons.lang.CharSet;
-import org.apache.tools.ant.taskdefs.PathConvert.MapEntry;
-
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-
-import edu.stanford.nlp.classify.LinearClassifier;
 
 public class ModelRunner implements Runnable{
 
@@ -33,6 +25,12 @@ public class ModelRunner implements Runnable{
 	private final List<Model<Map<String, Double>, Double>>  regressionModels;
 	private final List<Model<Map<String, Double>, Boolean>> classificationModels;
 
+	/**
+	 * A simple container class to reference a subset of the data sets for use 
+	 * in k-fold validation 
+	 * @author andrey
+	 *
+	 */
 	public static class Fold{
 		public final List<Double> prices;
 		public final List<Map<String, Double>> features;
@@ -72,15 +70,18 @@ public class ModelRunner implements Runnable{
 			return;
 		}
 		
-		// Specify which models should be evaluated.
+		// Specify which regression models should be evaluated.
 		List<Model<Map<String, Double>, Double>> regressionModels
 			= new ArrayList<Model<Map<String, Double>, Double>>();
-		
+
+		regressionModels.add(new LastValueModel<Map<String, Double>, Double>());
 		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Linear(), 0));
-		
+
+		// Specify which classification models should be evaluated.
 		List<Model<Map<String, Double>, Boolean>> classificationnModels
 			= new ArrayList<Model<Map<String, Double>, Boolean>>();
 		
+		//Go
 		new ModelRunner(features, prices, regressionModels, classificationnModels).run();
 		
 	}
@@ -96,7 +97,7 @@ public class ModelRunner implements Runnable{
 
 		// Set how many folds to run what fold size to use. 
 		this.foldSize  = 200;
-		this.foldCount = 10;
+		this.foldCount = 100;
 	}
 
 	@Override
@@ -112,7 +113,7 @@ public class ModelRunner implements Runnable{
 				Model<Map<String, Double>, Double> model = regressionModels.get(modelIdx);
 				model.train(fold.features, fold.prices);
 				
-				double error = (fold.y - model.predict(fold.x));
+				double error = fold.y - model.predict(fold.x);
 				
 				regressionResults[stockIdx][modelIdx] += error * error;
 			}
@@ -133,10 +134,15 @@ public class ModelRunner implements Runnable{
 		}		
 	}
 	
+	/**
+	 * Pretty print the results
+	 * @param title
+	 * @param results
+	 */
 	private void printResult(String title, double[][] results){
 		System.out.println("Results for:" + title);
 		
-		int colWidth = 18;
+		int colWidth = 24;
 		
 		System.out.print(pad("", colWidth));
 		for(int i = 0; i < results[0].length; i++){
@@ -153,6 +159,12 @@ public class ModelRunner implements Runnable{
 		}
 	}
 	
+	/**
+	 * Pad a string to a given length. Used for printing results.
+	 * @param str
+	 * @param length
+	 * @return
+	 */
 	private String pad(String str, int length){
 		if(str.length() < length){
 			int padding = length - str.length();
@@ -163,6 +175,13 @@ public class ModelRunner implements Runnable{
 		return str;
 	}
 	
+	/**
+	 * Returns a random subset of data to run analysis on.
+	 * 
+	 * @param size
+	 * @param priceIdx
+	 * @return
+	 */
 	private Fold randomFold(int size, int priceIdx){
 		int startIdx 		  = new Random().nextInt(features.size() - size - 1);
 		
@@ -175,6 +194,12 @@ public class ModelRunner implements Runnable{
 		return new Fold(subFeatures, subPrice, x, y);
 	}
 	
+	/**
+	 * This method assumes that the feature vectors are sorted with no gaps
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 */
 	static private List<Map<String, Double>> readFeatureVectors(String path) throws IOException{
 		
 		
@@ -184,11 +209,10 @@ public class ModelRunner implements Runnable{
 		
 		for(String line : lines){
 			int splitIdx = line.indexOf(" ");
-			String idxString = line.substring(0, splitIdx);
-			int idx      = Integer.valueOf(idxString);
 			
 			JsonElement json = parser.parse(line.substring(splitIdx));
 			Map<String, Double> features = new HashMap<String, Double>();
+			
 			for(Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()){
 				features.put(entry.getKey(), entry.getValue().getAsDouble());
 			}
@@ -207,8 +231,5 @@ public class ModelRunner implements Runnable{
 			result.add(Double.valueOf(line));
 		}
 		return result;
-	}
-	
-
-	
+	}	
 }
