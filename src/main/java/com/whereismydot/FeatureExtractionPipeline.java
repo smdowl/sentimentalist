@@ -31,7 +31,7 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterObjectFactory;
 
 public class FeatureExtractionPipeline extends MapReduceBase implements
-		Reducer<LongWritable, Text, LongWritable, Map<String, Double>>, 
+		Reducer<LongWritable, Text, LongWritable, String>, 
 		Mapper<LongWritable, Text, LongWritable, Text> {
 
 	private final TweetFilter filters[];
@@ -95,7 +95,7 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
      */
 	@Override
 	public void reduce(LongWritable time, Iterator<Text> tweetJsonIter,
-			OutputCollector<LongWritable, Map<String, Double>> out, Reporter reporter)
+			OutputCollector<LongWritable, String> out, Reporter reporter)
 			throws IOException {
 		
 		List<Status> tweets = parseTweets(tweetJsonIter);
@@ -106,7 +106,7 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 			result.putAll(extractor.extract(tweets));
 		}
 		
-		out.collect(time, result);
+		out.collect(time, new Gson().toJson(result));
 	}
 
     private List<Status> parseTweets(Iterator<Text> tweetJsonIter) {
