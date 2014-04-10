@@ -76,10 +76,14 @@ public class ModelRunner implements Runnable{
 
 		regressionModels.add(new LastValueModel<Map<String, Double>, Double>());
 		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Linear(), 0));
+		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Gaussian(1), 0));
+		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Gaussian(10), 0));
+		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Gaussian(100), 0));
 
 		// Specify which classification models should be evaluated.
 		List<Model<Map<String, Double>, Boolean>> classificationnModels
 			= new ArrayList<Model<Map<String, Double>, Boolean>>();
+		
 		classificationnModels.add(new LastValueModel<Map<String,Double>, Boolean>());
 		
 		//Go
