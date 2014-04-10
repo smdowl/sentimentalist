@@ -1,6 +1,7 @@
 package com.whereismydot.models;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -10,6 +11,31 @@ import java.util.Map;
  */
 public class Kernels {
 
+	/**
+	 * Compose kernels into one uber kernel
+	 * @author andrey
+	 *
+	 * @param <T>
+	 */
+	public static class CompositeKernel<T> implements Kernel<T>{
+		private final List<Kernel<T>> components;
+
+		public CompositeKernel(List<Kernel<T>> components){
+			this.components = components;
+		}
+		
+		@Override
+		public double apply(T x1, T x2) {
+			
+			double result = 1;
+			for(Kernel<T> kernel : components){
+				result *= kernel.apply(x1, x2);
+			}
+			return result;
+		}
+		
+	}
+	
 	public static class Linear implements Kernel<Map<String, Double>>{
 
 		@Override
@@ -40,6 +66,26 @@ public class Kernels {
 			return Math.exp(-(normDiff*normDiff) / (2 * sigma2) );
 		}
 		
+	}
+	
+	public static class WaveKernel implements Kernel<Map<String,Double>>{
+
+		private final double theta;
+		
+		public WaveKernel(double theta){
+			this.theta = theta;
+		}
+		
+		@Override
+		public double apply(Map<String, Double> x1, Map<String, Double> x2) {
+		
+			double normDiff = norm2(diff(x1,x2));
+			if(normDiff == 0){
+				return 0;
+			}else{
+				return (theta / normDiff) * Math.sin(normDiff / theta);	
+			}
+		}		
 	}
 	
 	static public <K> Map<K, Double> diff(Map<K, Double> v1, Map<K, Double> v2){
