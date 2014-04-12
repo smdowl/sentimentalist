@@ -22,8 +22,8 @@ public class App{
         job.setInputFormat(TextInputFormat.class);
         job.setOutputFormat(TextOutputFormat.class);
         
-        FileInputFormat.setInputPaths(job, new Path("/Users/andrey/Data/exampletweets_0_small.txt"));
-        FileOutputFormat.setOutputPath(job, new Path("/Users/andrey/Data/outfile"));
+        FileInputFormat.setInputPaths(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
         
         JobClient.runJob(job);
     }
