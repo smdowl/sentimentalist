@@ -31,7 +31,7 @@ public class TokenFeatures implements FeatureExtractor {
         	isFavourited += tweet.isFavorited()? 1 : 0;
         	isRetweeted += tweet.isRetweeted()? 1 : 0;
         	isRetweet += tweet.isRetweet()? 1 : 0;
-        	texts += " " + tweet.getText(); 
+        	texts += tweet.getText() + " "; 
         	
         }
         
@@ -47,12 +47,13 @@ public class TokenFeatures implements FeatureExtractor {
     	features.put("Raw isRetweet Count", isRetweet);
     	features.put("Avg isRetweet Count", isRetweet/tweets.size());
     	
-    	addTokenCounts(features, texts);
+    	// adds to the features the word count over all words in all tweets in the given time-bin:
+    	addTokenCounts(features, texts, tweets.size());
     	
         return features;
     }
 
-    private void addTokenCounts(Map<String, Double> counts, String tweet) {
+    private void addTokenCounts(Map<String, Double> counts, String tweet, int binSize) {
         StringTokenizer st = new StringTokenizer(tweet);
 
         while (st.hasMoreTokens()) {
@@ -61,7 +62,9 @@ public class TokenFeatures implements FeatureExtractor {
             if (!counts.containsKey(token))
                 counts.put(token, 0.0);
 
-            counts.put(token, counts.get(token) + 1);
+            //counts.put(token, counts.get(token) + 1); 
+            // I suggest using normalised counts to control for varying time-bin size:
+            counts.put(token, counts.get(token) + 1.0/binSize);
         }
     }
 }
