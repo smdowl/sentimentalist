@@ -6,6 +6,9 @@ import java.util.Map;
 
 import twitter4j.Status;
 
+/**
+ * Class for marking the users that have posted in the given tweets collection.
+ */
 public class UserFeatures implements FeatureExtractor {
 
 	@Override
