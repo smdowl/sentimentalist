@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.whereismydot.extractors.FeatureExtractor;
 import com.whereismydot.extractors.TokenFeatures;
-import com.whereismydot.extractors.UserFeaturesRetweets;
+import com.whereismydot.extractors.UserFeatures;
 import com.whereismydot.filters.TweetFilter;
 import com.whereismydot.utils.TimeBinner;
 
@@ -52,7 +52,7 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 		// Extractor config 
 		this.extractors = new FeatureExtractor[2];
 		this.extractors[0] = new TokenFeatures();
-		this.extractors[1] = new UserFeaturesRetweets();
+		this.extractors[1] = new UserFeatures();
 		
 		// Time discretizer config
 		this.timeBinner = new TimeBinner();
