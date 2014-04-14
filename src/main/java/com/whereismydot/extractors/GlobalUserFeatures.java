@@ -1,4 +1,4 @@
-package com.whereismydot;
+package com.whereismydot.extractors;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -32,7 +32,7 @@ import twitter4j.Status;
 import twitter4j.TwitterException;
 import twitter4j.TwitterObjectFactory;
 
-public class FeatureExtractionPipeline extends MapReduceBase implements
+public class GlobalUserFeatures extends MapReduceBase implements
 		Reducer<LongWritable, Text, LongWritable, String>, 
 		Mapper<LongWritable, Text, LongWritable, Text> {
 

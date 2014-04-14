@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 
 /**
  * Class for generating features relating the word-tokens contained within the Status (text), and generally
- * features concerning a single tweet-token.
+ * features concerning single tweet-tokens in a specific time-bin (a token in itself).
  */
 public class TokenFeatures implements FeatureExtractor {
 
