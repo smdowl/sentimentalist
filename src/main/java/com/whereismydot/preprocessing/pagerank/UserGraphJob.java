@@ -53,7 +53,7 @@ public class UserGraphJob extends MapReduceBase implements
         }
 
         Map<String, Object> output = new HashMap<>();
-        output.put("page_rank", 0.0);
+        output.put("page_rank", 1.0);
         output.put("adjacency", adjacencyList);
 
         Gson gson = new Gson();
