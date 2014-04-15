@@ -122,19 +122,18 @@ public class UserPageRankJob {
         return job;
     }
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
+    private static void iterateUntilConvergence(Path basePath, Path inputPath) throws IOException, ClassNotFoundException, InterruptedException {
+        UserPageRankJob pagerankJob = new UserPageRankJob();
 
         int iteration = 0;
 
         Job job = getJobConf();
 
-        Path basePath = new Path(args[1]);
         FileSystem fs = FileSystem.get(job.getConfiguration());
 
         fs.delete(basePath, true);
         fs.mkdirs(basePath);
 
-        Path inputPath = new Path(args[0]);
         Path outputPath = new Path(basePath, "iteration" + iteration);
         FileInputFormat.setInputPaths(job, inputPath);
         FileOutputFormat.setOutputPath(job, outputPath);
@@ -153,5 +152,11 @@ public class UserPageRankJob {
 
             job.waitForCompletion(false);
         }
+    }
+
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
+        Path basePath = new Path(args[0]);
+        Path inputPath = new Path(args[1]);
+        UserPageRankJob.iterateUntilConvergence(basePath, inputPath);
     }
 }
