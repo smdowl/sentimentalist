@@ -31,14 +31,14 @@ public class ModelRunner implements Runnable{
 	 * @author andrey
 	 *
 	 */
-	public static class Fold{
-		public final List<Double> prices;
+	public static class Fold<T>{
+		public final List<T> prices;
 		public final List<Map<String, Double>> features;
 		public final Map<String, Double> x; 
-		public final Double y;
+		public final T y;
 		
-		public Fold(List<Map<String, Double>> features, List<Double> prices, 
-				Map<String, Double> x, Double y){
+		public Fold(List<Map<String, Double>> features, List<T> prices, 
+				Map<String, Double> x, T y){
 			this.features = features;
 			this.prices   = prices;
 			this.x 		  = x;
@@ -76,11 +76,22 @@ public class ModelRunner implements Runnable{
 
 		regressionModels.add(new LastValueModel<Map<String, Double>, Double>());
 		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Linear(), 0));
+
+		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Gaussian(1), 0));
+		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Gaussian(10), 0));
+		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Gaussian(100), 0));
+		
+		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.WaveKernel(1), 0));
+		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.WaveKernel(10), 0));
+		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.WaveKernel(100), 0));
         regressionModels.add(new LinearRegression<Map<String, Double>>(new MatrixBuilders.MatrixBuilderLinear()));
+
 
 		// Specify which classification models should be evaluated.
 		List<Model<Map<String, Double>, Boolean>> classificationnModels
 			= new ArrayList<Model<Map<String, Double>, Boolean>>();
+		
+		classificationnModels.add(new LastValueModel<Map<String,Double>, Boolean>());
 		
 		//Go
 		new ModelRunner(features, prices, regressionModels, classificationnModels).run();
@@ -104,10 +115,20 @@ public class ModelRunner implements Runnable{
 	@Override
 	public void run() {
 		
-		double[][] regressionResults = new double[prices.size()][regressionModels.size()];
+		double[][] regressionResults = runRegressionModels();
+		printResult("Regression results", regressionResults);
 		
+		System.out.println("\n--------------------------------------------------------------------------------\n");
+		
+		double[][] classificationResults = runClassificationModels();
+		printResult("Classification results", classificationResults);
+	}
+	
+	private double[][] runRegressionModels(){
+		double[][] results = new double[prices.size()][regressionModels.size()];
+
 		for(int stockIdx = 0; stockIdx < prices.size(); stockIdx++){
-			Fold fold = randomFold(foldSize, stockIdx);
+			Fold<Double> fold = randomRegressionFold(foldSize, stockIdx);
 			
 			for(int modelIdx = 0; modelIdx < regressionModels.size(); modelIdx++){
 				
@@ -116,23 +137,59 @@ public class ModelRunner implements Runnable{
 				
 				double error = fold.y - model.predict(fold.x);
 				
-				regressionResults[stockIdx][modelIdx] += error * error;
+				results[stockIdx][modelIdx] += error * error;
 			}
 			
 			//Normalise the MSE 
-			for(int i = 0; i < regressionResults.length; i++){
-				for(int j = 0; j < regressionResults[i].length; j++){
-					regressionResults[i][j] /= foldCount;
+			for(int i = 0; i < results.length; i++){
+				for(int j = 0; j < results[i].length; j++){
+					results[i][j] /= foldCount;
 				}
 			}
+		}
+		return results;
+	}
+	
+	private double[][] runClassificationModels(){
+		double[][] results = new double[prices.size()][classificationModels.size()];
+		
+		for(int stockIdx = 0; stockIdx < prices.size(); stockIdx++){
+			Fold<Boolean> fold = randomClassificationFold(foldSize, stockIdx);
 			
-			for(Model<Map<String, Double>, Boolean> model : classificationModels){
-				// TODO Train the model on the subset of the data and evaluate 
-				// the prediction for different subsets of the data.
+			for(int modelIdx = 0; modelIdx < classificationModels.size(); modelIdx++){
+				
+				Model<Map<String, Double>, Boolean> model = classificationModels.get(modelIdx);
+				model.train(fold.features, fold.prices);
+				
+				double error = fold.y == model.predict(fold.x) ? 0 : 1;
+				
+				results[stockIdx][modelIdx] += error;
 			}
 			
-			printResult("Regression results", regressionResults);
-		}		
+			//Normalise the error rate 
+			for(int i = 0; i < results.length; i++){
+				for(int j = 0; j < results[i].length; j++){
+					results[i][j] /= foldCount;
+				}
+			}
+		}
+		
+		return results;
+	}
+	
+	/**
+	 * Converts a list of prices to a list of booleans indicating if the price
+	 * has gone up or down since the last time step. True if the price has 
+	 * increased.
+	 * @param prices
+	 * @return
+	 */
+	private List<Boolean> computeChanges(List<Double> prices){
+		List<Boolean> result = new ArrayList<Boolean>(prices.size() - 1);
+		for(int i = 1; i < prices.size(); i++){
+			result.add(prices.get(i) > prices.get(i - 1));
+		}
+		return result;
 	}
 	
 	/**
@@ -183,7 +240,7 @@ public class ModelRunner implements Runnable{
 	 * @param priceIdx
 	 * @return
 	 */
-	private Fold randomFold(int size, int priceIdx){
+	private Fold<Double> randomRegressionFold(int size, int priceIdx){
 		int startIdx 		  = new Random().nextInt(features.size() - size - 1);
 		
 		List<Double> subPrice = prices.get(priceIdx).subList(startIdx,startIdx + size);
@@ -192,8 +249,20 @@ public class ModelRunner implements Runnable{
 		Map<String,Double> x  = features.get(startIdx + size + 1);
 		double			   y  = prices.get(priceIdx).get(startIdx + size + 1);
 		
-		return new Fold(subFeatures, subPrice, x, y);
+		return new Fold<Double>(subFeatures, subPrice, x, y);
 	}
+	
+	private Fold<Boolean> randomClassificationFold(int size, int priceIdx){
+		Fold<Double> fold = randomRegressionFold(size, priceIdx);
+		
+		List<Boolean> changes = computeChanges(fold.prices);
+		List<Map<String, Double>> features = fold.features.subList(1, fold.features.size() - 1); 
+		Boolean y = fold.prices.get(fold.prices.size() - 1) < fold.y;
+		
+		return new Fold<Boolean>(features, changes, fold.x, y);
+		
+	}
+	
 	
 	/**
 	 * This method assumes that the feature vectors are sorted with no gaps
