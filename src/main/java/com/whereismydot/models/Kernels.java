@@ -91,7 +91,14 @@ public class Kernels {
 	static public <K> Map<K, Double> diff(Map<K, Double> v1, Map<K, Double> v2){
 		Map<K, Double> result = new HashMap<K, Double>();
 		for(java.util.Map.Entry<K, Double> elem : v1.entrySet()){
-			result.put(elem.getKey(), elem.getValue() - v2.getOrDefault(elem.getKey(), 0.0));
+			Double v2elem = v2.get(elem.getKey());
+			
+			if(v2elem == null){
+				result.put(elem.getKey(), elem.getValue() - 0);
+			}else{
+				result.put(elem.getKey(), elem.getValue() - v2elem);	
+			}
+			
 		}
 		return result;
 	}
