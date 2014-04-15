@@ -1,69 +1,82 @@
 package com.whereismydot.preprocessing.pagerank;
 
 import com.google.gson.Gson;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
 import java.util.*;
 
-public class UserPageRankJob extends MapReduceBase implements
-        Mapper<Text, Text, Text, Text>,
-        Reducer<Text, Text, Text, Text> {
+enum Counter {
+    USERS,
+    LOST_MASS
+}
 
-    private Gson gson = new Gson();
+class Utils {
+    static private Gson gson = new Gson();
 
-    public static enum Counter {
-        USERS,
-        LOST_MASS
+    static Map<String, Object> parseNode(String json) {
+        HashMap<String, Object> node = new HashMap<>();
+        node = gson.fromJson(json, node.getClass());
+        return node;
     }
+}
 
-    private static final int MAX_IT = 20;
+class UserPageRankMapper extends Mapper<Text, Text, Text, Text> {
+
     private static final double counterScale = 1e6;
 
     @Override
-    public void configure(JobConf conf) {
-    }
+    public void map(Text userId, Text value, Context context)
+            throws IOException, InterruptedException {
 
-    @Override
-    public void map(Text userId, Text value, OutputCollector<Text, Text> out, Reporter reporter)
-            throws IOException {
-
-        Map<String, Object> node = parseNode(value.toString());
+        Map<String, Object> node = Utils.parseNode(value.toString());
 
         List<String> adjacencyList = (List<String>) node.get("adjacency");
         Double p = getPageRank(node) / adjacencyList.size();
 
-        out.collect(userId, value);
+        context.write(userId, value);
 
         for (String otherId : adjacencyList) {
-            out.collect(new Text(otherId), new Text(p.toString()));
+            context.write(new Text(otherId), new Text(p.toString()));
         }
 
         if (adjacencyList.size() == 0) {
             long lostMass = (long) (getPageRank(node) * counterScale);
-            reporter.getCounter(Counter.LOST_MASS).increment(lostMass);
+            context.getCounter(Counter.LOST_MASS).increment(lostMass);
         }
     }
 
     private double getPageRank(Map<String, Object> node) {
         return (double) node.get("page_rank");
     }
+}
+
+class UserPageRankReducer extends Reducer<Text, Text, Text, Text> {
+
+    private Gson gson = new Gson();
 
     @Override
-    public void reduce(Text key, Iterator<Text> values, OutputCollector<Text, Text> out,
-                       Reporter reporter) throws IOException {
+    public void reduce(Text key, Iterable<Text> values, Context context)
+            throws IOException, InterruptedException {
 
         Map<String, Object> node = null;
         Double sum = 0.0;
 
-        while (values.hasNext()) {
-            String next = values.next().toString();
+        for (Text value : values) {
+            String next = value.toString();
 
             if (isNode(next))
-                node = parseNode(next);
+                node = Utils.parseNode(next);
             else
                 sum += Double.parseDouble(next);
         }
@@ -74,9 +87,9 @@ public class UserPageRankJob extends MapReduceBase implements
         }
 
         node.put("page_rank", sum);
-        out.collect(key, new Text(gson.toJson(node)));
+        context.write(key, new Text(gson.toJson(node)));
 
-        reporter.getCounter(Counter.USERS).increment(1);
+        context.getCounter(Counter.USERS).increment(1);
     }
 
     private boolean isNode(String json) {
@@ -90,35 +103,34 @@ public class UserPageRankJob extends MapReduceBase implements
 
         return isNode;
     }
+}
 
-    private Map<String, Object> parseNode(String json) {
-        HashMap<String, Object> node = new HashMap<>();
-        node = gson.fromJson(json, node.getClass());
-        return node;
-    }
+public class UserPageRankJob {
 
-    private static JobConf getJobConf() {
-        JobConf job = new JobConf(UserPageRankJob.class);
-        job.setMapperClass(UserPageRankJob.class);
-        job.setReducerClass(UserPageRankJob.class);
+    private static final int MAX_IT = 20;
+
+    private static Job getJobConf() throws IOException {
+        Job job = Job.getInstance(new Configuration());
+        job.setMapperClass(UserPageRankMapper.class);
+        job.setReducerClass(UserPageRankReducer.class);
 
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(Text.class);
 
-        job.setInputFormat(KeyValueTextInputFormat.class);
-        job.setOutputFormat(TextOutputFormat.class);
+        job.setInputFormatClass(KeyValueTextInputFormat.class);
+        job.setOutputFormatClass(TextOutputFormat.class);
 
         return job;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 
         int iteration = 0;
 
-        JobConf job = getJobConf();
+        Job job = getJobConf();
 
         Path basePath = new Path(args[1]);
-        FileSystem fs = FileSystem.get(job);
+        FileSystem fs = FileSystem.get(job.getConfiguration());
 
         fs.delete(basePath, true);
         fs.mkdirs(basePath);
@@ -128,7 +140,7 @@ public class UserPageRankJob extends MapReduceBase implements
         FileInputFormat.setInputPaths(job, inputPath);
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        JobClient.runJob(job);
+        job.waitForCompletion(false);
 
         // Perform iterations up to the maximum number
         while (iteration < MAX_IT) {
@@ -140,7 +152,7 @@ public class UserPageRankJob extends MapReduceBase implements
             outputPath = new Path(basePath, "iteration" + iteration);
             FileOutputFormat.setOutputPath(job, outputPath);
 
-            JobClient.runJob(job);
+            job.waitForCompletion(false);
         }
     }
 }
