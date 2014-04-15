@@ -23,6 +23,7 @@ enum Counter {
 
 class Utils {
     static private Gson gson = new Gson();
+    static final double counterScale = 1e6;
 
     static Map<String, Object> parseNode(String json) {
         HashMap<String, Object> node = new HashMap<>();
@@ -32,8 +33,6 @@ class Utils {
 }
 
 class UserPageRankMapper extends Mapper<Text, Text, Text, Text> {
-
-    private static final double counterScale = 1e6;
 
     @Override
     public void map(Text userId, Text value, Context context)
@@ -51,7 +50,7 @@ class UserPageRankMapper extends Mapper<Text, Text, Text, Text> {
         }
 
         if (adjacencyList.size() == 0) {
-            long lostMass = (long) (getPageRank(node) * counterScale);
+            long lostMass = (long) (getPageRank(node) * Utils.counterScale);
             context.getCounter(Counter.LOST_MASS).increment(lostMass);
         }
     }
