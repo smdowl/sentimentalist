@@ -9,8 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.whereismydot.extractors.FeatureExtractor;
+import com.whereismydot.extractors.TokenFeatures;
+import com.whereismydot.extractors.UserFeatures;
 import com.whereismydot.filters.TweetFilter;
 import com.whereismydot.utils.TimeBinner;
+
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -23,7 +26,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
-import com.whereismydot.extractors.UserFeatures;
 
 import twitter4j.Logger;
 import twitter4j.Status;
@@ -48,8 +50,9 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 		this.filters    = new TweetFilter[0];
 		
 		// Extractor config 
-		this.extractors = new FeatureExtractor[1];
-		this.extractors[0] = new UserFeatures();
+		this.extractors = new FeatureExtractor[2];
+		this.extractors[0] = new TokenFeatures();
+		this.extractors[1] = new UserFeatures();
 		
 		// Time discretizer config
 		this.timeBinner = new TimeBinner();
