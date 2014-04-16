@@ -108,8 +108,44 @@ public class UserPageRankJob {
 
     private static final int MAX_IT = 20;
 
-    private static Job getJobConf() throws IOException {
-        Job job = Job.getInstance(new Configuration());
+    private Path basePath;
+    private Path inputPath;
+    private Path outputPath;
+
+    private int iteration = 0;
+
+    private Job job;
+
+    UserPageRankJob(Path basePath, Path inputPath) throws IOException {
+        this.basePath = basePath;
+        this.inputPath = inputPath;
+
+        removeOldOutput();
+    }
+
+    private void removeOldOutput() throws IOException {
+        FileSystem fs = FileSystem.get(new Configuration());
+        fs.delete(basePath, true);
+        fs.mkdirs(basePath);
+    }
+
+    public void iterateUntilConvergence() throws IOException, ClassNotFoundException, InterruptedException {
+        // Perform iterations up to the maximum number
+        while (iteration <= MAX_IT) {
+            performIteration();
+        }
+    }
+
+    private void performIteration() throws IOException, ClassNotFoundException, InterruptedException {
+        initJob();
+
+        job.waitForCompletion(false);
+
+        updateStats();
+    }
+
+    private void initJob() throws IOException {
+        job = Job.getInstance(new Configuration());
         job.setMapperClass(UserPageRankMapper.class);
         job.setReducerClass(UserPageRankReducer.class);
 
@@ -119,44 +155,26 @@ public class UserPageRankJob {
         job.setInputFormatClass(KeyValueTextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
-        return job;
+        updatePaths();
     }
 
-    private static void iterateUntilConvergence(Path basePath, Path inputPath) throws IOException, ClassNotFoundException, InterruptedException {
-        UserPageRankJob pagerankJob = new UserPageRankJob();
+    private void updatePaths() throws IOException {
+        outputPath = new Path(basePath, "iteration" + iteration);
 
-        int iteration = 0;
-
-        Job job = getJobConf();
-
-        FileSystem fs = FileSystem.get(job.getConfiguration());
-
-        fs.delete(basePath, true);
-        fs.mkdirs(basePath);
-
-        Path outputPath = new Path(basePath, "iteration" + iteration);
         FileInputFormat.setInputPaths(job, inputPath);
         FileOutputFormat.setOutputPath(job, outputPath);
+    }
 
-        job.waitForCompletion(false);
-
-        // Perform iterations up to the maximum number
-        while (iteration < MAX_IT) {
-            iteration++;
-
-            job = getJobConf();
-
-            FileInputFormat.setInputPaths(job, outputPath);
-            outputPath = new Path(basePath, "iteration" + iteration);
-            FileOutputFormat.setOutputPath(job, outputPath);
-
-            job.waitForCompletion(false);
-        }
+    private void updateStats() {
+        inputPath = outputPath;
+        iteration++;
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
-        Path basePath = new Path(args[0]);
-        Path inputPath = new Path(args[1]);
-        UserPageRankJob.iterateUntilConvergence(basePath, inputPath);
+        Path inputPath = new Path(args[0]);
+        Path basePath = new Path(args[1]);
+
+        UserPageRankJob pagerankJob = new UserPageRankJob(basePath, inputPath);
+        pagerankJob.iterateUntilConvergence();
     }
 }
