@@ -42,13 +42,13 @@ public class UserGraphJob extends MapReduceBase implements
      * Take all followed users and output a map of transition (or retweet) probabilities for this user
      */
     @Override
-    public void reduce(Text userId, Iterator<Text> followIds, OutputCollector<Text, Text> out,
+    public void reduce(Text userId, Iterator<Text> retweetedIds, OutputCollector<Text, Text> out,
                        Reporter reporter) throws IOException {
 
         Set<String> adjacencyList = new HashSet<>();
 
-        while (followIds.hasNext()) {
-            Text followId = followIds.next();
+        while (retweetedIds.hasNext()) {
+            Text followId = retweetedIds.next();
             adjacencyList.add(followId.toString());
         }
 
@@ -74,7 +74,12 @@ public class UserGraphJob extends MapReduceBase implements
         job.setInputFormat(TextInputFormat.class);
         job.setOutputFormat(TextOutputFormat.class);
 
-        FileInputFormat.setInputPaths(job, new Path(args[0]));
+        String[] paths = args[0].split(",");
+        Path[] pathsArr = new Path[paths.length];
+        for (int i = 0; i < paths.length; i++)
+            pathsArr[i] = new Path(paths[i]);
+
+        FileInputFormat.setInputPaths(job, pathsArr);
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         JobClient.runJob(job);
