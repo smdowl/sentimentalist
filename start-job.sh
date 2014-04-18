@@ -8,8 +8,9 @@
 
 jobname=$1
 mainclass=$2
+input=$3
 
-sh src/main/scripts/gen_steps.sh $jobname $mainclass
+sh src/main/scripts/gen_steps.sh $jobname $mainclass $input
 
 elastic-mapreduce --create --name $jobname --log-uri s3://sentimentalist/logs/$USER --json src/main/jobflows/$jobname.json \
 --bootstrap-action s3://elasticmapreduce/bootstrap-actions/configure-hadoop --bootstrap-name hadoop-conf --args "-m,fs.s3.canned.acl=PublicRead" \
