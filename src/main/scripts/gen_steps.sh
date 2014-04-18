@@ -10,6 +10,7 @@
 
 jobname=$1
 mainclass=$2
+input=$3
 
 mkdir -p src/main/jobflows
 
@@ -23,7 +24,7 @@ echo "[
             \"Jar\": \"s3://sentimentalist/jars/$USER/Sentimentalist-1.0-SNAPSHOT.jar\",
             \"Args\": 
             [ 
-               \"s3://sentimentalist/test-data/mini_1.json\", 
+               \"$input\",
                \"s3://sentimentalist/output/$USER/$jobname\"
             ] 
          } 
