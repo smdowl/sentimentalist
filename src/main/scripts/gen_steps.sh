@@ -25,7 +25,7 @@ echo "[
             \"Args\": 
             [ 
                \"$input\",
-               \"s3://sentimentalist/output/$USER/$jobname\"
+               \"s3n://sentimentalist/output/$USER/$jobname\"
             ] 
          } 
       } 
