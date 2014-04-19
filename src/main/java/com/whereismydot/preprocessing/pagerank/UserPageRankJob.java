@@ -17,8 +17,12 @@ import java.io.IOException;
 import java.util.*;
 
 enum Counter {
+    INPUT_USERS,
     USERS,
-    LOST_MASS
+    LOST_MASS,
+    TOTAL_MASS,
+    NEW_NODE,
+    HANGING_NODE
 }
 
 class Utils {
@@ -33,6 +37,14 @@ class Utils {
         node = gson.fromJson(json, node.getClass());
         return node;
     }
+
+    static long convertMass(double mass) {
+        return (long) (mass * COUNTER_SCALE);
+    }
+
+    static double convertMass(long mass) {
+        return (1.0 * mass) / COUNTER_SCALE;
+    }
 }
 
 class UserPageRankMapper extends Mapper<Text, Text, Text, Text> {
@@ -44,18 +56,23 @@ class UserPageRankMapper extends Mapper<Text, Text, Text, Text> {
         Map<String, Object> node = Utils.parseNode(value.toString());
 
         List<String> adjacencyList = (List<String>) node.get("adjacency");
-        Double p = getPageRank(node) / adjacencyList.size();
 
         context.write(userId, value);
 
-        for (String otherId : adjacencyList) {
-            context.write(new Text(otherId), new Text(p.toString()));
+        // If we have no connections then this mass is lost.
+        if (adjacencyList.size() == 0) {
+            long lostMass = Utils.convertMass(getPageRank(node));
+            context.getCounter(Counter.LOST_MASS).increment(lostMass);
+            context.getCounter(Counter.HANGING_NODE).increment(1);
+        } else {
+            Double p = getPageRank(node) / adjacencyList.size();
+            for (String otherId : adjacencyList) {
+                context.write(new Text(otherId), new Text(p.toString()));
+            }
         }
 
-        if (adjacencyList.size() == 0) {
-            long lostMass = (long) (getPageRank(node) * Utils.COUNTER_SCALE);
-            context.getCounter(Counter.LOST_MASS).increment(lostMass);
-        }
+
+        context.getCounter(Counter.INPUT_USERS).increment(1);
     }
 
     private double getPageRank(Map<String, Object> node) {
@@ -83,23 +100,27 @@ class UserPageRankReducer extends Reducer<Text, Text, Text, Text> {
                 sum += Double.parseDouble(next);
         }
 
+        // If a node doesn't exist then we have a new node that does not point to anything (hanging node)
         if (node == null) {
             node = new HashMap<>();
             node.put("adjacency", new LinkedList<String>());
+            context.getCounter(Counter.NEW_NODE).increment(1);
         }
 
         // Add any mass that was lost due to hanging nodes.
         long lostMass = context.getConfiguration().getLong(Utils.LOST_MASS, 0l);
         long userCount = context.getConfiguration().getLong(Utils.USER_COUNT, 1l);
 
-        double actualLost = (1.0 * lostMass) / Utils.COUNTER_SCALE;
-
+        double actualLost = Utils.convertMass(lostMass);
         sum += actualLost / userCount;
 
         node.put("page_rank", sum);
         context.write(key, new Text(gson.toJson(node)));
 
         context.getCounter(Counter.USERS).increment(1);
+
+        long scaledMass = Utils.convertMass(sum);
+        context.getCounter(Counter.TOTAL_MASS).increment(scaledMass);
     }
 
     private boolean isNode(String json) {
@@ -186,12 +207,23 @@ public class UserPageRankJob {
         iteration++;
         try {
             lostMass = job.getCounters().findCounter(Counter.LOST_MASS).getValue();
+            double actualMass = Utils.convertMass(lostMass);
+
             userCount = job.getCounters().findCounter(Counter.USERS).getValue();
 
-            double actualMass = (1.0 * lostMass) / Utils.COUNTER_SCALE;
+            long totalMass = job.getCounters().findCounter(Counter.TOTAL_MASS).getValue();
+            double totalActualMass = Utils.convertMass(totalMass) + actualMass;
+
+            long inputUsers = job.getCounters().findCounter(Counter.INPUT_USERS).getValue();
+            long hangingNodes = job.getCounters().findCounter(Counter.HANGING_NODE).getValue();
 
             System.err.println(actualMass + " mass lost.");
-            System.err.println(userCount+ " users.");
+            System.err.println(totalActualMass  + " total mass.");
+            System.err.println(inputUsers + " users in.");
+            System.err.println(userCount  + " users out.");
+            System.err.println(hangingNodes  + " hanging nodes.");
+            System.err.println();
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
