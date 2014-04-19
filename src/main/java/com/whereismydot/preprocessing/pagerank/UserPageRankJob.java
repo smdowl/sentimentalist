@@ -136,7 +136,7 @@ public class UserPageRankJob {
     }
 
     private void removeOldOutput() throws IOException {
-        FileSystem fs = FileSystem.get(new Configuration());
+        FileSystem fs = this.basePath.getFileSystem(new Configuration());
         fs.delete(basePath, true);
         fs.mkdirs(basePath);
     }
