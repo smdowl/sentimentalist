@@ -23,7 +23,10 @@ enum Counter {
 
 class Utils {
     static private Gson gson = new Gson();
-    static final double counterScale = 1e6;
+    static final double COUNTER_SCALE = 1e6;
+
+    static final String LOST_MASS = "LostMass";
+    static final String USER_COUNT = "UserCount";
 
     static Map<String, Object> parseNode(String json) {
         HashMap<String, Object> node = new HashMap<>();
@@ -50,7 +53,7 @@ class UserPageRankMapper extends Mapper<Text, Text, Text, Text> {
         }
 
         if (adjacencyList.size() == 0) {
-            long lostMass = (long) (getPageRank(node) * Utils.counterScale);
+            long lostMass = (long) (getPageRank(node) * Utils.COUNTER_SCALE);
             context.getCounter(Counter.LOST_MASS).increment(lostMass);
         }
     }
@@ -85,6 +88,14 @@ class UserPageRankReducer extends Reducer<Text, Text, Text, Text> {
             node.put("adjacency", new LinkedList<String>());
         }
 
+        // Add any mass that was lost due to hanging nodes.
+        long lostMass = context.getConfiguration().getLong(Utils.LOST_MASS, 0l);
+        long userCount = context.getConfiguration().getLong(Utils.USER_COUNT, 1l);
+
+        double actualLost = (1.0 * lostMass) / Utils.COUNTER_SCALE;
+
+        sum += actualLost / userCount;
+
         node.put("page_rank", sum);
         context.write(key, new Text(gson.toJson(node)));
 
@@ -113,6 +124,8 @@ public class UserPageRankJob {
     private Path outputPath;
 
     private int iteration = 0;
+    private long lostMass = 0l;
+    private long userCount = 1l;
 
     private Job job;
 
@@ -155,6 +168,9 @@ public class UserPageRankJob {
         job.setInputFormatClass(KeyValueTextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
+        job.getConfiguration().setLong(Utils.LOST_MASS, lostMass);
+        job.getConfiguration().setLong(Utils.USER_COUNT, userCount);
+
         updatePaths();
     }
 
@@ -168,6 +184,17 @@ public class UserPageRankJob {
     private void updateStats() {
         inputPath = outputPath;
         iteration++;
+        try {
+            lostMass = job.getCounters().findCounter(Counter.LOST_MASS).getValue();
+            userCount = job.getCounters().findCounter(Counter.USERS).getValue();
+
+            double actualMass = (1.0 * lostMass) / Utils.COUNTER_SCALE;
+
+            System.err.println(actualMass + " mass lost.");
+            System.err.println(userCount+ " users.");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
