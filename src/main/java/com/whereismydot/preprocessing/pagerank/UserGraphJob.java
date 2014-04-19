@@ -26,7 +26,13 @@ public class UserGraphJob extends MapReduceBase implements
             throws IOException {
         Status status = TwitterParser.parseOrNull(value.toString());
 
-        Status retweetFrom = status.getRetweetedStatus();
+        Status retweetFrom = null;
+
+        try {
+             retweetFrom = status.getRetweetedStatus();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (retweetFrom == null)
             return;
