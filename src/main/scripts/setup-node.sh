@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt-get install -y s3cmd
+sudo yum -y --enablerepo epel-testing install s3cmd
 
 echo "[default]
 access_key = AKIAIQQS32WOARUW24EA
