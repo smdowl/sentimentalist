@@ -1,7 +1,6 @@
 package com.whereismydot;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,6 +11,8 @@ import com.whereismydot.extractors.FeatureExtractor;
 import com.whereismydot.extractors.TokenFeatures;
 import com.whereismydot.extractors.UserFeatures;
 import com.whereismydot.filters.TweetFilter;
+import com.whereismydot.utils.CompanyClassifier;
+import com.whereismydot.utils.CompanyTimeBinner;
 import com.whereismydot.utils.TimeBinner;
 
 import org.apache.hadoop.io.LongWritable;
@@ -23,9 +24,6 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
 
 import twitter4j.Logger;
 import twitter4j.Status;
@@ -38,8 +36,14 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 
 	private final TweetFilter filters[];
 	private final FeatureExtractor extractors[];
-	private final TimeBinner timeBinner;
-	
+	private final CompanyTimeBinner binner;
+
+    private final CompanyClassifier classifier;
+
+    private enum Counters {
+        NoCompanyTweet
+    }
+
 	/**
 	 * This is the constructor that's called by the Hadoop framework so configure 
 	 * whatever extractors or filters you plan on using in here.
@@ -55,7 +59,9 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 		this.extractors[1] = new UserFeatures();
 		
 		// Time discretizer config
-		this.timeBinner = new TimeBinner();
+		this.binner = new CompanyTimeBinner();
+
+        classifier = new CompanyClassifier();
 	}
 		
 	@Override
@@ -77,7 +83,14 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
         if (!isRelevant(tweet))
             return;
 
-        long timeBin   = timeBinner.timeBin(tweet.getCreatedAt());
+        // If, for some reason, we can't match this to a company then don't emit it.
+        long companyKey = classifier.getCompanyKey(tweet);
+        if (companyKey == -1) {
+            reporter.getCounter(Counters.NoCompanyTweet).increment(1);
+            return;
+        }
+
+        long timeBin   = binner.bin(tweet.getCreatedAt(), companyKey);
         LongWritable t = new LongWritable(timeBin);
         out.collect(t, value);
 	}
