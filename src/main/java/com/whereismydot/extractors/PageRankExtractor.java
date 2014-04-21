@@ -5,6 +5,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.gson.Gson;
 import twitter4j.Status;
 
@@ -15,20 +16,21 @@ import java.util.Map;
 
 public class PageRankExtractor implements FeatureExtractor {
 //    private static String PAGERANK_FILE = "/Users/shaundowling/Google Drive/UCL/IRDM/groupcw/example/pagerank/iteration3/part-r-00000";
-private static String PAGERANK_FILE = "s3://";
-    private static String AWS_ACCESS = "AKIAIQQS32WOARUW24EA";
-    private static String AWS_SECRET = "VuiojERut5LrlutY7/0WxSB2l/9aUduLRpw63Evc";
+    private static String PAGERANK_FILE = "s3";
+    private static final String AWS_ACCESS = "AKIAIQQS32WOARUW24EA";
+    private static final String AWS_SECRET = "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";
+    private final String BUCKET = "sentimentalist";
+    private AmazonS3Client s3Client;
 
     private Map<String, Double> pagerankMap = new HashMap<>();
 
     public PageRankExtractor() {
         BufferedReader reader = null;
 
-        if (PAGERANK_FILE.startsWith("s3://")) {
+        if (PAGERANK_FILE.startsWith("s3")) {
             AWSCredentials myCredentials = new BasicAWSCredentials(AWS_ACCESS, AWS_SECRET);
-            AmazonS3Client s3Client = new AmazonS3Client(myCredentials);
-            S3Object object = s3Client.getObject(new GetObjectRequest("sentimentalist", "output/shaundowling/FullPageRank/iteration30/part-r-00000"));
-            reader = getReaderFromObject(object);
+            s3Client = new AmazonS3Client(myCredentials);
+            reader = getReaderFromS3AndHandleError();
 
         } else {
             try {
@@ -48,29 +50,39 @@ private static String PAGERANK_FILE = "s3://";
         }
     }
 
-    private BufferedReader getReaderFromObject(S3Object object) {
+    private BufferedReader getReaderFromS3AndHandleError() {
         BufferedReader reader = null;
 
         try {
-            InputStreamReader inReader = new InputStreamReader(object.getObjectContent());
-            File temp = File.createTempFile("pagerank", ".tmp");
-            temp.deleteOnExit();
-
-            FileWriter fw = new FileWriter(temp);
-
-            int c = 0;
-            while ((c = inReader.read()) != -1)
-                fw.write(c);
-
-            fw.flush();
-
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(temp)));
-
+            reader = getReaderFromS3();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return reader;
+    }
+
+    private BufferedReader getReaderFromS3() throws IOException {
+        List<S3ObjectSummary> results = s3Client.listObjects(BUCKET, "output/shaundowling/FullPageRank/iteration30/").getObjectSummaries();
+
+        File temp = File.createTempFile("pagerank", ".tmp");
+        temp.deleteOnExit();
+
+        FileWriter fw = new FileWriter(temp);
+
+        for (S3ObjectSummary summary : results) {
+            S3Object object = s3Client.getObject(summary.getBucketName(), summary.getKey());
+
+            InputStreamReader inReader = new InputStreamReader(object.getObjectContent());
+
+            int c;
+            while ((c = inReader.read()) != -1)
+                fw.write(c);
+
+            fw.flush();
+        }
+
+        return new BufferedReader(new InputStreamReader(new FileInputStream(temp)));
     }
 
     private void parseFile(BufferedReader reader) throws IOException {
@@ -89,11 +101,22 @@ private static String PAGERANK_FILE = "s3://";
 
     @Override
     public Map<String, Double> extract(List<Status> tweets) {
-        for (Status tweet : tweets) {
 
+        double totalPageRank = 0.0;
+
+        for (Status tweet : tweets) {
+            String userId = "" + tweet.getUser().getId();
+
+            try {
+                totalPageRank += pagerankMap.get(userId);
+            } catch (Exception e) {
+            }
         }
 
-        return null;
+        Map<String, Double> output = new HashMap<>();
+        output.put("total-page-rank", totalPageRank);
+
+        return output;
     }
 
     public static void main(String[] args) {
