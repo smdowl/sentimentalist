@@ -49,7 +49,7 @@ private static String PAGERANK_FILE = "s3://";
     }
 
     private BufferedReader getReaderFromObject(S3Object object) {
-        BufferedReader reader = null;r
+        BufferedReader reader = null;
 
         try {
             InputStreamReader inReader = new InputStreamReader(object.getObjectContent());
