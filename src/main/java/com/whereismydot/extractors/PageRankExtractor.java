@@ -27,8 +27,9 @@ private static String PAGERANK_FILE = "s3://";
         if (PAGERANK_FILE.startsWith("s3://")) {
             AWSCredentials myCredentials = new BasicAWSCredentials(AWS_ACCESS, AWS_SECRET);
             AmazonS3Client s3Client = new AmazonS3Client(myCredentials);
-            S3Object object = s3Client.getObject(new GetObjectRequest("sentimentalist", "data/pagerank-test"));
-            reader = new BufferedReader(new InputStreamReader(object.getObjectContent()));
+            S3Object object = s3Client.getObject(new GetObjectRequest("sentimentalist", "output/shaundowling/FullPageRank/iteration30/part-r-00000"));
+            reader = getReaderFromObject(object);
+
         } else {
             try {
                 reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(PAGERANK_FILE))));
@@ -45,6 +46,31 @@ private static String PAGERANK_FILE = "s3://";
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    private BufferedReader getReaderFromObject(S3Object object) {
+        BufferedReader reader = null;r
+
+        try {
+            InputStreamReader inReader = new InputStreamReader(object.getObjectContent());
+            File temp = File.createTempFile("pagerank", ".tmp");
+            temp.deleteOnExit();
+
+            FileWriter fw = new FileWriter(temp);
+
+            int c = 0;
+            while ((c = inReader.read()) != -1)
+                fw.write(c);
+
+            fw.flush();
+
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(temp)));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return reader;
     }
 
     private void parseFile(BufferedReader reader) throws IOException {
