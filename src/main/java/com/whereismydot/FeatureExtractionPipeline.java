@@ -3,10 +3,7 @@ package com.whereismydot;
 import java.io.IOException;
 import java.util.*;
 
-import com.whereismydot.extractors.CompanyFeatures;
-import com.whereismydot.extractors.FeatureExtractor;
-import com.whereismydot.extractors.TokenFeatures;
-import com.whereismydot.extractors.UserFeatures;
+import com.whereismydot.extractors.*;
 import com.whereismydot.filters.TweetFilter;
 import com.whereismydot.utils.CompanyClassifier;
 import com.whereismydot.utils.CompanyTimeBinner;
@@ -51,6 +48,7 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 		extractors.add(new TokenFeatures());
         extractors.add(new UserFeatures());
         extractors.add(new CompanyFeatures());
+        extractors.add(new PageRankExtractor());
 	}
 		
 	@Override

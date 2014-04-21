@@ -5,18 +5,10 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class CompanyTimeBinner {
+    static TimeBinner timeBinner = new TimeBinner();
 
 	public long bin(Date date, long companyKey){
-		
-		Calendar cal = new GregorianCalendar();
-	    cal.setTime(date);
-
-	    if (cal.get(Calendar.SECOND) >= 30){
-	        cal.add(Calendar.MINUTE, 1);
-	    }
-
-	    cal.set(Calendar.SECOND, 0);
-
-	    return cal.getTime().getTime() + companyKey;
+        long timeBin = timeBinner.timeBin(date);
+	    return timeBin + companyKey;
 	}
 }
