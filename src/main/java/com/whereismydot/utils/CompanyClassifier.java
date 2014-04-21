@@ -17,13 +17,15 @@ import java.util.Set;
 public class CompanyClassifier {
 
     private Map<String, Set<String>> companyKeywords;
+    private Map<String, Long> companyKeys;
 
     public CompanyClassifier() {
         loadCompanyMap();
     }
 
     private void loadCompanyMap() {
-        companyKeywords = new HashMap<String, Set<String>>();
+        companyKeywords = new HashMap<>();
+        companyKeys = new HashMap<>();
 
         // Load the map defined in resources
         InputStream input = this.getClass().getResourceAsStream("/company_map.json");
@@ -33,9 +35,12 @@ public class CompanyClassifier {
         JsonParser parser = new JsonParser();
         JsonObject elem =  parser.parse(reader).getAsJsonObject();
 
+        long key = 1;
+
         for (Map.Entry<String, JsonElement> entry : elem.entrySet()) {
 
             String companyName = entry.getKey();
+            companyKeys.put(companyName, key++);
             companyKeywords.put(companyName, new HashSet<String>());
 
             // We are storing the lower case of every string match for consistency
@@ -65,13 +70,22 @@ public class CompanyClassifier {
         return null;
     }
 
+    public long getCompanyKey(Status tweet) {
+        String company = getCompanyMentioned(tweet);
+
+        if (company == null)
+            return -1;
+
+        return companyKeys.get(company);
+    }
+
     public static void main(String[] args) {
         CompanyClassifier classifier =  new CompanyClassifier();
         Status testStatus = TwitterTest.getExampleTweet();
 
         // Should find company in tweet
         assert classifier.getCompanyMentioned(testStatus).equals("walt disney");
-
+        System.out.println(classifier.getCompanyKey(testStatus));
         System.out.println("Success!");
     }
 
