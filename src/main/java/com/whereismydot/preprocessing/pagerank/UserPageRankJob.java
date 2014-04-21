@@ -116,7 +116,7 @@ class UserPageRankReducer extends Reducer<Text, Text, Text, Text> {
 
 public class UserPageRankJob {
 
-    private static final int MAX_IT = 20;
+    private static final int MAX_IT = 30;
 
     private Path basePath;
     private Path inputPath;
@@ -136,9 +136,9 @@ public class UserPageRankJob {
     }
 
     private void removeOldOutput() throws IOException {
-        FileSystem fs = this.basePath.getFileSystem(new Configuration());
-        fs.delete(basePath, true);
-        fs.mkdirs(basePath);
+//        FileSystem fs = this.basePath.getFileSystem(new Configuration());
+//        fs.delete(basePath, true);
+//        fs.mkdirs(basePath);
     }
 
     public void iterateUntilConvergence() throws IOException, ClassNotFoundException, InterruptedException {
@@ -158,6 +158,7 @@ public class UserPageRankJob {
 
     private void initJob() throws IOException {
         job = Job.getInstance(new Configuration());
+        job.setJarByClass(InDegreeJob.class);
         job.setMapperClass(UserPageRankMapper.class);
         job.setReducerClass(UserPageRankReducer.class);
 

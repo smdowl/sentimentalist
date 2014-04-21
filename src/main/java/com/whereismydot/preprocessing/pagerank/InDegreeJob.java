@@ -49,6 +49,8 @@ public class InDegreeJob {
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 
         Job job = Job.getInstance(new Configuration());
+        job.setJarByClass(InDegreeJob.class);
+
         job.setMapperClass(InDegreeMapper.class);
         job.setReducerClass(InDegreeReducer.class);
 
