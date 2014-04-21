@@ -1,12 +1,9 @@
 package com.whereismydot;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.whereismydot.extractors.CompanyFeatures;
 import com.whereismydot.extractors.FeatureExtractor;
 import com.whereismydot.extractors.TokenFeatures;
 import com.whereismydot.extractors.UserFeatures;
@@ -34,11 +31,11 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 		Reducer<LongWritable, Text, LongWritable, String>, 
 		Mapper<LongWritable, Text, LongWritable, Text> {
 
-	private final TweetFilter filters[];
-	private final FeatureExtractor extractors[];
-	private final CompanyTimeBinner binner;
+	private final List<TweetFilter> filters = new LinkedList<>();
+	private final List<FeatureExtractor> extractors = new LinkedList<>();
 
-    private final CompanyClassifier classifier;
+    private final CompanyTimeBinner binner = new CompanyTimeBinner();
+    private final CompanyClassifier classifier = new CompanyClassifier();
 
     private enum Counters {
         NoCompanyTweet
@@ -49,19 +46,11 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 	 * whatever extractors or filters you plan on using in here.
 	 */
 	public FeatureExtractionPipeline(){
-	
-		// Filter config
-		this.filters    = new TweetFilter[0];
-		
-		// Extractor config 
-		this.extractors = new FeatureExtractor[2];
-		this.extractors[0] = new TokenFeatures();
-		this.extractors[1] = new UserFeatures();
-		
-		// Time discretizer config
-		this.binner = new CompanyTimeBinner();
 
-        classifier = new CompanyClassifier();
+		// Extractor config 
+		extractors.add(new TokenFeatures());
+        extractors.add(new UserFeatures());
+        extractors.add(new CompanyFeatures());
 	}
 		
 	@Override
