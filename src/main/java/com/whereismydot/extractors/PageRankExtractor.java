@@ -102,18 +102,21 @@ public class PageRankExtractor implements FeatureExtractor {
     @Override
     public Map<String, Double> extract(List<Status> tweets) {
 
+        Map<String, Double> output = new HashMap<>();
         double totalPageRank = 0.0;
 
         for (Status tweet : tweets) {
             String userId = "" + tweet.getUser().getId();
-
+            double pagerank = 0.0;
             try {
-                totalPageRank += pagerankMap.get(userId);
+                pagerank = pagerankMap.get(userId);
             } catch (Exception e) {
             }
+
+            output.put(userId, pagerank);
+            totalPageRank += pagerank;
         }
 
-        Map<String, Double> output = new HashMap<>();
         output.put("total-page-rank", totalPageRank);
 
         return output;
