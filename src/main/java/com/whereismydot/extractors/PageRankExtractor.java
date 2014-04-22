@@ -7,10 +7,13 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.gson.Gson;
+import com.whereismydot.utils.SentimentAnalyser;
+import experimentation.TwitterTest;
 import twitter4j.Status;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -104,6 +107,9 @@ public class PageRankExtractor implements FeatureExtractor {
 
         Map<String, Double> output = new HashMap<>();
         double totalPageRank = 0.0;
+        double weightedSentiment = 0.0;
+
+        SentimentAnalyser analyser = new SentimentAnalyser();
 
         for (Status tweet : tweets) {
             String userId = "" + tweet.getUser().getId();
@@ -113,17 +119,25 @@ public class PageRankExtractor implements FeatureExtractor {
             } catch (Exception e) {
             }
 
-            output.put(userId, pagerank);
             totalPageRank += pagerank;
+
+            int sentiment = analyser.getSentiment(tweet.getText());
+            weightedSentiment += sentiment * pagerank;
         }
 
         output.put("total-page-rank", totalPageRank);
+        output.put("page-rank-sentiment", weightedSentiment);
 
         return output;
     }
 
     public static void main(String[] args) {
         PageRankExtractor extractor = new PageRankExtractor();
+        Status tweet = TwitterTest.getExampleTweet();
+
+        List<Status> tweets = new LinkedList<>();
+        tweets.add(tweet);
+        extractor.extract(tweets);
 
         System.out.println("Parsed file");
     }
