@@ -16,6 +16,7 @@ public class App{
 	public static void main( String[] args ) throws IOException{
     
         JobConf job = new JobConf(FeatureExtractionPipeline.class);
+        job.set("mapreduce.task.timeout", "18000000");
         job.setMapperClass(FeatureExtractionPipeline.class);
         job.setReducerClass(FeatureExtractionPipeline.class);
         
