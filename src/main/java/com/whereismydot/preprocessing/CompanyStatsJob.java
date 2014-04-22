@@ -48,6 +48,8 @@ public class CompanyStatsJob extends MapReduceBase implements
         Counter<String> wordCounts = new Counter<String>();
         int sentiment = 0;
 
+        SentimentAnalyser analyzer = new SentimentAnalyser();
+
         while (values.hasNext()) {
 
             Status status = TwitterParser.parseOrNull(values.next().toString());
@@ -62,7 +64,7 @@ public class CompanyStatsJob extends MapReduceBase implements
             while (tokenizer.hasMoreTokens())
                 wordCounts.increment(tokenizer.nextToken());
 
-            sentiment += SentimentAnalyser.getSentiment(status.getText());
+            sentiment += analyzer.getSentiment(status.getText());
 
             count++;
 
