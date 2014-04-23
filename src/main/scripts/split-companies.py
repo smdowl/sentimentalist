@@ -1,10 +1,14 @@
 import json
+import logging
 from os.path import join
 import sys
 from tempfile import NamedTemporaryFile
 
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
+
+
+logging.basicConfig(level=logging.INFO)
 
 
 class CompanySplitter(object):
@@ -24,20 +28,25 @@ class CompanySplitter(object):
 
         for key in source_keys:
             temp = NamedTemporaryFile()
+            logging.info('Downloading ' + key.key)
             key.get_contents_to_filename(temp.name)
 
+            logging.info('Downloaded. Starting processing')
             self.process_file(temp)
+            logging.info('Processed.')
 
+        logging.info('Storing output')    
         self.store_output()
+        logging.info('Done!')
 
     def process_file(self, file):
         for line in file.readlines():
-            json_str = line.split('\t')[1]
+            time, json_str = line.split('\t')
             obj = json.loads(json_str)
 
-            self.store_object(obj)
+            self.store_object(time, obj)
 
-    def store_object(self, obj):
+    def store_object(self, time, obj):
         company = self.get_company(obj)
 
         if company is None:
@@ -46,7 +55,7 @@ class CompanySplitter(object):
         if company not in self.company_files:
             self.company_files[company] = NamedTemporaryFile()
 
-        self.company_files[company].write(json.dumps(obj) + '\n')
+        self.company_files[company].write(str(time) + '\t' + json.dumps(obj) + '\n')
 
     def get_company(self, obj):
 
@@ -68,6 +77,8 @@ class CompanySplitter(object):
 
             key = Key(self.bucket)
             key.key = out_path
+
+            logging.info('Uploading %s' % company)
             key.set_contents_from_filename(f.name)
 
 
