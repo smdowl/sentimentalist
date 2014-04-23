@@ -25,8 +25,6 @@ public class PageRankExtractor implements FeatureExtractor {
     private final String BUCKET = "sentimentalist";
     private AmazonS3Client s3Client;
 
-    SentimentAnalyser analyser = new SentimentAnalyser();
-
     private Map<String, Double> pagerankMap = new HashMap<>();
 
     public PageRankExtractor() {
@@ -121,7 +119,7 @@ public class PageRankExtractor implements FeatureExtractor {
 
             totalPageRank += pagerank;
 
-            int sentiment = analyser.getSentiment(tweet.getText());
+            int sentiment = SentimentAnalyser.getSentiment(tweet.getText());
             weightedSentiment += sentiment * pagerank;
         }
 

@@ -14,23 +14,25 @@ import java.util.Properties;
 
 public class SentimentAnalyser {
 
+    private static SentimentAnalyser analyser = new SentimentAnalyser();
+
     // OK seems to return 2 but then from experimentation the most common is 1
     private static int INDIFFERENT_SENTIMENT = 1;
 
     private StanfordCoreNLP pipeline;
 
-    public SentimentAnalyser() {
+    private SentimentAnalyser() {
         Properties properties = new Properties();
         properties.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
         pipeline = new StanfordCoreNLP(properties);
     }
 
-    public int getSentiment(String text) {
+    public static int getSentiment(String text) {
         int mainSentiment = 0;
 
         if (text != null && text.length() > 0) {
             int longest = 0;
-            Annotation annotation = pipeline.process(text);
+            Annotation annotation = analyser.pipeline.process(text);
             for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
                 Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
 

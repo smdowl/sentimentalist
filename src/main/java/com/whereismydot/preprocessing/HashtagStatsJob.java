@@ -37,13 +37,11 @@ public class HashtagStatsJob extends MapReduceBase implements
         double count = 0.0;
         int sentiment = 0;
 
-        SentimentAnalyser analyser = new SentimentAnalyser();
-
         while (values.hasNext()) {
 
             Status status = TwitterParser.parseOrNull(values.next().toString());
 
-            sentiment += analyser.getSentiment(status.getText());
+            sentiment += SentimentAnalyser.getSentiment(status.getText());
 
             count++;
 
