@@ -99,7 +99,7 @@ public class ModelRunner implements Runnable{
 		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.WaveKernel(1), 0));
 		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.WaveKernel(10), 0));
 		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.WaveKernel(100), 0));
-//        regressionModels.add(new LinearRegression<Map<String, Double>>(new MatrixBuilders.MatrixBuilderLinear()));
+        regressionModels.add(new LinearRegression<Map<String, Double>>(new MatrixBuilders.MatrixBuilderLinear()));
 
 
 		// Specify which classification models should be evaluated.
