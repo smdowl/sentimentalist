@@ -1,0 +1,16 @@
+# Full run
+./start-job.sh FullUserGraph preprocessing.pagerank.UserGraphJob\
+ "s3n://sentimentalist/data/uncompressed/exampletweets_0.json,s3n://sentimentalist/data/uncompressed/exampletweets_1.json,s3n://sentimentalist/data/uncompressed/exampletweets_2.json,s3n://sentimentalist/data/uncompressed/exampletweets_3.json,s3n://sentimentalist/data/uncompressed/exampletweets_4.json,s3n://sentimentalist/data/uncompressed/exampletweets_5.json,s3n://sentimentalist/data/uncompressed/Skippedtweets.json"
+
+./start-job.sh FullUserGraph preprocessing.pagerank.UserGraphJob\
+ "s3n://sentimentalist/data/uncompressed/exampletweets_0.json,s3n://sentimentalist/data/uncompressed/exampletweets_1.json"
+
+ ./start-job.sh FullPageRank preprocessing.pagerank.UserPageRankJob\
+  "s3n://sentimentalist/output/shaundowling/FullUserGraph/part-00000"
+
+  ./start-job.sh InDegrees preprocessing.pagerank.InDegreeJob\
+    "s3n://sentimentalist/output/shaundowling/FullUserGraph/part-*"
+
+# Test bootstrap
+elastic-mapreduce --create --alive --log-uri s3://sentimentalist/test/logs
+elastic-mapreduce --create --alive --ami-version 3.0.1 --log-uri s3://sentimentalist/test/logs

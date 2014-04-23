@@ -1,1 +1,1 @@
-s3cmd put target/Sentimentalist-1.0-SNAPSHOT.jar s3://sentimentalist/jars/$USER/
+s3cmd put target/Sentimentalist-1.0-SNAPSHOT.jar s3://sentimentalist/jars/$USER/ --acl-public
