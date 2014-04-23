@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PageRankExtractor implements FeatureExtractor {
-//    private static String PAGERANK_FILE = "/Users/shaundowling/Google Drive/UCL/IRDM/groupcw/example/pagerank/iteration3/part-r-00000";
+//    private static String PAGERANK_FILE = "/Users/shaundowling/Google Drive/UCL/advanced topics/RL/coding/irdm/compressed-output";
     private static String PAGERANK_FILE = "s3";
     private static final String AWS_ACCESS = "AKIAIQQS32WOARUW24EA";
     private static final String AWS_SECRET = "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";
@@ -66,40 +66,28 @@ public class PageRankExtractor implements FeatureExtractor {
     }
 
     private BufferedReader getReaderFromS3() throws IOException {
-        List<S3ObjectSummary> results = s3Client.listObjects(BUCKET, "output/shaundowling/FullPageRank/iteration30/").getObjectSummaries();
-
+        S3Object object = s3Client.getObject(BUCKET, "output/shaundowling/FullPageRank/compressed-output");
         File temp = File.createTempFile("pagerank", ".tmp");
         temp.deleteOnExit();
 
         FileWriter fw = new FileWriter(temp);
 
-        for (S3ObjectSummary summary : results) {
-            S3Object object = s3Client.getObject(summary.getBucketName(), summary.getKey());
+        InputStreamReader inReader = new InputStreamReader(object.getObjectContent());
 
-            InputStreamReader inReader = new InputStreamReader(object.getObjectContent());
+        int c;
+        while ((c = inReader.read()) != -1)
+            fw.write(c);
 
-            int c;
-            while ((c = inReader.read()) != -1)
-                fw.write(c);
+        fw.flush();
 
-            fw.flush();
-        }
 
         return new BufferedReader(new InputStreamReader(new FileInputStream(temp)));
     }
 
     private void parseFile(BufferedReader reader) throws IOException {
         Gson gson = new Gson();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String[] parts = line.split("\t");
-
-            String id = parts[0];
-            String dict = parts[1];
-            Map<String, Double> parsed = gson.fromJson(dict, pagerankMap.getClass());
-
-            pagerankMap.put(id, parsed.get("page_rank"));
-        }
+        String dict = reader.readLine();
+        pagerankMap = gson.fromJson(dict, pagerankMap.getClass());
     }
 
     @Override
@@ -115,6 +103,7 @@ public class PageRankExtractor implements FeatureExtractor {
             try {
                 pagerank = pagerankMap.get(userId);
             } catch (Exception e) {
+                pagerank = pagerankMap.get("other");
             }
 
             totalPageRank += pagerank;
@@ -135,8 +124,7 @@ public class PageRankExtractor implements FeatureExtractor {
 
         List<Status> tweets = new LinkedList<>();
         tweets.add(tweet);
-        extractor.extract(tweets);
-
-        System.out.println("Parsed file");
+        System.out.println(extractor.extract(tweets));
+        //should be 0.9173745919293128
     }
 }
