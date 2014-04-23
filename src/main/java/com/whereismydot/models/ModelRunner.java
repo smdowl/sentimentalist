@@ -11,8 +11,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
+import org.joda.time.LocalDate;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.whereismydot.utils.StockDataLoader;
+import com.whereismydot.utils.StockDataLoader.PriceType;
 
 public class ModelRunner implements Runnable{
 
@@ -25,6 +29,7 @@ public class ModelRunner implements Runnable{
 	private final List<Model<Map<String, Double>, Double>>  regressionModels;
 	private final List<Model<Map<String, Double>, Boolean>> classificationModels;
 
+	
 	/**
 	 * A simple container class to reference a subset of the data sets for use 
 	 * in k-fold validation 
@@ -57,12 +62,15 @@ public class ModelRunner implements Runnable{
 		// Load all the data
 		List<Map<String, Double>> features;
 		List<List<Double>>  prices;
+		StockDataLoader loader = new StockDataLoader(new LocalDate(2014, 1, 14), 
+										new LocalDate(2014, 3, 14), 1, PriceType.Close);
+
 		try{ 
 			features = readFeatureVectors(args[0]);
 			
 			prices   = new ArrayList<List<Double>>();
 			for(int i = 1; i < args.length; i++){
-				prices.add(readStockPrices(args[i]));
+				prices.add(loader.load(args[i]));
 			}
 			
 		}catch(IOException ex){
@@ -110,6 +118,7 @@ public class ModelRunner implements Runnable{
 		// Set how many folds to run what fold size to use. 
 		this.foldSize  = 200;
 		this.foldCount = 100;
+		
 	}
 
 	@Override
@@ -293,13 +302,5 @@ public class ModelRunner implements Runnable{
 		
 		return result;
 	}
-	
-	static private List<Double> readStockPrices(String path)throws IOException{
-		List<String> lines = Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8);
-		List<Double> result = new ArrayList<Double>(lines.size());
-		for(String line : lines){
-			result.add(Double.valueOf(line));
-		}
-		return result;
-	}	
+		
 }
