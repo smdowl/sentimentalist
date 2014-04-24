@@ -1,20 +1,22 @@
 package com.whereismydot.models;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.List;
-
-import Jama.Matrix;
+import org.la4j.*;
+import org.la4j.linear.LinearSystemSolver;
+import org.la4j.matrix.dense.Basic2DMatrix;
+import org.la4j.vector.*;
+import org.la4j.matrix.*;
 import java.util.ArrayList;
 
 
 public class LinearRegression<T> implements Model<T, Double>{
 
     private final MatrixBuilder<T> matrixBuilder;
-
-    private Matrix beta;
-
+    private Vector beta;
     private List<T> trainingX;
-    private Matrix  trainingY;
-
     public LinearRegression(MatrixBuilder<T> mB){
        this.matrixBuilder = mB;
     }
@@ -23,29 +25,20 @@ public class LinearRegression<T> implements Model<T, Double>{
     public void train(List<T> x, List<Double> y) {
 
        this.trainingX = x;
-       this.trainingY = new Matrix(x.size(), 1);
+       double [][] sparseMatrix = new double [x.size()][];
 
-        for(int i = 0; i < x.size(); i++){
-            trainingY.set(i, 0, y.get(i));
-        }
+        Matrix C = matrixBuilder.getCMatrix(x);
+        Vector K = matrixBuilder.getXYVector(x, y);
 
-
-        Matrix X = matrixBuilder.getMatrix(x);
-        Matrix tX = X.transpose();
-
-      beta = tX.times(X).inverse().times(tX.times(trainingY));
+        LinearSystemSolver solver = C.withSolver(LinearAlgebra.FORWARD_BACK_SUBSTITUTION);
+        beta = solver.solve(K, LinearAlgebra.SPARSE_FACTORY);
 
     }
 
     @Override
     public Double predict(T x) {
-
-        List<T> listx = new ArrayList<T>();
-        listx.add(0,x);
-
-        Matrix xVector = matrixBuilder.getMatrix(listx);
-
-        return xVector.times(beta).get(0,0);
+        Double prediction = matrixBuilder.getPrediction(x,beta);
+        return prediction;
     }
 
 
