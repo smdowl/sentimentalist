@@ -14,26 +14,25 @@ import java.util.Properties;
 
 public class SentimentAnalyser {
 
+    private static SentimentAnalyser analyser = new SentimentAnalyser();
+
     // OK seems to return 2 but then from experimentation the most common is 1
     private static int INDIFFERENT_SENTIMENT = 1;
 
-    public static int getSentiment(String text) {
+    private StanfordCoreNLP pipeline;
+
+    private SentimentAnalyser() {
         Properties properties = new Properties();
         properties.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
+        pipeline = new StanfordCoreNLP(properties);
+    }
 
-        // Hacky way of silencing all the logs.
-        PrintStream err = System.err;
-        System.setErr(new PrintStream(new OutputStream() {
-            public void write(int b) {}
-        }));
-
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(properties);
-
+    public static int getSentiment(String text) {
         int mainSentiment = 0;
 
         if (text != null && text.length() > 0) {
             int longest = 0;
-            Annotation annotation = pipeline.process(text);
+            Annotation annotation = analyser.pipeline.process(text);
             for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
                 Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
 
@@ -46,8 +45,6 @@ public class SentimentAnalyser {
 
             }
         }
-
-        System.setErr(err);
 
         mainSentiment -= INDIFFERENT_SENTIMENT;
 
@@ -64,7 +61,9 @@ public class SentimentAnalyser {
                 "disgusting, terrible and awful"
         };
 
+        SentimentAnalyser analyser = new SentimentAnalyser();
+
         for (String s : sentences)
-            System.out.println(s + ": " + getSentiment(s));
+            System.out.println(s + ": " + analyser.getSentiment(s));
     }
 }

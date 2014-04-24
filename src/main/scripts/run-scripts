@@ -13,4 +13,7 @@
 
 # Test bootstrap
 elastic-mapreduce --create --alive --log-uri s3://sentimentalist/test/logs
-elastic-mapreduce --create --alive --ami-version 3.0.1 --log-uri s3://sentimentalist/test/logs
+elastic-mapreduce --create --alive --ami-version 3.0.1 --instance-type m1.medium --log-uri s3://sentimentalist/test/logs
+
+./start-job.sh PerDayFeatures App\
+ "s3n://sentimentalist/data/uncompressed/*"

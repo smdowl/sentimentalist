@@ -1,5 +1,6 @@
 package com.whereismydot.extractors;
 
+import com.whereismydot.utils.SentimentAnalyser;
 import twitter4j.Status;
 
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public class TokenFeatures implements FeatureExtractor {
         double isFavourited = 0.0;
         double isRetweeted = 0.0;
         double isRetweet = 0.0;
+        double sentiment = 0.0;
         String texts = "";
         
         for (Status tweet : tweets) {
@@ -32,8 +34,8 @@ public class TokenFeatures implements FeatureExtractor {
         	isFavourited += tweet.isFavorited()? 1 : 0;
         	isRetweeted += tweet.isRetweeted()? 1 : 0;
         	isRetweet += tweet.isRetweet()? 1 : 0;
-        	texts += tweet.getText() + " "; 
-        	
+        	texts += tweet.getText() + " ";
+            sentiment += SentimentAnalyser.getSentiment(tweet.getText());
         }
         
         // New Features:
@@ -47,7 +49,8 @@ public class TokenFeatures implements FeatureExtractor {
     	features.put("Avg isRetweeted Count", isRetweeted/tweets.size());
     	features.put("Raw isRetweet Count", isRetweet);
     	features.put("Avg isRetweet Count", isRetweet/tweets.size());
-    	
+        features.put("ave-sentiment", sentiment/tweets.size());
+
     	// adds to the features the word count over all words in all tweets in the given time-bin:
         addTokenCounts(features, texts, tweets.size());
 

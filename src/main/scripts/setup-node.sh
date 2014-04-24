@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export HADOOP_USER_CLASSPATH_FIRST=true;
+echo "HADOOP_CLASSPATH=lib/*" >> /home/hadoop/conf/hadoop-user-env.sh
+
 mkdir ~/.aws/
 
 echo "[default]
