@@ -10,9 +10,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.management.RuntimeErrorException;
+
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.whereismydot.utils.StockDataLoader;
+import com.whereismydot.utils.StockDataLoader.PriceType;
 
 public class ModelRunner implements Runnable{
 
@@ -25,6 +34,7 @@ public class ModelRunner implements Runnable{
 	private final List<Model<Map<String, Double>, Double>>  regressionModels;
 	private final List<Model<Map<String, Double>, Boolean>> classificationModels;
 
+	
 	/**
 	 * A simple container class to reference a subset of the data sets for use 
 	 * in k-fold validation 
@@ -54,15 +64,20 @@ public class ModelRunner implements Runnable{
 			return;
 		}
 		
+		LocalDate from = new LocalDate(2014, 1, 27);
+		LocalDate to   = new LocalDate(2014, 3, 4); 
+		
 		// Load all the data
 		List<Map<String, Double>> features;
 		List<List<Double>>  prices;
+		StockDataLoader loader = new StockDataLoader(from, to, 1, PriceType.Close);
+
 		try{ 
-			features = readFeatureVectors(args[0]);
+			features = readFeatureVectors(args[0], from, to);
 			
 			prices   = new ArrayList<List<Double>>();
 			for(int i = 1; i < args.length; i++){
-				prices.add(readStockPrices(args[i]));
+				prices.add(loader.load(args[i]));
 			}
 			
 		}catch(IOException ex){
@@ -108,8 +123,9 @@ public class ModelRunner implements Runnable{
 		this.classificationModels = classificationModels;
 
 		// Set how many folds to run what fold size to use. 
-		this.foldSize  = 200;
-		this.foldCount = 100;
+		this.foldSize  = 20;
+		this.foldCount = 10;
+		
 	}
 
 	@Override
@@ -166,7 +182,7 @@ public class ModelRunner implements Runnable{
 				results[stockIdx][modelIdx] += error;
 			}
 			
-			//Normalise the error rate 
+			//Normalize the error rate 
 			for(int i = 0; i < results.length; i++){
 				for(int j = 0; j < results[i].length; j++){
 					results[i][j] /= foldCount;
@@ -270,36 +286,60 @@ public class ModelRunner implements Runnable{
 	 * @return
 	 * @throws IOException
 	 */
-	static private List<Map<String, Double>> readFeatureVectors(String path) throws IOException{
+	static private List<Map<String, Double>> readFeatureVectors(String path, LocalDate from, LocalDate to) throws IOException{
 		
+		int totalDays = Days.daysBetween(from, to).getDays();
 		
 		List<String> lines = Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8);
-		List<Map<String, Double>> result = new ArrayList<Map<String, Double>>(lines.size());
+		
+		@SuppressWarnings("unchecked")
+		Map<String, Double>[] result = new Map[totalDays];
+		
 		JsonParser parser = new JsonParser();
 		
 		for(String line : lines){
-			int splitIdx = line.indexOf(" ");
+			int splitIdx = line.indexOf("\t");
 			
-			JsonElement json = parser.parse(line.substring(splitIdx));
-			Map<String, Double> features = new HashMap<String, Double>();
+			long timestamp = Long.parseLong(line.substring(0, splitIdx));
+			int  day       = Days.daysBetween(from, new LocalDate(timestamp)).getDays();
+			if(day >= 0 && day < totalDays){	
 			
-			for(Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()){
-				features.put(entry.getKey(), entry.getValue().getAsDouble());
-			}
+				JsonElement json = parser.parse(line.substring(splitIdx));
+				Map<String, Double> features = new HashMap<String, Double>();
 			
-			result.add(features);
-		
+				for(Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()){
+					features.put(entry.getKey(), entry.getValue().getAsDouble());
+				}
+				if (result[day] != null){
+					System.out.println("Multiple feature vectors for day:" + day);
+				}
+				result[day] = features;
+			}		
 		}
 		
-		return result;
-	}
-	
-	static private List<Double> readStockPrices(String path)throws IOException{
-		List<String> lines = Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8);
-		List<Double> result = new ArrayList<Double>(lines.size());
-		for(String line : lines){
-			result.add(Double.valueOf(line));
-		}
-		return result;
+		return verifyFeatures(result);		
+		
 	}	
+	
+	static private List<Map<String, Double>> verifyFeatures(Map<String, Double>[] features){
+		List<Map<String, Double>> result = new ArrayList<Map<String, Double>>(features.length);
+		Set<Integer> missing = new TreeSet<Integer>();
+		for(int i = 0; i < features.length; i++){
+			if(features[i] == null){
+				missing.add(i);
+			}else{
+				result.add(features[i]);
+			}
+		}
+		
+		if(missing.size() == 0 ){
+			return result;	
+		}else{		
+			StringBuffer buf = new StringBuffer("Missing:");
+			for(Integer i : missing){
+				buf.append(" ").append(i);
+			}
+			throw new RuntimeException(buf.toString());
+		}
+	}
 }

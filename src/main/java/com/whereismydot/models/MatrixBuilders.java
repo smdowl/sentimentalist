@@ -1,6 +1,7 @@
 package com.whereismydot.models;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import Jama.Matrix;
 
@@ -13,25 +14,30 @@ public class MatrixBuilders {
 
         @Override
         public Matrix getMatrix(List<Map<String, Double>> x) {
-
-            TreeMap<String, Double> treeMap = new TreeMap<String, Double>();
-            treeMap.putAll(x.get(0));
-
-            int n1 = x.size();
-            int n2 = treeMap.size();
-            Matrix resMatrix = new Matrix(n1, n2);
-
-            Iterator<String> iter = treeMap.keySet().iterator();
-
-            int index = 0;
-            while(iter.hasNext()) {
-                String currentMapEntry = iter.next();
-                for(int i=0; i<n1; i++) {
-                    resMatrix.set(i,index,x.get(i).get(currentMapEntry));
-                }
-                index++;
-            }
-
+        	
+        	// First compute feature indices 
+        	Set<String> featureNames = new HashSet<String>();
+        	for(Map<String, Double> vector : x){
+        		featureNames.addAll(vector.keySet());
+        	}
+        	
+        	Map<String, Integer> namesIdx = new HashMap<String,Integer>();
+        	int idx = 0;
+        	for(String name : featureNames){
+        		namesIdx.put(name, idx++);
+        	}
+        	
+        	
+        	// Now build the matrix
+        	Matrix resMatrix = new Matrix(x.size(), featureNames.size());        	
+        	int i = 0;
+        	for(Map<String, Double> vector : x){
+        		for(Entry<String, Double> entry : vector.entrySet()){
+        			resMatrix.set(i, namesIdx.get(entry.getKey()), entry.getValue());
+        		}
+        		i++;
+        	}
+        	
             return resMatrix;
         }
 
