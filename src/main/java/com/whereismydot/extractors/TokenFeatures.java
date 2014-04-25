@@ -15,6 +15,8 @@ import java.util.StringTokenizer;
  */
 public class TokenFeatures implements FeatureExtractor {
 
+	private final SentimentAnalyser analyser = new SentimentAnalyser();
+	
     @Override
     public Map<String, Double> extract(List<Status> tweets) {
         Map<String, Double> features = new HashMap<String, Double>();
@@ -26,6 +28,7 @@ public class TokenFeatures implements FeatureExtractor {
         double isRetweet = 0.0;
         double sentiment = 0.0;
         String texts = "";
+        Map<Status, Integer> tweetSentiment = analyser.getTweetSentiments(tweets);
         
         for (Status tweet : tweets) {
             //addTokenCounts(features, tweet.toString());
@@ -35,7 +38,7 @@ public class TokenFeatures implements FeatureExtractor {
         	isRetweeted += tweet.isRetweeted()? 1 : 0;
         	isRetweet += tweet.isRetweet()? 1 : 0;
         	texts += tweet.getText() + " ";
-            sentiment += SentimentAnalyser.getSentiment(tweet.getText());
+            sentiment += tweetSentiment.get(tweet);
         }
         
         // New Features:
