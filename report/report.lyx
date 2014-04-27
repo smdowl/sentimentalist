@@ -103,6 +103,95 @@ Tweet Features
 Sentiment
 \end_layout
 
+\begin_layout Standard
+Another feature that seems very appropriate when considering stock price
+ change is the 
+\emph on
+sentiment 
+\emph default
+of the text used.
+ In particular, you would expect a company with numerous positive tweets
+ associated with it to generally have a positive outlook.
+ This is under the assumptions that the people tweeting about a company
+ is an representative subset of the people interested in trading the company's
+ stock (or at least that they are important in some way on people deciding
+ the value of the stock), and that positivity or negativity in a tweets
+ is indicitive of the user's opinion of the outlook of the company.
+\end_layout
+
+\begin_layout Subsubsection
+Stanford Implementation
+\end_layout
+
+\begin_layout Standard
+We made use of the Standford NLP library 
+\series bold
+\emph on
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+
+\series bold
+\emph on
+ref
+\end_layout
+
+\end_inset
+
+
+\series default
+\emph default
+ to parse the text of each tweet during the feature extraction step.
+ For every tweet parsed in for a particular company in a given time slice,
+ we ran the text through the Stanford model to get an associated sentiment.
+ This score ranged from 0 to 4 where an indifferent statement seemed to
+ score around 2.
+ However, from experimentation we noted than a large proportion of sentences
+ where scored as 1 and thus shifted the score by -1 to roughly center it
+ on zero.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Simple Implementation
+\end_layout
+
+\begin_layout Standard
+Although the Stanford library boasts very good sentiment results, we found
+ that it took about 0.1 seconds to parse an average tweet.
+ This meant that when we ran the analyser on millions of tweets it became
+ prohibitively slow, even when using Hadoop and parrallelising the sentiment
+ analysis stage of the pipeline.
+ This lead us to implement a much simpler sentiment analyser that simply
+ calculates the sentiment of a tweet, 
+\begin_inset Formula $S_{t}$
+\end_inset
+
+, as the average sentiment of each word
+\begin_inset Formula 
+\[
+S\left(t\right)=\frac{1}{N\left(t\right)}\sum_{w\in t}s\left(w\right)
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $s\left(w\right)$
+\end_inset
+
+ is the sentiment of a particular word 
+\begin_inset Formula $w$
+\end_inset
+
+ and 
+\begin_inset Formula $N\left(t\right)$
+\end_inset
+
+ is the number of words in a tweet.
+\end_layout
+
 \begin_layout Subsection
 Pagerank
 \end_layout
