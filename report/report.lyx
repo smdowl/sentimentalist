@@ -178,7 +178,7 @@ reference "sec:Feature-Extraction"
 
 \end_inset
 
-) to the set of tweets it recieves and stores the result back in S3 in JSON
+) to the set of tweets it receives and stores the result back in S3 in JSON
  format.
  Each line in the output file is our feature representation of all tweets
  associated with a company and the full time series of tweets represents
@@ -191,14 +191,12 @@ In the feature extraction pipeline, we also considered global features that
  required processing of the entire data set to calculate.
  For example, we wanted to know how many retweets any particular user had
  had across all the data.
- We incorperated these features into the pipeline by running other Hadoop
+ We incorporated these features into the pipeline by running other Hadoop
  jobs to calculate the statistics we wanted, and then loaded these features
  maps into memory when we wanted to extract the features.
- It turned out that the speed increase from handling these types of features
- was necessary due to the large number of tweets we were processing and
- the cost of disk reads, hence these global features required us to use
- high memory AWS instances.
- 
+ High memory AWS instances were necessary for handling these types of features,
+ due to the large number of tweets we were processing and the cost of disk
+ reads.
 \end_layout
 
 \begin_layout Subsubsection
@@ -240,7 +238,7 @@ Firstly, we found we were having trouble parsing the data since the format
 \end_layout
 
 \begin_layout Subsubsection
-Feature Extraction
+Feature MapReduce
 \end_layout
 
 \begin_layout Standard
@@ -270,12 +268,41 @@ name "sec:Feature-Extraction"
 
 \end_layout
 
+\begin_layout Standard
+In order to provide our statistical models with information about the social
+ networking world, we have to process the raw Twitter data and extract all
+ the information that might be relevant to predicting the behaviour of the
+ stock market.
+ This information is then encoded numerically for it to be processed by
+ our algorithms.
+ We decided to split the feature extraction task into three main components:
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Tweet features
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Sentiment Extraction
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Pagerank (and some other Global Features)
+\end_layout
+
 \begin_layout Subsection
 Tweet Features
 \end_layout
 
 \begin_layout Subsection
-Sentiment
+Sentiment Extraction
 \end_layout
 
 \begin_layout Standard
@@ -364,7 +391,38 @@ where
 \begin_inset Formula $N\left(t\right)$
 \end_inset
 
- is the number of words in a tweet.
+ is the number of sentiment-rated words in a tweet.
+ The sentiment for each word was calculated using the SentiWordNet 3.0 lexical
+ resource and the normaliser 
+\begin_inset Formula $N(t)$
+\end_inset
+
+ thus only counts the number of words in tweet 
+\begin_inset Formula $t$
+\end_inset
+
+ which are found in SentiWordNet.
+ This is because we did not want to penalise longer, mostly neutral tweets,
+ containing a short, but possibly strong, sentiment loaded remark.
+ 
+\series bold
+\emph on
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+
+\series bold
+\emph on
+ref
+\end_layout
+
+\end_inset
+
+ (SentiWordNet 3.0: An Enhanced Lexical Resource for Sentiment Analysis and
+ Opinion Mining (2010), Stefano Baccianella , Andrea Esuli , Fabrizio Sebastiani
+)
 \end_layout
 
 \begin_layout Subsection
@@ -471,6 +529,14 @@ random surfer
 \end_inset
 
  virtually redundant.
+\end_layout
+
+\begin_layout Subsubsection
+Residual Global Features
+\end_layout
+
+\begin_layout Standard
+We also implemented a MapReduce job to extract, for each user, 
 \end_layout
 
 \begin_layout Section
