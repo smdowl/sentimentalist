@@ -201,13 +201,47 @@ s.
 \end_layout
 
 \begin_layout Subsection
-AWS
+AWS and Hadoop
 \end_layout
 
 \begin_layout Standard
 Throughout this project we have made extensive use of AWS for computation
  and data storage.
- 
+ Since we weren't sure about which companies would yield the best results,
+ we chose to explore the performance of our predictions on all of them,
+ so as to make the best use of the data we were given.
+\end_layout
+
+\begin_layout Subsubsection
+Preprocessing
+\end_layout
+
+\begin_layout Standard
+Firstly, we found we were having trouble parsing the data since the format
+ was not one JSON element per line.
+ Hence, we uploaded the compressed data files to S3 so that we could access
+ them quickly from an EC2 and used an EC2 instance to decompress and clean
+ the data files before transfering the uncompressed data back to S3.
+\end_layout
+
+\begin_layout Subsubsection
+Feature Extraction
+\end_layout
+
+\begin_layout Standard
+All feature extraction was performed via Hadoop on EMR so that we could
+ explore the effectiveness of Hadoop in this context while also freeing
+ us up from being constrained by long processing times.
+ Since we can scale the Hadoop implementation virtually linearly we could
+ iterate on our features much faster by handling all processing in a distributed
+ fashion, increasing the number of instances we used if we wanted the job
+ handled particularly quickly.
+\end_layout
+
+\begin_layout Standard
+Once all jobs were complete, we then had a helper script that streamed all
+ the output to split the data points up according to which company they
+ related to.
 \end_layout
 
 \begin_layout Section
