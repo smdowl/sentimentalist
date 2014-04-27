@@ -481,12 +481,218 @@ Stock Prediction
 Linear Regression
 \end_layout
 
-\begin_layout Subsection
-Gaussian Processes
+\begin_layout Standard
+We use a least-square multi-dimensional linear regression as a simple algorithm
+ to predict future prices given the features we extracted from the tweets
+ for that given stock and time-frame.
+ From a theoretical point of view, the Multiple Linear Regression models
+ the stock price as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Y_{t+1}=\beta_{0}+\beta_{1}x_{t,1}+\beta_{2}x_{t,2}+...+\beta_{m}x_{t,m}+e_{t+1}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Where 
+\begin_inset Formula $Y_{t+1}$
+\end_inset
+
+ is the next day stock price, 
+\begin_inset Formula $x_{t,i}$
+\end_inset
+
+ the predictor of the 
+\begin_inset Formula $i^{th}$
+\end_inset
+
+ relevant feature and and 
+\begin_inset Formula $e_{t+1}$
+\end_inset
+
+ is the error in the prediction.
+\end_layout
+
+\begin_layout Standard
+In the matrix form, this gives: 
+\begin_inset Formula $\mathbf{Y}=\mathbf{\beta}\mathbf{X}+\mathbf{e}$
+\end_inset
+
+ .
+ With 
+\begin_inset Formula $X=\left(\begin{array}{ccccc}
+x_{1}^{T}\\
+x_{2}^{T}\\
+x_{3}^{T}\\
+...\\
+x_{T}^{T}
+\end{array}\right)$
+\end_inset
+
+ and each 
+\begin_inset Formula $x_{i}=\left(\begin{array}{ccccc}
+x_{i,1}\\
+x_{i,2}\\
+x_{i,3}\\
+...\\
+x_{i,m}
+\end{array}\right)$
+\end_inset
+
+
+\begin_inset Formula $ $
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+hfill 
+\backslash
+
+\backslash
+ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We are learning this model by least-square method, that is 
+\begin_inset Formula $\beta$
+\end_inset
+
+ is chosen such that it minimises the Residual Sums of Squares defined as
+ : 
+\begin_inset Formula $\sum_{t=1}^{T}\left(Y_{t}-Y_{t,pred}\right)^{2}$
+\end_inset
+
+ where 
+\begin_inset Formula $Y_{t,pred}$
+\end_inset
+
+ is the predicted value by the model: 
+\begin_inset Formula $Y_{t,pred}=X\beta$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Rewritting the Residual Sums of Squares we get:
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+ 
+\backslash
+hfill 
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\sum_{t=1}^{T}\left(Y_{t}-Y_{t,pred}\right)^{2}=(Y-X\beta)^{T}(Y-X\beta)$
+\end_inset
+
+ .
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+hfill 
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Differentiating with respect to 
+\begin_inset Formula $\beta$
+\end_inset
+
+ and setting to zero:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+X^{T}X\beta & = & X^{T}Y\\
+\beta & = & \left(X^{T}X\right)^{-1}X^{T}Y
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In order to train the model, we have to find the 
+\begin_inset Formula $\beta$
+\end_inset
+
+ which solves this for the training set.
+ In practice, implementing this can be relatively hard since inverting a
+ matrix is computationaly 
+\begin_inset Formula $O(n^{3})$
+\end_inset
+
+ operation.
+ In some cases our feature vector was as long as 22,000 and so inverting
+ a full square matrix with 22,000x22,000 is not feasable on our computers.
+ In order to go around this problem, we can leverage the fact that our feature
+ vectors are very sparse and use efficient algorithms such as Gaussian Eliminati
+on or Backward-Forward elimination to solve the linear system of equation
+ above.
+\end_layout
+
+\begin_layout Standard
+We use the 'la4j' library to build sparse matrices and perform the required
+ linear algebra operations on them.
 \end_layout
 
 \begin_layout Subsection
 Support Vector Machines
+\end_layout
+
+\begin_layout Subsection
+Gaussian Processes
 \end_layout
 
 \begin_layout Section
