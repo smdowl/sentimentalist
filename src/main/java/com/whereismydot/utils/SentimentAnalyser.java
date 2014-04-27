@@ -1,5 +1,15 @@
 package com.whereismydot.utils;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import twitter4j.Status;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
@@ -8,28 +18,13 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import twitter4j.Status;
-
 public class SentimentAnalyser {
 
     // OK seems to return 2 but then from experimentation the most common is 1
-    private static int INDIFFERENT_SENTIMENT = 1;
+    private static int INDIFFERENT_SENTIMENT = 1;    
 
-    // Store a per thread version of the pipeline
-    private static final ThreadLocal<StanfordCoreNLP> pipelineRef = new ThreadLocal<StanfordCoreNLP>();    
-
+    private final static Stack<StanfordCoreNLP> pipelinePool = new Stack<StanfordCoreNLP>();
+    
     /** 
      * Get the sentiment of a single piece of text. You should use the batch 
      * methods below for better performance.
@@ -41,7 +36,11 @@ public class SentimentAnalyser {
 
         if (text != null && text.length() > 0) {
             int longest = 0;
-            Annotation annotation = getThreadPipeline().process(text);
+            
+            StanfordCoreNLP pipeline = getPipeline();
+            Annotation annotation = pipeline.process(text);
+            freePipeline(pipeline);
+            
             for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
                 Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
 
@@ -121,18 +120,24 @@ public class SentimentAnalyser {
     
     /**
      * 
-     * @return Returns the pipeline assigned to the current thread.
+     * @return Returns the pipeline from a cache if possible.
      */
-    private StanfordCoreNLP getThreadPipeline(){
-    	StanfordCoreNLP pipeline = pipelineRef.get();
-    	if(pipeline == null){
+    private synchronized StanfordCoreNLP getPipeline(){
+    	if(pipelinePool.empty()){
     		Properties properties = new Properties();
     	    properties.setProperty("annotators", "tokenize,ssplit,pos,parse,sentiment");
-    	    pipeline = new StanfordCoreNLP(properties);
-    	    pipelineRef.set(pipeline);     
+    	    return new StanfordCoreNLP(properties);    	       
+    	}else{
+    		return pipelinePool.pop();
     	}
-    	
-    	return pipeline;
+    }
+    
+    /**
+     * Fee a pipeline that's not longer in use and return it to the cache.
+     * @param pipeline
+     */
+    private synchronized void freePipeline(StanfordCoreNLP pipeline){
+    	pipelinePool.push(pipeline);
     }
     
     public static void main(String[] args) {
