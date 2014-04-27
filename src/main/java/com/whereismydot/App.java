@@ -25,6 +25,15 @@ public class App{
         FileInputFormat.setInputPaths(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         
+        System.out.println("mapreduce:" + job.getInt("mapreduce.task.timeout",-1) 
+        						+ " mapred" + job.getInt("mapred.task.timeout",-1));
+        
+        job.setInt("mapreduce.task.timeout", 40 * 60 * 1000);
+        job.setInt("mapred.task.timeout"   , 40 * 60 * 1000);
+        
+        System.out.println("mapreduce:" + job.getInt("mapreduce.task.timeout",-1) 
+				+ " mapred" + job.getInt("mapred.task.timeout",-1));
+        
         JobClient.runJob(job);
     }
 }
