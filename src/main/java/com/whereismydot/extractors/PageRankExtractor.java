@@ -27,6 +27,8 @@ public class PageRankExtractor implements FeatureExtractor {
 
     private Map<String, Double> pagerankMap = new HashMap<>();
 
+    private final SentimentAnalyser analyser = new SentimentAnalyser();
+    
     public PageRankExtractor() {
         BufferedReader reader = null;
 
@@ -97,6 +99,8 @@ public class PageRankExtractor implements FeatureExtractor {
         double totalPageRank = 0.0;
         double weightedSentiment = 0.0;
 
+        Map<Status, Integer> sentiment = analyser.getTweetSentiments(tweets);
+        
         for (Status tweet : tweets) {
             String userId = "" + tweet.getUser().getId();
             double pagerank = 0.0;
@@ -108,8 +112,7 @@ public class PageRankExtractor implements FeatureExtractor {
 
             totalPageRank += pagerank;
 
-            int sentiment = SentimentAnalyser.getSentiment(tweet.getText());
-            weightedSentiment += sentiment * pagerank;
+            weightedSentiment += sentiment.get(tweet) * pagerank;
         }
 
         output.put("total-page-rank", totalPageRank);

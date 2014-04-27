@@ -1,0 +1,517 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Stock Market and Twitter
+\end_layout
+
+\begin_layout Author
+Shaun Dowling, Matthieu Louis, Alessandro Ialongo, Andrey Levushkin
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Section
+Project Architecture
+\end_layout
+
+\begin_layout Standard
+The key objective of this project is to use information contained within
+ Twitter posts to predict the mood of the markets towards certain stocks.
+ Tweets contain a great deal of information, links between users, links
+ to entities (either explicitly view a tag or plain text) and network effect
+ via re-tweets.
+ In their raw form, Tweets are not convenient for inference.
+ As such we will focus most of our time distilling the information contained
+ within the Tweets while ensuring all important aspects are preserved.
+ This approach gives a nice layer of abstraction between the Information
+ Retrieval and the Machine Learning steps in the pipeline.
+ Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Project-Pipeline"
+
+\end_inset
+
+ shows how we have modularised the project.
+ In particular, the input the the machine learning algorithms are simply
+ feature vectors that we can use for inference.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename figures/Graph_IRDM_pipeline.jpg
+	scale 60
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Project Pipeline
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Project-Pipeline"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Pipeline
+\end_layout
+
+\begin_layout Subsubsection
+Feature Extraction Pipeline
+\end_layout
+
+\begin_layout Standard
+Our feature extraction pipeline is where all the processing or raw tweets
+ happens.
+ All this work is handled in a single Hadoop job that splits the incoming
+ tweets according to which day they were posted, and which company they
+ reference.
+ All tweets associated with a single company in one day are then processed
+ by a single reduce task.
+ This task applies several feature extractors (described in detail in Section
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Feature-Extraction"
+
+\end_inset
+
+) to the set of tweets it recieves and stores the result back in S3 in JSON
+ format.
+ Each line in the output file is our feature representation of all tweets
+ associated with a company and the full time series of tweets represents
+ how the opinion about a company on Twitter has changed over time.
+ 
+\end_layout
+
+\begin_layout Standard
+In the feature extraction pipeline, we also considered global features that
+ required processing of the entire data set to calculate.
+ For example, we wanted to know how many retweets any particular user had
+ had across all the data.
+ We incorperated these features into the pipeline by running other Hadoop
+ jobs to calculate the statistics we wanted, and then loaded these features
+ maps into memory when we wanted to extract the features.
+ It turned out that the speed increase from handling these types of features
+ was necessary due to the large number of tweets we were processing and
+ the cost of disk reads, hence these global features required us to use
+ high memory AWS instances.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Machine Learning
+\end_layout
+
+\begin_layout Standard
+Have produced a time series for each company we'd like to consider, we can
+ then plug this data straight into any of a number of machine learning algorithm
+s.
+ In particular we have chosen Linear Regression, Gaussian Processed, and
+ Support Vector machines as our training methods to try and learn how these
+ features correspond to changes in stock price.
+ 
+\end_layout
+
+\begin_layout Subsection
+AWS and Hadoop
+\end_layout
+
+\begin_layout Standard
+Throughout this project we have made extensive use of AWS for computation
+ and data storage.
+ Since we weren't sure about which companies would yield the best results,
+ we chose to explore the performance of our predictions on all of them,
+ so as to make the best use of the data we were given.
+\end_layout
+
+\begin_layout Subsubsection
+Preprocessing
+\end_layout
+
+\begin_layout Standard
+Firstly, we found we were having trouble parsing the data since the format
+ was not one JSON element per line.
+ Hence, we uploaded the compressed data files to S3 so that we could access
+ them quickly from an EC2 and used an EC2 instance to decompress and clean
+ the data files before transfering the uncompressed data back to S3.
+\end_layout
+
+\begin_layout Subsubsection
+Feature Extraction
+\end_layout
+
+\begin_layout Standard
+All feature extraction was performed via Hadoop on EMR so that we could
+ explore the effectiveness of Hadoop in this context while also freeing
+ us up from being constrained by long processing times.
+ Since we can scale the Hadoop implementation virtually linearly we could
+ iterate on our features much faster by handling all processing in a distributed
+ fashion, increasing the number of instances we used if we wanted the job
+ handled particularly quickly.
+\end_layout
+
+\begin_layout Standard
+Once all jobs were complete, we then had a helper script that streamed all
+ the output to split the data points up according to which company they
+ related to.
+\end_layout
+
+\begin_layout Section
+Feature Extraction
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Feature-Extraction"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Tweet Features
+\end_layout
+
+\begin_layout Subsection
+Sentiment
+\end_layout
+
+\begin_layout Standard
+Another feature that seems very appropriate when considering stock price
+ change is the 
+\emph on
+sentiment 
+\emph default
+of the text used.
+ In particular, you would expect a company with numerous positive tweets
+ associated with it to generally have a positive outlook.
+ This is under the assumptions that the people tweeting about a company
+ is an representative subset of the people interested in trading the company's
+ stock (or at least that they are important in some way on people deciding
+ the value of the stock), and that positivity or negativity in a tweets
+ is indicitive of the user's opinion of the outlook of the company.
+\end_layout
+
+\begin_layout Subsubsection
+Stanford Implementation
+\end_layout
+
+\begin_layout Standard
+We made use of the Standford NLP library 
+\series bold
+\emph on
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+
+\series bold
+\emph on
+ref
+\end_layout
+
+\end_inset
+
+
+\series default
+\emph default
+ to parse the text of each tweet during the feature extraction step.
+ For every tweet parsed in for a particular company in a given time slice,
+ we ran the text through the Stanford model to get an associated sentiment.
+ This score ranged from 0 to 4 where an indifferent statement seemed to
+ score around 2.
+ However, from experimentation we noted than a large proportion of sentences
+ where scored as 1 and thus shifted the score returned by the library by
+ -1 to roughly center it on zero.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Simple Implementation
+\end_layout
+
+\begin_layout Standard
+Although the Stanford library boasts very good sentiment results, we found
+ that it took about 0.1 seconds to parse an average tweet.
+ This meant that when we ran the analyser on millions of tweets it became
+ prohibitively slow, even when using Hadoop and parrallelising the sentiment
+ analysis stage of the pipeline.
+ This lead us to implement a much simpler sentiment analyser that simply
+ calculates the sentiment of a tweet, 
+\begin_inset Formula $S_{t}$
+\end_inset
+
+, as the average sentiment of each word
+\begin_inset Formula 
+\[
+S\left(t\right)=\frac{1}{N\left(t\right)}\sum_{w\in t}s\left(w\right)
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $s\left(w\right)$
+\end_inset
+
+ is the sentiment of a particular word 
+\begin_inset Formula $w$
+\end_inset
+
+ and 
+\begin_inset Formula $N\left(t\right)$
+\end_inset
+
+ is the number of words in a tweet.
+\end_layout
+
+\begin_layout Subsection
+Pagerank
+\end_layout
+
+\begin_layout Standard
+One of the global features we felt would be applicable was a rating of how
+ important any given user is as an indication of how much of a reach any
+ single user has, or how many people are exposed to what they have to say.
+ Theoretically this could then give us a better indication as to which users
+ should be focused on when expressing any particular sentiment about a company,
+ since it is those people views that are being seen by a large number of
+ people.
+ In the context of Twitter, the most obvious directional connection between
+ users is whether someone 
+\emph on
+follows 
+\emph default
+another user
+\emph on
+.
+
+\emph default
+ However, obtaining the follows of any given user is not possible using
+ the Twitter API and therefor we could not us it.
+ We felt the next best connection to determine a positive directional connection
+ between users would be 
+\emph on
+retweet
+\emph default
+.
+ 
+\end_layout
+
+\begin_layout Standard
+If someone decides to retweet something someone else has said then clearly
+ they think it is in some sense important.
+ The way the Twitter API exposes retweets is by allowing us to know that
+ a post is based on a retweet of another users post, but only link that
+ back to the origincal poster of the tweet i.e.
+ if user A posts something that user B retweets and subsequently user C
+ retweets user B's post, we will only see that user C retweeted user A's
+ post.
+ Although this is a reduction in information, we feel we still gather useful
+ insight as to which users are influential posters.
+ It may be most applicable to use the concept or retweets since this shows
+ a more active use of another users opinion and as such may have a better
+ signal to noise ratio.
+ However, since we will not be able to draw direct comparisons between the
+ two we cannot conclude either way.
+\end_layout
+
+\begin_layout Subsubsection
+Method
+\end_layout
+
+\begin_layout Standard
+If we abstract each user as a node in a graph, then we can consider the
+ action of retweeting as a directed connection to whoever posted the original
+ tweet.
+ Thus we have a directed graph where incoming nodes represent other people
+ expressing interest in whatever it is another user has tweeted about.
+ Those nodes with a high in-degree could be considered more viable sources
+ of information and, once we have abstracted the system in this way, a natural
+ algorithm to infer user importance is PageRank.
+ To draw a parrallel with the standard implementation, every page is replaced
+ with a user and every link to another page is replaced with a user retweeting
+ another users post.
+ As such, a node (user) with a high page rank is a node (user) whose posts
+ are retweeted by other users who themselves have posts that are often retweeted.
+ We have chosen to run PageRank on the entire Twitter dataset in case any
+ users overlap between the sets.
+ Although we feel Page Rank may be a useful metric, we also still include
+ a simple count of in-degree (how many other users have retweeted a users
+ tweet) in case the added level of important people retweeting your post
+ is not significant.
+\end_layout
+
+\begin_layout Subsubsection
+Implementation
+\end_layout
+
+\begin_layout Standard
+We implemented Pagerank in Hadoop.
+ The only slight modification was that the intuition behind the random-surfer
+ model doesn't translate to retweets and thus was not used in our formulation.
+ The main reason we felt this was reasonable was that there are so many
+ 
+\begin_inset Quotes eld
+\end_inset
+
+dangling nodes
+\begin_inset Quotes erd
+\end_inset
+
+ that there is a significant amount of probability mass that is redistrubuted
+ each iteration anyway, making any additional mass for a 
+\begin_inset Quotes eld
+\end_inset
+
+random surfer
+\begin_inset Quotes erd
+\end_inset
+
+ virtually redundant.
+\end_layout
+
+\begin_layout Section
+Stock Prediction
+\end_layout
+
+\begin_layout Subsection
+Linear Regression
+\end_layout
+
+\begin_layout Subsection
+Gaussian Processes
+\end_layout
+
+\begin_layout Subsection
+Support Vector Machines
+\end_layout
+
+\begin_layout Section
+Evaluation
+\end_layout
+
+\begin_layout Subsection
+Increase/decrease
+\end_layout
+
+\begin_layout Subsection
+Stock Value
+\end_layout
+
+\begin_layout Section
+Considerations and Improvements
+\end_layout
+
+\begin_layout Subsection
+Feature Extraction
+\end_layout
+
+\begin_layout Subsection
+Prediction
+\end_layout
+
+\end_body
+\end_document

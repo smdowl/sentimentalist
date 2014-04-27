@@ -1,5 +1,15 @@
 package com.whereismydot.utils;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import twitter4j.Status;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
@@ -8,31 +18,29 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.Properties;
-
 public class SentimentAnalyser {
 
-    private static SentimentAnalyser analyser = new SentimentAnalyser();
-
     // OK seems to return 2 but then from experimentation the most common is 1
-    private static int INDIFFERENT_SENTIMENT = 1;
+    private static int INDIFFERENT_SENTIMENT = 1;    
 
-    private StanfordCoreNLP pipeline;
-
-    private SentimentAnalyser() {
-        Properties properties = new Properties();
-        properties.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
-        pipeline = new StanfordCoreNLP(properties);
-    }
-
-    public static int getSentiment(String text) {
+    private final static Stack<StanfordCoreNLP> pipelinePool = new Stack<StanfordCoreNLP>();
+    
+    /** 
+     * Get the sentiment of a single piece of text. You should use the batch 
+     * methods below for better performance.
+     * @param text
+     * @return
+     */
+    public int getSentiment(String text) {
         int mainSentiment = 0;
 
         if (text != null && text.length() > 0) {
             int longest = 0;
-            Annotation annotation = analyser.pipeline.process(text);
+            
+            StanfordCoreNLP pipeline = getPipeline();
+            Annotation annotation = pipeline.process(text);
+            freePipeline(pipeline);
+            
             for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
                 Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
 
@@ -51,6 +59,87 @@ public class SentimentAnalyser {
         return mainSentiment;
     }
 
+    /**
+     * Extract sentiment using multiple threads.
+     * @param tweets
+     * @return
+     */
+    public Map<Status, Integer> getTweetSentiments(List<Status> tweets){
+    	final Map<Status, Integer> result = new ConcurrentHashMap<Status, Integer>();
+    	
+    	// Change number of threads here.
+    	ExecutorService executor = Executors.newFixedThreadPool(8);
+
+    	for(final Status tweet : tweets){
+    		executor.execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					result.put(tweet, getSentiment(tweet.getText()));					
+				}
+			});
+    	}
+    	
+    	try {
+    		executor.shutdown();
+			executor.awaitTermination(1, TimeUnit.HOURS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Unexpected interruption");
+		}
+    	
+    	return result;
+    }
+    
+    public Map<String, Integer> getSentiments(List<String> texts){
+    	final Map<String, Integer> result = new ConcurrentHashMap<String, Integer>();
+    	
+    	// Change number of threads here.
+    	ExecutorService executor = Executors.newFixedThreadPool(8);
+
+    	for(final String text : texts){
+    		executor.execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					result.put(text, getSentiment(text));					
+				}
+			});
+    	}
+    	
+    	try {
+    		executor.shutdown();
+			executor.awaitTermination(1, TimeUnit.HOURS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Unexpected interruption");
+		}
+    	
+    	return result;
+    }
+    
+    /**
+     * 
+     * @return Returns the pipeline from a cache if possible.
+     */
+    private synchronized StanfordCoreNLP getPipeline(){
+    	if(pipelinePool.empty()){
+    		Properties properties = new Properties();
+    	    properties.setProperty("annotators", "tokenize,ssplit,pos,parse,sentiment");
+    	    return new StanfordCoreNLP(properties);    	       
+    	}else{
+    		return pipelinePool.pop();
+    	}
+    }
+    
+    /**
+     * Fee a pipeline that's not longer in use and return it to the cache.
+     * @param pipeline
+     */
+    private synchronized void freePipeline(StanfordCoreNLP pipeline){
+    	pipelinePool.push(pipeline);
+    }
+    
     public static void main(String[] args) {
 
         String[] sentences = {

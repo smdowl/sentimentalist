@@ -5,17 +5,22 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.whereismydot.utils.CompanyClassifier;
 import com.whereismydot.utils.Counter;
+import com.whereismydot.utils.Misc;
 import com.whereismydot.utils.SentimentAnalyser;
 import com.whereismydot.utils.TwitterParser;
+
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
+
 import twitter4j.HashtagEntity;
 import twitter4j.Status;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 public class CompanyStatsJob extends MapReduceBase implements
@@ -26,6 +31,8 @@ public class CompanyStatsJob extends MapReduceBase implements
 
     private static CompanyClassifier classifier = new CompanyClassifier();
 
+    private final SentimentAnalyser analyser = new SentimentAnalyser();
+    
     @Override
     public void map(LongWritable key, Text value, OutputCollector<Text, Text> out, Reporter reporter)
             throws IOException {
@@ -47,24 +54,29 @@ public class CompanyStatsJob extends MapReduceBase implements
         Counter<String> hashtags = new Counter<String>();
         Counter<String> wordCounts = new Counter<String>();
         int sentiment = 0;
-
+        
+        
         while (values.hasNext()) {
+        	List<Status> batch = Misc.getBatchTweets(values, 1000);
+        	Map<Status,Integer> tweetSentiment = analyser.getTweetSentiments(batch);
+            
+        	for(Status status : batch){
+        		
+        	
+        		for (HashtagEntity hashtag : status.getHashtagEntities()) {
+        			String tag = hashtag.getText();
+        			hashtags.increment(tag);
+        		}
 
-            Status status = TwitterParser.parseOrNull(values.next().toString());
+        		StringTokenizer tokenizer = new StringTokenizer(status.getText());
 
-            for (HashtagEntity hashtag : status.getHashtagEntities()) {
-                String tag = hashtag.getText();
-                hashtags.increment(tag);
-            }
+        		while (tokenizer.hasMoreTokens())
+        			wordCounts.increment(tokenizer.nextToken());
 
-            StringTokenizer tokenizer = new StringTokenizer(status.getText());
+        		sentiment += tweetSentiment.get(status);
 
-            while (tokenizer.hasMoreTokens())
-                wordCounts.increment(tokenizer.nextToken());
-
-            sentiment += SentimentAnalyser.getSentiment(status.getText());
-
-            count++;
+            	count++;
+        	}
 
         }
 

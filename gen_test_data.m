@@ -24,7 +24,7 @@ end
 plot(Y);
 file = fopen(out_x, 'w');
 for i = 1 : N
-    fprintf(file, '%i {', i);    
+    fprintf(file, '%i \t{', i);    
     for d = 1:D
         
         fprintf(file, '%i : %f', d, X(i,d));

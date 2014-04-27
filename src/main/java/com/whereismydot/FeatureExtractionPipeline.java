@@ -107,7 +107,9 @@ public class FeatureExtractionPipeline extends MapReduceBase implements
 		Map<String, Double> result = new HashMap<String, Double>();
 		for (FeatureExtractor extractor : extractors){
 			result.putAll(extractor.extract(tweets));
+			reporter.progress();
 		}
+		
 		
 		out.collect(time, new Gson().toJson(result));
 	}
