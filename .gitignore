@@ -8,3 +8,5 @@ src/main/jobflows/**
 .idea/**
 *.iml
 classes/**
+
+report/report.lyx~

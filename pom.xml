@@ -145,14 +145,19 @@
         	<version>2.3</version>
         </dependency>
         <dependency>
+            <groupId>tw.edu.ntu.csie</groupId>
+            <artifactId>libsvm</artifactId>
+            <version>3.17</version>
+        </dependency>
+        <dependency>
             <groupId>org.la4j</groupId>
             <artifactId>la4j</artifactId>
             <version>0.4.9</version>
         </dependency>
         <dependency>
-        <groupId>tw.edu.ntu.csie</groupId>
-        <artifactId>libsvm</artifactId>
-        <version>3.17</version>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>LibLINEAR</artifactId>
+            <version>1.0.2</version>
         </dependency>
     </dependencies>
 </project>

@@ -10,12 +10,17 @@ import org.la4j.matrix.dense.Basic2DMatrix;
 import org.la4j.vector.*;
 import org.la4j.matrix.*;
 import java.util.ArrayList;
+import org.apache.mahout.*;
+import weka.*;
+import weka.core.Instance;
+import weka.core.SparseInstance;
 
 
 public class LinearRegression<T> implements Model<T, Double>{
 
     private final MatrixBuilder<T> matrixBuilder;
     private Vector beta;
+    private weka.classifiers.functions.LinearRegression;
     private List<T> trainingX;
     public LinearRegression(MatrixBuilder<T> mB){
        this.matrixBuilder = mB;
@@ -27,9 +32,12 @@ public class LinearRegression<T> implements Model<T, Double>{
        this.trainingX = x;
        double [][] sparseMatrix = new double [x.size()][];
 
-        Matrix C = matrixBuilder.getCMatrix(x);
-        Vector K = matrixBuilder.getXYVector(x, y);
 
+       SparseInstance instance = new SparseInstance();
+
+        Vector K = matrixBuilder.getXYVector(x, y);
+        System.out.println("Done calculating vector K");
+        Matrix C = matrixBuilder.getCMatrix(x);
         LinearSystemSolver solver = C.withSolver(LinearAlgebra.FORWARD_BACK_SUBSTITUTION);
         beta = solver.solve(K, LinearAlgebra.SPARSE_FACTORY);
 
