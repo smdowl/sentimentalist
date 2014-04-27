@@ -270,11 +270,10 @@ name "sec:Feature-Extraction"
 
 \begin_layout Standard
 In order to provide our statistical models with information about the social
- networking world, we have to process the raw Twitter data and extract all
- the information that might be relevant to predicting the behaviour of the
- stock market.
- This information is then encoded numerically for it to be processed by
- our algorithms.
+ networking world, we processed the raw Twitter data and extracted all the
+ information that might be relevant to predicting the behaviour of the stock
+ market.
+ This information was then encoded numerically to be processed by our algorithms.
  We decided to split the feature extraction task into three main components:
  
 \end_layout
@@ -299,6 +298,48 @@ Pagerank (and some other Global Features)
 
 \begin_layout Subsection
 Tweet Features
+\end_layout
+
+\begin_layout Standard
+By tweet features we mean those features which are contained in each individual
+ tweet, independent of the others.
+ These are essentially all the relevant fields in the json file that encodes
+ a twitter4j Status object.
+ By examining our task, we considered the following local features to be
+ the “relevant” ones:
+\end_layout
+
+\begin_layout Itemize
+Number of times a tweet is favourited
+\end_layout
+
+\begin_layout Itemize
+Number of times a tweet is retweeted
+\end_layout
+
+\begin_layout Itemize
+Is a tweet favourited or not (Boolean)
+\end_layout
+
+\begin_layout Itemize
+Is a tweet retweeted or not (Boolean)
+\end_layout
+
+\begin_layout Itemize
+Is a tweet a retweet (Boolean)
+\end_layout
+
+\begin_layout Itemize
+Map of (Word, Count) pairs for each word in the tweet's text
+\end_layout
+
+\begin_layout Standard
+These features were computed for each tweet in the time-bin and then added
+ up over all tweets in the time-bin (for Boolean variables False = 0 and
+ True = 1).
+ Then both the raw counts and the average values were kept as features.
+ For the word count, an overall word count was computed for the text of
+ all the tweets in the time-bin combined.
 \end_layout
 
 \begin_layout Subsection
@@ -415,7 +456,7 @@ status open
 
 \series bold
 \emph on
-ref
+To do: insert ref
 \end_layout
 
 \end_inset
@@ -532,11 +573,39 @@ random surfer
 \end_layout
 
 \begin_layout Subsubsection
-Residual Global Features
+
+\series bold
+Other
+\series default
+ Global Features
 \end_layout
 
 \begin_layout Standard
-We also implemented a MapReduce job to extract, for each user, 
+By global features we mean features of our dataset which can only be computed
+ by processing the dataset as a whole, as opposed to each individual tweet
+ on its own.
+ These amount to general information about the unique users whose tweets
+ are contained in our dataset.
+ Thus Pagerank is clearly a Global Feature, and we also implemented a MapReduce
+ job to extract, for each user, the proportion of tweets that were originally
+ somebody else's (
+\begin_inset Quotes eld
+\end_inset
+
+retweets
+\begin_inset Quotes erd
+\end_inset
+
+), and the average number of retweets on the user's own tweets.
+ These, like Pagerank, also served as a measure of user 
+\begin_inset Quotes eld
+\end_inset
+
+clout
+\begin_inset Quotes erd
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Section
