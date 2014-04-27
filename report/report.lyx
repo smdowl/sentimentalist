@@ -107,6 +107,112 @@ Sentiment
 Pagerank
 \end_layout
 
+\begin_layout Subsubsection
+Introduction
+\end_layout
+
+\begin_layout Standard
+One of the global features we felt would be applicable was a rating of how
+ important any given user is as an indication of how much of a reach any
+ single user has, or how many people are exposed to what they have to say.
+ Theoretically this could then give us a better indication as to which users
+ should be focused on when expressing any particular sentiment about a company,
+ since it is those people views that are being seen by a large number of
+ people.
+ In the context of Twitter, the most obvious directional connection between
+ users is whether someone 
+\emph on
+follows 
+\emph default
+another user
+\emph on
+.
+
+\emph default
+ However, obtaining the follows of any given user is not possible using
+ the Twitter API and therefor we could not us it.
+ We felt the next best connection to determine a positive directional connection
+ between users would be 
+\emph on
+retweet
+\emph default
+.
+ 
+\end_layout
+
+\begin_layout Standard
+If someone decides to retweet something someone else has said then clearly
+ they think it is in some sense important.
+ The way the Twitter API exposes retweets is by allowing us to know that
+ a post is based on a retweet of another users post, but only link that
+ back to the origincal poster of the tweet i.e.
+ if user A posts something that user B retweets and subsequently user C
+ retweets user B's post, we will only see that user C retweeted user A's
+ post.
+ Although this is a reduction in information, we feel we still gather useful
+ insight as to which users are influential posters.
+ It may be most applicable to use the concept or retweets since this shows
+ a more active use of another users opinion and as such may have a better
+ signal to noise ratio.
+ However, since we will not be able to draw direct comparisons between the
+ two we cannot conclude either way.
+\end_layout
+
+\begin_layout Subsubsection
+Method
+\end_layout
+
+\begin_layout Standard
+If we abstract each user as a node in a graph, then we can consider the
+ action of retweeting as a directed connection to whoever posted the original
+ tweet.
+ Thus we have a directed graph where incoming nodes represent other people
+ expressing interest in whatever it is another user has tweeted about.
+ Those nodes with a high in-degree could be considered more viable sources
+ of information and, once we have abstracted the system in this way, a natural
+ algorithm to infer user importance is PageRank.
+ To draw a parrallel with the standard implementation, every page is replaced
+ with a user and every link to another page is replaced with a user retweeting
+ another users post.
+ As such, a node (user) with a high page rank is a node (user) whose posts
+ are retweeted by other users who themselves have posts that are often retweeted.
+ We have chosen to run PageRank on the entire Twitter dataset in case any
+ users overlap between the sets.
+ Although we feel Page Rank may be a useful metric, we also still include
+ a simple count of in-degree (how many other users have retweeted a users
+ tweet) in case the added level of important people retweeting your post
+ is not significant.
+\end_layout
+
+\begin_layout Subsubsection
+Implementation
+\end_layout
+
+\begin_layout Standard
+We implemented Pagerank in Hadoop.
+ The only slight modification was that the intuition behind the random-surfer
+ model doesn't translate to retweets and thus was not used in our formulation.
+ The main reason we felt this was reasonable was that there are so many
+ 
+\begin_inset Quotes eld
+\end_inset
+
+dangling nodes
+\begin_inset Quotes erd
+\end_inset
+
+ that there is a significant amount of probability mass that is redistrubuted
+ each iteration anyway, making any additional mass for a 
+\begin_inset Quotes eld
+\end_inset
+
+random surfer
+\begin_inset Quotes erd
+\end_inset
+
+ virtually redundant.
+\end_layout
+
 \begin_layout Section
 Stock Prediction
 \end_layout
