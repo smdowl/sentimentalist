@@ -149,8 +149,8 @@ ref
  This score ranged from 0 to 4 where an indifferent statement seemed to
  score around 2.
  However, from experimentation we noted than a large proportion of sentences
- where scored as 1 and thus shifted the score by -1 to roughly center it
- on zero.
+ where scored as 1 and thus shifted the score returned by the library by
+ -1 to roughly center it on zero.
  
 \end_layout
 
