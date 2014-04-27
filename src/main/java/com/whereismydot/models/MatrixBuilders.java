@@ -22,7 +22,6 @@ import org.la4j.vector.functor.VectorPredicate;
 import org.la4j.vector.functor.VectorProcedure;
 import org.la4j.vector.sparse.CompressedVector;
 import org.la4j.vector.sparse.SparseVector;
-import linear.*;
 
 public class MatrixBuilders {
 
