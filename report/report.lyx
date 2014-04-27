@@ -186,6 +186,21 @@ reference "sec:Feature-Extraction"
  
 \end_layout
 
+\begin_layout Standard
+In the feature extraction pipeline, we also considered global features that
+ required processing of the entire data set to calculate.
+ For example, we wanted to know how many retweets any particular user had
+ had across all the data.
+ We incorperated these features into the pipeline by running other Hadoop
+ jobs to calculate the statistics we wanted, and then loaded these features
+ maps into memory when we wanted to extract the features.
+ It turned out that the speed increase from handling these types of features
+ was necessary due to the large number of tweets we were processing and
+ the cost of disk reads, hence these global features required us to use
+ high memory AWS instances.
+ 
+\end_layout
+
 \begin_layout Subsubsection
 Machine Learning
 \end_layout
