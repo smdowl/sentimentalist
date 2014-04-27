@@ -56,7 +56,7 @@ public class TokenFeatures implements FeatureExtractor {
     	features.put("Avg isRetweeted Count", isRetweeted/tweets.size());
     	features.put("Raw isRetweet Count", isRetweet);
     	features.put("Avg isRetweet Count", isRetweet/tweets.size());
-        features.put("ave-sentiment", sentiment/tweets.size());
+        features.put("ave-sentiment", (sentiment*100)/tweets.size());
 
     	// adds to the features the word count over all words in all tweets in the given time-bin:
         //addTokenCounts(features, texts, tweets.size());

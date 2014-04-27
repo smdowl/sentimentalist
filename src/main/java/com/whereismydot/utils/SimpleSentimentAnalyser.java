@@ -2,14 +2,16 @@ package com.whereismydot.utils;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import twitter4j.Status;
+
 
 public class SimpleSentimentAnalyser {
 
@@ -24,9 +26,9 @@ public class SimpleSentimentAnalyser {
 
 		BufferedReader csv = null;
 		try {
-			csv = new BufferedReader(
-					new FileReader(
-							"s3n://`input bucket'/data/SWN.txt")); // /Users/Ale/Downloads/home/swn/www/admin/dump/SWN.txt
+			InputStream in = SimpleSentimentAnalyser.class.getResourceAsStream("/SWN.txt");
+			csv = new BufferedReader(new InputStreamReader(in));
+			
 			int lineNumber = 0;
 
 			String line;
@@ -181,7 +183,7 @@ public class SimpleSentimentAnalyser {
 		return result;
 	}
 	
-	/**
+	
 	public static void main(String[] args) throws IOException {
 		if (args.length < 1) {
 			System.err
@@ -198,9 +200,9 @@ public class SimpleSentimentAnalyser {
 				.println("blue#a " + sentiwordnet.extractWithPos("blue", "a"));
 		System.out
 				.println("blue#n " + sentiwordnet.extractWithPos("blue", "n"));
-		System.out.println("bsdjn "
-				+ sentiwordnet.getSentiment("this company is amazing"));
+		System.out.println("Test: "
+				+ sentiwordnet.getSentiment("this company is not amazing"));
 	}
-	*/
+	
 
 }
