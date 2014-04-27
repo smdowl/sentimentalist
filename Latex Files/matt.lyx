@@ -1,0 +1,353 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Subsection*
+Introduction
+\end_layout
+
+\begin_layout Standard
+Trying to predict the future of stock markets has been tried multiple times
+ from very different scientific perspective -- whether it is by looking
+ at co-integration of multiple stock prices in order to bet against their
+ relationship diverging, or looking at repercusions and spread of macro-events
+ information within the financial markets.
+ A long standing belief is that stock markets are somehow related to the
+ mood of the general population.
+ More recently, with the rise of social media and user-created content on
+ the internet, it is possible to create an approximate measure of people's
+ impression of a company: a sentiment measure.
+ This information can be useful for example for PR departments of companies
+ to understand how they are perceived by the general opinion.
+ However, it is interesting to test out whether this information can be
+ useful to predict the future evolution of the companies' stock prices.
+ 
+\end_layout
+
+\begin_layout Standard
+We investigate this relationship trying to predict stock prices of Dow Jones
+ companies from relevant Twitter data.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Models
+\end_layout
+
+\begin_layout Standard
+Once we have the feature extractor in place, we can start building the models
+ that will try to predict future prices.
+ In our project, we have tried out 3 methods: Multiple Linear Regression,
+ Support Vector Machine and Gaussian Processes.
+ We will start by introducing each one of them followed by the actual results
+ obtained.
+\end_layout
+
+\begin_layout Subsection*
+Multiple Linear Regression
+\end_layout
+
+\begin_layout Standard
+We use a least-square multi-dimensional linear regression as a simple algorithm
+ to predict future prices given the features we extracted from the tweets
+ for that given stock and time-frame.
+ From a theoretical point of view, the Multiple Linear Regression models
+ the stock price as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Y_{t+1}=\beta_{0}+\beta_{1}x_{t,1}+\beta_{2}x_{t,2}+...+\beta_{m}x_{t,m}+e_{t+1}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Where 
+\begin_inset Formula $Y_{t+1}$
+\end_inset
+
+ is the next day stock price, 
+\begin_inset Formula $x_{t,i}$
+\end_inset
+
+ the predictor of the 
+\begin_inset Formula $i^{th}$
+\end_inset
+
+ relevant feature and and 
+\begin_inset Formula $e_{t+1}$
+\end_inset
+
+ is the error in the prediction.
+\end_layout
+
+\begin_layout Standard
+In the matrix form, this gives: 
+\begin_inset Formula $\mathbf{Y}=\mathbf{\beta}\mathbf{X}+\mathbf{e}$
+\end_inset
+
+ .
+ With 
+\begin_inset Formula $X=\left(\begin{array}{ccccc}
+x_{1}^{T}\\
+x_{2}^{T}\\
+x_{3}^{T}\\
+...\\
+x_{T}^{T}
+\end{array}\right)$
+\end_inset
+
+ and each 
+\begin_inset Formula $x_{i}=\left(\begin{array}{ccccc}
+x_{i,1}\\
+x_{i,2}\\
+x_{i,3}\\
+...\\
+x_{i,m}
+\end{array}\right)$
+\end_inset
+
+
+\begin_inset Formula $ $
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+hfill 
+\backslash
+
+\backslash
+ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We are learning this model by least-square method, that is 
+\begin_inset Formula $\beta$
+\end_inset
+
+ is chosen such that it minimises the Residual Sums of Squares defined as
+ : 
+\begin_inset Formula $\sum_{t=1}^{T}\left(Y_{t}-Y_{t,pred}\right)^{2}$
+\end_inset
+
+ where 
+\begin_inset Formula $Y_{t,pred}$
+\end_inset
+
+ is the predicted value by the model: 
+\begin_inset Formula $Y_{t,pred}=X\beta$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Rewritting the Residual Sums of Squares we get:
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+ 
+\backslash
+hfill 
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\sum_{t=1}^{T}\left(Y_{t}-Y_{t,pred}\right)^{2}=(Y-X\beta)^{T}(Y-X\beta)$
+\end_inset
+
+ .
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+hfill 
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Differentiating with respect to 
+\begin_inset Formula $\beta$
+\end_inset
+
+ and setting to zero:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray*}
+X^{T}X\beta & = & X^{T}Y\\
+\beta & = & \left(X^{T}X\right)^{-1}X^{T}Y
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In order to train the model, we have to find the 
+\begin_inset Formula $\beta$
+\end_inset
+
+ which solves this for the training set.
+ In practice, implementing this can be relatively hard since inverting a
+ matrix is computationaly 
+\begin_inset Formula $O(n^{3})$
+\end_inset
+
+ operation.
+ In some cases our feature vector was as long as 22,000 and so inverting
+ a full square matrix with 22,000x22,000 is not feasable on our computers.
+ In order to go around this problem, we can leverage the fact that our feature
+ vectors are very sparse and use efficient algorithms such as Gaussian Eliminati
+on or Backward-Forward elimination to solve the linear system of equation
+ above.
+\end_layout
+
+\begin_layout Standard
+We use the 'la4j' library to build sparse matrices and perform the required
+ linear algebra operations on them.
+\end_layout
+
+\begin_layout Subsection*
+Support Vector Machine
+\end_layout
+
+\begin_layout Standard
+The objective is to minimise the following loss function:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $L(\alpha)=\sum_{n}\alpha^{n}-\frac{1}{2}\sum_{n,m}y^{n}y^{m}\alpha^{n}\alpha^{m}(x^{n})^{T}x^{m}-\frac{1}{2C}\sum(\alpha^{n})^{2}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+with the following constraint: 
+\begin_inset Formula $\sum_{n}y^{n}\alpha^{n}=0,\alpha^{n}\geq0$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Which is equicalent to maximising 
+\begin_inset Formula $\sum_{n}\alpha^{n}-\frac{1}{2}\sum y^{n}y^{m}\alpha^{n}\alpha^{m}\left(K(x^{n},x^{m})+\frac{1}{C}\delta_{n,m}\right)$
+\end_inset
+
+ with the same constraint.
+\end_layout
+
+\begin_layout Standard
+Where we can use a positive-semi-definite Kernel.
+ The advantage is that we can make a non-linear classifier.
+ With the Support Vector Machine, we have 2 choices, either classify in
+ whether the price will go up or down, or to regressed.
+ 
+\end_layout
+
+\end_body
+\end_document

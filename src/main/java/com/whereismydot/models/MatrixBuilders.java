@@ -22,6 +22,7 @@ import org.la4j.vector.functor.VectorPredicate;
 import org.la4j.vector.functor.VectorProcedure;
 import org.la4j.vector.sparse.CompressedVector;
 import org.la4j.vector.sparse.SparseVector;
+import linear.*;
 
 public class MatrixBuilders {
 
@@ -70,23 +71,29 @@ public class MatrixBuilders {
                 namesIdx.put(name, idx++);
             }
 
-            Matrix resMatrix = new CRSMatrix(new double[namesIdx.size()][namesIdx.size()]);
+            //Matrix resMatrix = new CRSMatrix(new double[namesIdx.size()][namesIdx.size()]);
+            Matrix resMatrix = new CRSMatrix(new double[10][10]);
 
             for( int i = 0 ; i < x.size(); i++) {
 
                 double[] sparseArray = new double[namesIdx.size()];
-                double[][] sparseArrayMatrix = {sparseArray};
+
                 Map<String, Double> vector = x.get(i);
                 for (String featureName : vector.keySet()) {
-                    sparseArrayMatrix[0][namesIdx.get(featureName)] = vector.get(featureName);
+                    sparseArray[namesIdx.get(featureName)] = vector.get(featureName);
                 }
-
-                CRSMatrix a = new CRSMatrix(sparseArrayMatrix);
-                CCSMatrix b = new CCSMatrix(sparseArrayMatrix);
-                Matrix m = a.multiply(b);
-                resMatrix.add(m);
+                //double[][] sparseArrayMatrix = {sparseArray};
+                Vector a = new CompressedVector(sparseArray);
+                Vector b = new CompressedVector(sparseArray);
+                Matrix m = new CRSMatrix();
+                m = a.outerProduct(b);
+                System.out.print(i);
+                //CRSMatrix a = new CRSMatrix(sparseArrayMatrix);
+                //CCSMatrix b = new CCSMatrix(sparseArrayMatrix);
+                //Matrix m = b.multiply(a);
+                //resMatrix.add(m);
             }
-            resMatrix = resMatrix.multiply(1.0/x.size());
+            //resMatrix = resMatrix.multiply(1.0/x.size());
             return resMatrix;
         }
 
@@ -98,7 +105,9 @@ public class MatrixBuilders {
                 double[] sparseArray = new double[namesIdx.size()];
                 Map<String, Double> vector = x.get(i);
                 for (String featureName : vector.keySet()) {
-                    sparseArray[namesIdx.get(featureName)] = vector.get(featureName);
+                    if(namesIdx.containsKey(featureName)) {
+                        sparseArray[namesIdx.get(featureName)] = vector.get(featureName);
+                    }
                 }
                 Vector xi = new CompressedVector(sparseArray);
                 xi = xi.multiply(y.get(i));
