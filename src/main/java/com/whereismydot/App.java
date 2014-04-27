@@ -15,6 +15,8 @@ public class App{
     
 	public static void main( String[] args ) throws IOException{
     
+		int timeout = 12 * 60 * 60 * 1000;
+		
         JobConf job = new JobConf(FeatureExtractionPipeline.class);
         job.setMapperClass(FeatureExtractionPipeline.class);
         job.setReducerClass(FeatureExtractionPipeline.class);
@@ -28,8 +30,8 @@ public class App{
         System.out.println("mapreduce:" + job.getInt("mapreduce.task.timeout",-1) 
         						+ " mapred" + job.getInt("mapred.task.timeout",-1));
         
-        job.setInt("mapreduce.task.timeout", 40 * 60 * 1000);
-        job.setInt("mapred.task.timeout"   , 40 * 60 * 1000);
+        job.setInt("mapreduce.task.timeout", timeout);
+        job.setInt("mapred.task.timeout"   , timeout);
         
         System.out.println("mapreduce:" + job.getInt("mapreduce.task.timeout",-1) 
 				+ " mapred" + job.getInt("mapred.task.timeout",-1));

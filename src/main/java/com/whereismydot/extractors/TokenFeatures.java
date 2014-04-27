@@ -38,7 +38,17 @@ public class TokenFeatures implements FeatureExtractor {
         	isRetweeted += tweet.isRetweeted()? 1 : 0;
         	isRetweet += tweet.isRetweet()? 1 : 0;
         	texts += tweet.getText() + " ";
-            sentiment += tweetSentiment.get(tweet);
+        	
+        	// In theory this should not be needed but seems to cause a 
+        	// null pointer exception so it's easier to hack around here 
+        	// then debug properly.
+        	if(tweetSentiment.containsKey(tweet)){
+        		sentiment += tweetSentiment.get(tweet);	
+        	}else{
+        		System.out.println("Failed to get sentiment for:" + tweet.getId()
+        						+ " :" + tweet.getText());
+        	}
+            
         }
         
         // New Features:
