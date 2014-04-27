@@ -1,21 +1,22 @@
 package com.whereismydot.utils;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
+
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
 
 public class TimeBinner {
 
+	private static final LocalDate epoch = new LocalDate(2014,1,1);
+	
 	public long timeBin(Date date){
+		LocalDate niceDate = new LocalDate(date);
+		int day = Days.daysBetween(epoch, niceDate).getDays();
 		
-		Calendar cal = new GregorianCalendar();
-	    cal.setTime(date);
-        cal.set(Calendar.AM_PM, Calendar.AM);
-        cal.set(Calendar.HOUR, 0);
-        cal.set(Calendar.MINUTE, 0);
-	    cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-
-	    return cal.getTime().getTime();
+		if(day < 1){ 
+			return 0;
+		}else{
+			return day;
+		}
 	}
 }
