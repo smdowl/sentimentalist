@@ -1,6 +1,8 @@
 package com.whereismydot.models;
 
+import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -21,6 +23,7 @@ import org.apache.commons.math.stat.descriptive.summary.Product;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.whereismydot.utils.StockDataLoader;
@@ -35,8 +38,8 @@ public class ModelRunner implements Runnable{
 	private final int foldCount;
 	
 	private final List<Model<Map<String, Double>, Double>>  regressionModels;
-	private final List<Model<Map<String, Double>, Boolean>> classificationModels;
 
+	private final List<String> tickers;
 	
 	/**
 	 * A simple container class to reference a subset of the data sets for use 
@@ -74,11 +77,13 @@ public class ModelRunner implements Runnable{
 		List<List<Double>>  prices = new ArrayList<List<Double>>();
 		
 		StockDataLoader loader = new StockDataLoader(from, to, 1, PriceType.Close);
-
+		List<String> pricePaths = new ArrayList<String>();
+		
 		try{
 			for(int i = 0; i < args.length; i += 2){
 				features.add(readFeatureVectors(args[i], from, to));
 				prices.add(loader.load(args[i + 1]));
+				pricePaths.add(args[i + 1]);
 			}
 			
 		}catch(IOException ex){
@@ -105,21 +110,31 @@ public class ModelRunner implements Runnable{
 
 		
 		//Go
-		new ModelRunner(features, prices, regressionModels, new ArrayList<Model<Map<String, Double>, Boolean>>()).run();
+		new ModelRunner(features, prices, regressionModels, getFileNames(pricePaths)).run();
 		
+	}
+	
+	static private List<String> getFileNames(List<String> paths){
+		List<String> result = new ArrayList<String>();
+		for(String path : paths){
+			String[] parts = path.split("/");			
+			result.add(parts[parts.length - 1].split("\\.")[0]);
+		}
+		
+		return result;
 	}
 	
 	public ModelRunner(List<List<Map<String, Double>>> features, List<List<Double>> prices,
 			List<Model<Map<String, Double>, Double>> regressionModels,
-			List<Model<Map<String, Double>, Boolean>> classificationModels){
+			List<String> tickers){
 		this.features = features;
 		this.prices   = prices;
+		this.tickers  = tickers;
 		
 		this.regressionModels     = regressionModels;
-		this.classificationModels = classificationModels;
 
 		// Set how many folds to run what fold size to use. 
-		this.foldSize  = 20;
+		this.foldSize  = 10;
 		this.foldCount = 30;
 		
 	}
@@ -127,12 +142,77 @@ public class ModelRunner implements Runnable{
 	@Override
 	public void run() {
 		
-		runRegressionModels();
-		
+//		runRegressionModels();
+		try {
+			runPredictAllDays();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //		System.out.println("\n--------------------------------------------------------------------------------\n");
 //		
 //		double[][] classificationResults = runClassificationModels();
 //		printResult("Classification results", classificationResults);
+	}
+	
+	private void runPredictAllDays() throws FileNotFoundException{
+		for(int stock = 0; stock < prices.size(); stock++){
+			List<List<Double>> result = new ArrayList<List<Double>>();
+			for(Model<Map<String, Double>, Double> model : regressionModels){
+				result.add(predictAllDays(model, stock));
+			}
+			printAllPricePrediction(result, stock);
+		}
+	}
+	
+	private List<Double> predictAllDays(Model<Map<String,Double>, Double> model, int stockIdx){
+		List<Double> result = new ArrayList<Double>();
+//		System.out.println("=======" + (features.size()) + "======");
+		
+		for(int offset = 0; offset < prices.size() - foldSize; offset++){
+			Fold<Double> fold = regressionFold(offset, foldSize, stockIdx);
+			setOutputEnabled(false);
+			model.train(fold.features, fold.prices);
+			result.add(model.predict(fold.x));
+			setOutputEnabled(true);
+		}
+		
+		return result;
+	}
+	
+	private void printAllPricePrediction(List<List<Double>> result, int stockIdx) throws FileNotFoundException{
+		PrintStream out = new PrintStream(new File("results/" + tickers.get(stockIdx)));
+
+		LocalDate to  = new LocalDate(2014, 3, 4);
+		List<String> dates = new ArrayList<String>();
+		
+		for(int i = 0; i < result.get(0).size(); i++){
+			dates.add("\"" + to.toString() + "\"");
+			to.plusDays(-1);
+		}
+		
+		for(String date : Lists.reverse(dates)){
+			out.print("," + date);
+		}
+				
+		
+
+		int model = 0;
+		for(List<Double> modelResult : result){
+			out.print("\nModel " + model);
+			for(double prediction : modelResult){
+				out.print("," + prediction);
+			}
+			model++;
+		}
+		out.print("\nTrue");
+		
+		int start = foldSize;
+		for(int i = 0; i < result.get(0).size(); i++){
+			out.print(", " + prices.get(stockIdx).get(start + i));
+		}
+		out.flush();
+		out.close();
 	}
 	
 	private void runRegressionModels(){
@@ -210,34 +290,6 @@ public class ModelRunner implements Runnable{
 
 	}
 	
-	private double[][] runClassificationModels(){
-		double[][] results = new double[prices.size()][classificationModels.size()];
-		
-		for(int stockIdx = 0; stockIdx < prices.size(); stockIdx++){
-			Fold<Boolean> fold = randomClassificationFold(foldSize, stockIdx);
-			
-			for(int modelIdx = 0; modelIdx < classificationModels.size(); modelIdx++){
-				
-				Model<Map<String, Double>, Boolean> model = classificationModels.get(modelIdx);
-				model.train(fold.features, fold.prices);
-				
-				double error = fold.y == model.predict(fold.x) ? 0 : 1;
-				
-				results[stockIdx][modelIdx] += error;
-			}
-			
-			//Normalize the error rate 
-			for(int i = 0; i < results.length; i++){
-				for(int j = 0; j < results[i].length; j++){
-					results[i][j] /= foldCount;
-				}
-			}
-		}
-		
-		
-		
-		return results;
-	}
 	
 	/**
 	 * Converts a list of prices to a list of booleans indicating if the price
@@ -264,16 +316,16 @@ public class ModelRunner implements Runnable{
 		
 		int colWidth = 24;
 		
-		System.out.print(pad("", colWidth));
+		System.out.print(pad("Ticker", colWidth));
 		for(int i = 0; i < results[0].length; i++){
-			System.out.print(pad("| Model " + i, colWidth));
+			System.out.print(pad(", Model " + i, colWidth));
 		}
 		System.out.println();
 		
 		for(int stock = 0; stock < results.length; stock++){
-			System.out.print(pad("Stock number " + stock, colWidth));
+			System.out.print(pad(tickers.get(stock), colWidth));
 			for(int model = 0; model < results[stock].length; model++){
-				System.out.print(pad("| " + results[stock][model], colWidth));
+				System.out.print(pad(", " + results[stock][model], colWidth));
 			}
 			System.out.println();
 		}
@@ -286,12 +338,12 @@ public class ModelRunner implements Runnable{
 	 * @return
 	 */
 	private String pad(String str, int length){
-		if(str.length() < length){
-			int padding = length - str.length();
-			for(int i = 0; i < padding; i++){
-				str += " ";
-			}
-		}
+//		if(str.length() < length){
+//			int padding = length - str.length();
+//			for(int i = 0; i < padding; i++){
+//				str += " ";
+//			}
+//		}
 		return str;
 	}
 	
@@ -305,6 +357,17 @@ public class ModelRunner implements Runnable{
 	private Fold<Double> randomRegressionFold(int size, int stockIdx){
 //		System.out.print(features.size());
 		int startIdx 		  = new Random().nextInt(features.get(stockIdx).size() - size - 1);
+		
+		List<Double> subPrice = prices.get(stockIdx).subList(startIdx,startIdx + size);
+		List<Map<String, Double>> subFeatures = features.get(stockIdx).subList(startIdx, startIdx + size);
+		
+		Map<String,Double> x  = features.get(stockIdx).get(startIdx + size + 1);
+		double			   y  = prices.get(stockIdx).get(startIdx + size + 1);
+		
+		return new Fold<Double>(subFeatures, subPrice, x, y);
+	}
+	
+	private Fold<Double> regressionFold(int startIdx, int size, int stockIdx){
 		
 		List<Double> subPrice = prices.get(stockIdx).subList(startIdx,startIdx + size);
 		List<Map<String, Double>> subFeatures = features.get(stockIdx).subList(startIdx, startIdx + size);
