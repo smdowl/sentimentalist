@@ -15,7 +15,6 @@ import twitter4j.HashtagEntity;
 import twitter4j.Status;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 

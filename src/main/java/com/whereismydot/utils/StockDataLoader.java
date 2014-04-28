@@ -64,7 +64,7 @@ public class StockDataLoader {
 		// Interpolate missing days. Since missing days do not have any trading 
 		// taking place (eg. weekends) just use the previous day price. 
 		if(result[0] == null){
-			throw new RuntimeException("No data for first day - can't interpolate");
+			throw new RuntimeException("No data for first day - can't interpolate:" + path);
 		}
 		
 		for(int i = 1; i < result.length; i++){
