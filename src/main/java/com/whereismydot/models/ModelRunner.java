@@ -180,11 +180,36 @@ public class ModelRunner implements Runnable{
 			}
 		}	
 		
+		//Compute means 
+		double[][] meanMSE = new double[1][regressionModels.size()];
+		for(int model = 0; model < regressionModels.size(); model++){
+			for(int stock = 0; stock < prices.size(); stock++){
+				meanMSE[0][model] += results[stock][model] / ((double) regressionModels.size());
+			}
+		}
+		
+		double[][] meanDirection = new double[1][regressionModels.size()];
+		for(int model = 0; model < regressionModels.size(); model++){
+			for(int stock = 0; stock < prices.size(); stock++){
+				meanDirection[0][model] += directionResult[stock][model] / ((double) regressionModels.size());
+			}
+		}
+				
 		// Print the results
 		printResult("Regression", results);
 		System.out.println("\n--------------------------------------------------------------------------------\n");
+		
+		printResult("Regression (Mean)", meanMSE);
+
+		System.out.println("\n--------------------------------------------------------------------------------\n");
+
 		// Print the results
 		printResult("Regression (Direction Only)", directionResult);
+
+		System.out.println("\n--------------------------------------------------------------------------------\n");
+
+		printResult("Regression (Direction Only) (Mean)", meanDirection);
+
 
 	}
 	
