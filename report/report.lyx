@@ -1502,6 +1502,60 @@ centering
 
 \begin_layout Plain Layout
 \begin_inset Graphics
+	filename /Users/Matthieu/Desktop/Rplot01.eps
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+MMM Stock Price.
+ Real Value (red) vs SVM (blue), ProductKernel(purple), WaveGP(green).
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
 	filename figures/regression-table.png
 	scale 50
 
