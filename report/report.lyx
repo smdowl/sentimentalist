@@ -74,11 +74,11 @@ Introduction
 \end_layout
 
 \begin_layout Standard
-Trying to predict the future of stock markets has been tried multiple times
- from very different scientific perspectives - whether it is by looking
- at co-integration of multiple stock prices in order to bet against their
- relationship diverging, or looking at repercusions and spread of macro-events
- information within the financial markets.
+Predicting the behaviour of stock markets has been attempted with very different
+ statistical methods - whether it is by looking at co-integration of multiple
+ stock prices in order to bet against their relationship diverging, or looking
+ at repercussions and spread of macro-events information within the financial
+ markets.
  A long standing belief is that stock markets are somehow related to the
  mood of the general population.
  More recently, with the rise of social media and user-created content on
@@ -119,7 +119,7 @@ reference "fig:Project-Pipeline"
 \end_inset
 
  shows how we have modularised the project.
- In particular, the input the the machine learning algorithms are simply
+ In particular, the input of the machine learning algorithms are simply
  feature vectors that we can use for inference.
  
 \end_layout
@@ -132,7 +132,7 @@ status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename figures/Graph_IRDM_pipeline.jpg
+	filename /Users/Ale/Desktop/sentimentalist/report/figures/Graph_IRDM_pipeline.jpg
 	scale 60
 
 \end_inset
@@ -186,7 +186,7 @@ Feature Extraction Pipeline
 \end_layout
 
 \begin_layout Standard
-Our feature extraction pipeline is where all the processing or raw tweets
+Our feature extraction pipeline is where all the processing of raw tweets
  happens.
  All this work is handled in a single Hadoop job that splits the incoming
  tweets according to which day they were posted, and which company they
@@ -227,13 +227,22 @@ Machine Learning
 \end_layout
 
 \begin_layout Standard
-Have produced a time series for each company we'd like to consider, we can
- then plug this data straight into any of a number of machine learning algorithm
-s.
- In particular we have chosen Linear Regression, Gaussian Processed, and
- Support Vector machines as our training methods to try and learn how these
+Having produced a time series for each company we'd like to consider, we
+ can then plug this data straight into any of a number of machine learning
+ algorithms.
+ In particular we have chosen Linear Regression, Support Vector Machines
+ and Gaussian Processes as our training methods to try and learn how these
  features correspond to changes in stock price.
- 
+ Linear Regression was originally chosen to give us a simply implemented
+ baseline which might pick out any linear relationships between our features
+ (including sentiment) and stock prices.
+ Support Vector Machines, instead, were used to deal with possible non-linear
+ relationships through the use of various kernels, since we would not a
+ priori expect the stock market to have a strong, simple linear relationship
+ with our Twitter-based features.
+ We also chose Gaussian Processes because they are a very powerful model
+ that combines the properties of kernels and the flexibility of a probabilistic
+ (Gaussian) approach to modelling data.
 \end_layout
 
 \begin_layout Subsection
@@ -256,18 +265,18 @@ Preprocessing
 Firstly, we found we were having trouble parsing the data since the format
  was not one JSON element per line.
  Hence, we uploaded the compressed data files to S3 so that we could access
- them quickly from an EC2 and used an EC2 instance to decompress and clean
+ them quickly from an EC2 instance and used one to decompress and clean
  the data files before transfering the uncompressed data back to S3.
 \end_layout
 
 \begin_layout Subsubsection
-Feature MapReduce
+Features MapReduce
 \end_layout
 
 \begin_layout Standard
-All feature extraction was performed via Hadoop on EMR so that we could
- explore the effectiveness of Hadoop in this context while also freeing
- us up from being constrained by long processing times.
+All feature extraction was performed via Hadoop on Elastic MapReduce (EMR)
+ so that we could explore the effectiveness of Hadoop in this context while
+ also freeing us up from being constrained by long processing times.
  Since we can scale the Hadoop implementation virtually linearly we could
  iterate on our features much faster by handling all processing in a distributed
  fashion, increasing the number of instances we used if we wanted the job
@@ -468,12 +477,24 @@ Stanford Implementation
 
 \begin_layout Standard
 We made use of the Standford NLP library 
-\begin_inset CommandInset citation
-LatexCommand cite
-key "nlp-lib"
+\series bold
+\emph on
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+
+\series bold
+\emph on
+ref
+\end_layout
 
 \end_inset
 
+
+\series default
+\emph default
  to parse the text of each tweet during the feature extraction step.
  For every tweet parsed in for a particular company in a given time slice,
  we ran the text through the Stanford model to get an associated sentiment.
@@ -534,24 +555,6 @@ where
  This is because we did not want to penalise longer, mostly neutral tweets,
  containing a short, but possibly strong, sentiment loaded remark.
  
-\series bold
-\emph on
-
-\begin_inset Note Note
-status collapsed
-
-\begin_layout Plain Layout
-
-\series bold
-\emph on
-To do: insert ref
-\end_layout
-
-\end_inset
-
- (SentiWordNet 3.0: An Enhanced Lexical Resource for Sentiment Analysis and
- Opinion Mining (2010), Stefano Baccianella , Andrea Esuli , Fabrizio Sebastiani
-)
 \end_layout
 
 \begin_layout Subsection
@@ -1748,7 +1751,20 @@ key "nlp-lib"
 
 Stanford CoreNLP, The Stanford Natural Language Processing Group, 
 \emph on
-http://nlp.stanford.edu/software/corenlp.shtml>>>>>>> FETCH_HEAD
+http://nlp.stanford.edu/software/corenlp.shtml
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "SWN"
+
+\end_inset
+
+
+\emph on
+SentiWordNet 3.0: An Enhanced Lexical Resource for Sentiment Analysis and
+ Opinion Mining (2010), Stefano Baccianella , Andrea Esuli , Fabrizio Sebastiani
 \end_layout
 
 \end_body
