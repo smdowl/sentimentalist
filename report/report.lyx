@@ -1300,6 +1300,8 @@ In this section we summarise the results vs the bench mark as described
  We first analyse the performce when simply predicting the direction change
  of the stocks before moving on to the more complex task of exact value
  prediction.
+ We trained our models using features extracted from the full set of provided
+ Tweets and considered every the performance of each model on every company.
 \end_layout
 
 \begin_layout Subsection
