@@ -1451,5 +1451,45 @@ Feature Extraction
 Prediction
 \end_layout
 
+\begin_layout Standard
+We tried out 3 fairly popular Machine Learning models (Linear Regression,
+ SVM and Gaussian Processes) to predict stock prices.
+ However, there are many others models we could have used to forecast changes
+ in the stock prices.
+ 
+\end_layout
+
+\begin_layout Itemize
+For example, on top of our models, we could have added a measure of co-integrati
+on in order to infer stronger trading signals for stocks which are similar
+ to others.
+ That is if the Goldman Sachs stock is strongly co-integrated with the JP
+ Morgan stock, and our models strongly predict that the price of JP Morgan
+ will go up the next day, we could bias our prediction of the GS stock up
+ to releft this cointegration relationship.
+ In general, given more data and more time we could have used more advanced
+ time series models such as ARIMA (Autoregression Integrated Moving Average)
+ which are common in financial circles.
+\end_layout
+
+\begin_layout Itemize
+Also there were many other Kernels we could have tried beyond the ones we
+ experimented with (Radius Basis Function, Wave, Linear, Gaussian, mixture
+ of Wave and Gaussian).
+ Given more time, we could have for example explored more products of Kernels
+ and calibrated them so that they nicely leverage the shape of the data.
+\end_layout
+
+\begin_layout Standard
+Beyond the various Kernels and Time series models, the performance ogf our
+ model could have been boosted by increasing our data set.
+ It is not clear whether the relatively good results of the prediction of
+ the future price direction comes from potential momentum in the stock prices
+ of the Dow Jones or our models.
+ Indeed, in the dates of the data set, the Dow Jones can be seen to have
+ consistently increasing.
+ 
+\end_layout
+
 \end_body
 \end_document
