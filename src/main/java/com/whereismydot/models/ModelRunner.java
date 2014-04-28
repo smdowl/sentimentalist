@@ -94,19 +94,12 @@ public class ModelRunner implements Runnable{
 			= new ArrayList<Model<Map<String, Double>, Double>>();
 
 		regressionModels.add(new LastValueModel<Map<String, Double>, Double>());
-		regressionModels.add(new GaussianProcess(new Kernels.Linear(), 0));
+		regressionModels.add(new GaussianProcess(new Kernels.Linear(), 0.2));
 
-		regressionModels.add(new GaussianProcess(new Kernels.Gaussian(1), 0));
-		regressionModels.add(new GaussianProcess(new Kernels.Gaussian(10), 0));
-		regressionModels.add(new GaussianProcess(new Kernels.Gaussian(100), 0));
-		regressionModels.add(new GaussianProcess(new Kernels.Gaussian(400), 0));
+		regressionModels.add(new GaussianProcess(new Kernels.Gaussian(100), 0.2));
 		
-		regressionModels.add(new GaussianProcess(new Kernels.WaveKernel(1), 0));
-		regressionModels.add(new GaussianProcess(new Kernels.WaveKernel(10), 0));
-		regressionModels.add(new GaussianProcess(new Kernels.WaveKernel(100), 0));
-        regressionModels.add(new LinearRegression(new MatrixBuilders.MatrixBuilderLinear()));
-        regressionModels.add(new SVM<Map<String,Double>>(new SVMtrains.simple()));
-
+		regressionModels.add(new GaussianProcess(new Kernels.WaveKernel(15), 0.2));
+	
         
 		// Specify which classification models should be evaluated.
 		List<Model<Map<String, Double>, Boolean>> classificationnModels
@@ -149,7 +142,6 @@ public class ModelRunner implements Runnable{
 		double[][] results 		   = new double[prices.size()][regressionModels.size()];
 		double[][] directionResult = new double[prices.size()][regressionModels.size()];
 		
-		setOutputEnabled(true);
 		for(int stockIdx = 0; stockIdx < prices.size(); stockIdx++){
 			for(int foldIdx = 0; foldIdx < foldCount; foldIdx++){
 
@@ -157,10 +149,13 @@ public class ModelRunner implements Runnable{
 			
 				for(int modelIdx = 0; modelIdx < regressionModels.size(); modelIdx++){
 					Model<Map<String, Double>, Double> model = regressionModels.get(modelIdx);
+					
+//					setOutputEnabled(false);
 					model.train(fold.features, fold.prices);
 					
 					double prediction = model.predict(fold.x);
-				
+//					setOutputEnabled(true);
+//					System.out.println("Pred:" + prediction + " actual:" + fold.y);
 					double error = fold.y - prediction;
 				
 					results[stockIdx][modelIdx] += error * error;

@@ -18,9 +18,9 @@ public class GaussianProcess implements Model<Map<String, Double>, Double>{
 	private Matrix  trainingY; 
 	private Map<String,Double> z; 
 	
-	public GaussianProcess(Kernel<Map<String, Double>> kernel, double sigma2){
+	public GaussianProcess(Kernel<Map<String, Double>> kernel, double beta){
 		this.kernel = kernel;
-		this.beta   = 0.5;
+		this.beta   = beta;
 	}
 	
 

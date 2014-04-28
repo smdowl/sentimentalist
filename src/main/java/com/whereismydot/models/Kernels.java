@@ -17,10 +17,10 @@ public class Kernels {
 	 *
 	 * @param <T>
 	 */
-	public static class CompositeKernel<T> implements Kernel<T>{
+	public static class ProductKernel<T> implements Kernel<T>{
 		private final List<Kernel<T>> components;
 
-		public CompositeKernel(List<Kernel<T>> components){
+		public ProductKernel(List<Kernel<T>> components){
 			this.components = components;
 		}
 		
