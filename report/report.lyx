@@ -651,6 +651,13 @@ for each company.
 
 \begin_layout Section
 Stock Prediction
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Stock-Prediction"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -986,7 +993,280 @@ In our implementation, we use the LibSVM library, which gives us a range
 \end_layout
 
 \begin_layout Subsection
-Gaussian Processes
+Gaussian Process regression
+\end_layout
+
+\begin_layout Standard
+A Gaussian process defines a probabilety distribtion over functions.
+ A Gaussian process is defined in terms of a mean function 
+\emph on
+m
+\emph default
+ and covariance kernel 
+\emph on
+k 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f\sim GP(k,m)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+However to simplify the implmentation I use a zero mean GP so 
+\begin_inset Formula $m(x)=0$
+\end_inset
+
+ therefore the GP is fully defined by the covariance kernel.
+ In order to fit a Gaussian process model I first proceed to compute the
+ covariance matrix 
+\emph on
+C
+\emph default
+ defined as 
+\begin_inset Formula 
+\[
+C=\begin{array}{ccccc}
+K(x_{1},x_{1}) & K(x_{1},x_{2}) & K(x_{1,}x_{3}) & \dots & K(x_{1},x_{n})\\
+K(x_{2},x_{2}) & K(x_{2},x_{2}) & K(x_{2,}x_{3}) & \dots & K(x_{2},x_{n})\\
+K(x_{3},x_{1}) & K(x_{1},x_{2}) & K(x_{1,}x_{3}) & \dots & K(x_{3},x_{n})\\
+\vdots &  &  & \ddots & \vdots\\
+K(x_{n},x_{1}) & K(x_{n},x_{2}) & K(x_{n,}x_{3}) & \dots & K(x_{n},x_{n})
+\end{array}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Once 
+\emph on
+C
+\emph default
+ is computed I can make a prediction for a new training sample 
+\begin_inset Formula $x_{new}$
+\end_inset
+
+ by first computing the vector 
+\begin_inset Formula $k_{x}$
+\end_inset
+
+ defined as 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+k_{x}=[K(x_{1},x_{new}),K(x_{2},x_{new})\cdots K(x_{n},x_{new})]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and then computeing the new prediction 
+\begin_inset Formula $y_{new}$
+\end_inset
+
+ as 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+y_{new}=k^{T}C^{-1}Y
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+An additional benefit of the GP model is that it allows for computation
+ of the variance of the prediction.
+ This is particularly useful for stock market prediction as it would allow
+ a hypothetical treading algorithm to only make trades when the price prediction
+ is certain.
+\end_layout
+
+\begin_layout Subsubsection
+Covariance Kernels
+\end_layout
+
+\begin_layout Standard
+The key part of the Gaussian process model is the covariance kernels as
+ it defines the prior distribution over the function space provided by the
+ GP.
+ We evaluated four kernels.
+ The linear kernel, Gaussian kernel, the wave kernel and a product kernel
+ formed by a product of the output of the other three.
+\end_layout
+
+\begin_layout Standard
+The Linear kernels is defined as follows
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+K(x,y)=||x\cdot y||
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+it's a simple dot product of the features.
+\end_layout
+
+\begin_layout Standard
+The Gaussian kernel is defined as 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+K(x,y)=exp(\frac{-||x-y||^{2}}{2\sigma^{2}})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It captures the similarity of two data points and has a single hyper-parameter
+ 
+\begin_inset Formula $\sigma^{2}$
+\end_inset
+
+ often called the bandwidth.
+\end_layout
+
+\begin_layout Standard
+The last kernel that was evaluated is the wave kernel defined as 
+\begin_inset Formula 
+\[
+K(x,y)=\frac{\theta}{||x-y||}\sin(\frac{||x-y||}{\theta})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It should be able to pick up on periodic dependance in the data and has
+ a hyper-parameter 
+\begin_inset Formula $\theta$
+\end_inset
+
+ that governs the expected period of the dependance.
+\end_layout
+
+\begin_layout Standard
+The product of two kernels 
+\begin_inset Formula $K_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $K_{2}$
+\end_inset
+
+ can be formed as 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+K_{prod}(x,y)=K_{1}(x,y)*K_{2}(x,y)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The hyper parameters for the various kernels were selected by evaluating
+ our models on the training set and picking the hyper-parameters that minimize
+ the mean square error.
+\end_layout
+
+\begin_layout Section
+Evaluation
+\end_layout
+
+\begin_layout Standard
+In order to evaluate the effectiveness of the models outline in section
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Stock-Prediction"
+
+\end_inset
+
+ we devised two metrics of model accuracy.
+ The first is the square error of the prediction 
+\begin_inset Formula $(y_{true}-y_{predicted})^{2}$
+\end_inset
+
+.
+ However when predicting the stock market we often only care about whether
+ a particular stock will go up or down in value.
+ After all that is what determines if a trade makes money or not.
+ So the second metric we devised is measuring how often our algorithm gets
+ the direction of the price movement right.
+\end_layout
+
+\begin_layout Subsection
+Evaluation setup
+\end_layout
+
+\begin_layout Standard
+When evaluating our models we wanted to avoid the problem of overfilling
+ so we decided to employ the technique of k-fold validation.
+ We split our data set into K subsets and proceeded to train our models
+ on these subsets.
+ We would than use our models to predict the stock price immediately proceeding
+ the selected subset of the data.
+ By running this procedure across K subsets of the data set we are able
+ to compute the mean square error defined as 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+MSE=\frac{1}{K}\sum(y_{k_{pred}}-y_{k_{true}})^{2}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Model Benchmark
+\end_layout
+
+\begin_layout Standard
+In order to check if our models are performing well we developed a benchmark
+ model that simply predicts the next day's closing price to be identical
+ to today's closing price.
+ Our aim was to outperform this simple model.
 \end_layout
 
 \begin_layout Section
