@@ -306,8 +306,8 @@ In order to provide our statistical models with information about the social
  information that might be relevant to predicting the behaviour of the stock
  market.
  This information was then encoded numerically to be processed by our algorithms.
- We decided to split the feature extraction task into five main components:
- 
+ We decided to split the feature extraction task into five main components
+ (each with its own java class): 
 \end_layout
 
 \begin_layout Itemize
@@ -391,11 +391,11 @@ User Features
 \end_layout
 
 \begin_layout Standard
-By global features we mean features of our dataset which can only be computed
- by processing the dataset as a whole, as opposed to each individual tweet
+By user features we mean features of our dataset which con concern the authors
+ of the tweets, some of them can be computed locally (as they are contained
+ in the json file for each tweet) and some others can only be computed by
+ processing the dataset as a whole, as opposed to each individual tweet
  on its own.
- These amount to general information about the unique users whose tweets
- are contained in our dataset.
  Thus Pagerank is clearly a Global Feature, and we also implemented a MapReduce
  job to extract, for each user, the proportion of tweets that were originally
  somebody else's (
@@ -416,10 +416,39 @@ clout
 \end_inset
 
 .
+ On the other hand, the User Features which could be extracted locally from
+ the json file are:
+\end_layout
+
+\begin_layout Itemize
+User's retweets in the specific time-bin
+\end_layout
+
+\begin_layout Itemize
+Number of user's tweets favourited
+\end_layout
+
+\begin_layout Itemize
+Number of user followers
+\end_layout
+
+\begin_layout Itemize
+Number of user's friends
+\end_layout
+
+\begin_layout Itemize
+Number of public lists user is listed in
 \end_layout
 
 \begin_layout Subsection
 Company Features
+\end_layout
+
+\begin_layout Standard
+The company features simply pick out if a specific company (whose stock
+ price we are trying to predict) is mentioned in a tweet or not, and this
+ information is then used to filter out the irrelevant tweets which do not
+ concern that company.
 \end_layout
 
 \begin_layout Subsection
@@ -1476,6 +1505,28 @@ While initially we included the word count for each word that had been tweeted
  largely underdetermining possibly interesting feature interactions.
  We thus reduced our features to those Token Features computed over a whole
  time-bin.
+\end_layout
+
+\begin_layout Standard
+The somewhat disappointing nature of our results can be partially explained
+ by the fact that our features could not really pick out very elaborate
+ relationships between a tweet and a specific company.
+ Indeed, the simple snetiment analyser we implemented only detected the
+ presence of sentiment-loaded words ignoring their order and part of speech
+ tagging.
+ 
+\end_layout
+
+\begin_layout Standard
+The coreNLP Stanford sentiment analyser offered a way to extract a more
+ reliable sentiment, but due to its computation times it was impractical
+ for this task.
+\end_layout
+
+\begin_layout Standard
+However, even with very good feature, it is unclear that the Twitter data
+ should have a direct correlation or indeed a causal primacy with the stock
+ market.
 \end_layout
 
 \begin_layout Subsection
