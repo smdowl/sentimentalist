@@ -1802,7 +1802,7 @@ key "nlp-lib"
 
 Stanford CoreNLP, The Stanford Natural Language Processing Group, 
 \emph on
-http://nlp.stanford.edu/software/corenlp.shtml>>>>>>> FETCH_HEAD
+http://nlp.stanford.edu/software/corenlp.shtml
 \end_layout
 
 \end_body
