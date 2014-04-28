@@ -30,7 +30,7 @@ public class SVM<T> implements Model<T,Double> {
         //param.gamma = 0.5;
         param.gamma = 0.5;
         param.nu = 0.5;
-        param.C = 2;
+        param.C = 1;
         param.svm_type = svm_parameter.C_SVC;
         param.kernel_type = svm_parameter.RBF;
         param.cache_size = 20000;

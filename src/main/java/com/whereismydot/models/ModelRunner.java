@@ -92,18 +92,15 @@ public class ModelRunner implements Runnable{
 
 		regressionModels.add(new LastValueModel<Map<String, Double>, Double>());
 		regressionModels.add(new GaussianProcess(new Kernels.Linear(), 0.2));
-
 		regressionModels.add(new GaussianProcess(new Kernels.Gaussian(100), 0.2));
-		
 		regressionModels.add(new GaussianProcess(new Kernels.WaveKernel(15), 0.2));
-		
-		
+
 		ArrayList<Kernel<Map<String,Double>>> kernels = new ArrayList<Kernel<Map<String,Double>>>();
 		kernels.add(new Kernels.Gaussian(100));
 		kernels.add(new Kernels.WaveKernel(15));
 		regressionModels.add(new GaussianProcess(new Kernels.ProductKernel<Map<String,Double>>(kernels), 0.2));
 		
-//        regressionModels.add(new LinearRegression<Map<String,Double>>(new MatrixBuilders.MatrixBuilderLinear()));
+        regressionModels.add(new LinearRegression<Map<String,Double>>(new MatrixBuilders.MatrixBuilderLinear()));
         regressionModels.add(new SVM<Map<String,Double>>(new SVMtrains.simple()));
 
 		
