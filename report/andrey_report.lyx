@@ -75,13 +75,13 @@ Gaussian Process regression
 \end_layout
 
 \begin_layout Standard
-A Gaussian process is a collection of random varibles where any finite subset
- of the variables follows a Gaussian distribution.
- A Gaussian process is definied by a mean function 
+A Gaussian process is a collection of random variables where any finite
+ subset of the variables follows a Gaussian distribution.
+ A Gaussian process is defined by a mean function 
 \emph on
 m
 \emph default
- and covarianvce kernel 
+ and covariance kernel 
 \emph on
 k 
 \end_layout
@@ -98,7 +98,7 @@ f\sim GP(k,m)
 \end_layout
 
 \begin_layout Standard
-To simplify the analysis I assum that the GP is zero mean so 
+To simplify the analysis I assume that the GP is zero mean so 
 \begin_inset Formula $m(x)=0$
 \end_inset
 
@@ -189,7 +189,7 @@ The key part of the Gaussian process model the covariance kernels as it
  GP.
  We evaluated four kernels.
  The linear kernel, Gaussian kernel, the wave kernel and a product kernel
- formed by a product of the ouput of the other three.
+ formed by a product of the output of the other three.
 \end_layout
 
 \begin_layout Standard
@@ -227,7 +227,7 @@ K(x,y)=exp(\frac{-||x-y||^{2}}{2\sigma^{2}})
 \end_layout
 
 \begin_layout Standard
-It captures the similarity of two datapoints and has a single hyperparameter
+It captures the similarity of two data points and has a single hyper-parameter
  
 \begin_inset Formula $\sigma^{2}$
 \end_inset
@@ -248,12 +248,12 @@ K(x,y)=\frac{\theta}{||x-y||}\sin(\frac{||x-y||}{\theta})
 \end_layout
 
 \begin_layout Standard
-It should be able to pick up on periodic dependace in the data and has a
- hyperparameter 
+It should be able to pick up on periodic dependance in the data and has
+ a hyper-parameter 
 \begin_inset Formula $\theta$
 \end_inset
 
- that governs the expected period of the dependace.
+ that governs the expected period of the dependance.
 \end_layout
 
 \begin_layout Standard
@@ -279,28 +279,35 @@ K_{prod}(x,y)=K_{1}(x,y)*K_{2}(x,y)
 
 \end_layout
 
+\begin_layout Standard
+The hyper parameters for the various kernels were selected by evaluating
+ our models on the training set and picking the hyper-parameters that minimize
+ the mean square error.
+\end_layout
+
 \begin_layout Section
 Evaluation
 \end_layout
 
 \begin_layout Standard
-In order to evaluate the effectivness of the models outline in section 
+In order to evaluate the effectiveness of the models outline in section
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Stock-Prediction"
 
 \end_inset
 
- we devised to metrics of model accuracy.
- The first is the mean square error of the prediction 
+ we devised two metrics of model accuracy.
+ The first is the square error of the prediction 
 \begin_inset Formula $(y_{true}-y_{predicted})^{2}$
 \end_inset
 
 .
- However since when predicting the stock market we often only care about
- wheather a particular stock will go up or down in value.
- Afterall that is what determnies if a trade makes money or not.
- So the second metric we devised is measureing how often our algorithm gets
+ However when predicting the stock market we often only care about whether
+ a particular stock will go up or down in value.
+ After all that is what determines if a trade makes money or not.
+ So the second metric we devised is measuring how often our algorithm gets
  the direction of the price movement right.
 \end_layout
 
@@ -309,10 +316,11 @@ Evaluation setup
 \end_layout
 
 \begin_layout Standard
-When evluting our models we wanted to avoid the problem of overfitting so
- we decided to employ the technique of k-fold validation.
- We split our data sets K subsets proceded to train our models on it.
- We would than use our models to predict the stock price immidietly after
+When evaluating our models we wanted to avoid the problem of overfilling
+ so we decided to employ the technique of k-fold validation.
+ We split our data set into K subsets and proceeded to train our models
+ on these subsets.
+ We would than use our models to predict the stock price immediately proceeding
  the selected subset of the data.
  By running this procedure across K subsets of the data set we are able
  to compute the mean square error defined as 
@@ -329,8 +337,15 @@ MSE=\frac{1}{K}\sum(y_{k_{pred}}-y_{k_{true}})^{2}
 
 \end_layout
 
+\begin_layout Subsection
+Model Benchmark
+\end_layout
+
 \begin_layout Standard
- 
+In order to check if our models are performing well we developed a benchmark
+ model that simply predicts the next day's closing price to be identical
+ to today's closing price.
+ Our aim was to outperform this simple model.
 \end_layout
 
 \end_body
