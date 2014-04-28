@@ -16,38 +16,21 @@ import Jama.Matrix.*;
 public class LinearRegression<T> implements Model<T, Double>{
 
     private final MatrixBuilder<T> matrixBuilder;
-    //private Vector beta;
     private Jama.Matrix beta;
     private List<T> trainingX;
+
     public LinearRegression(MatrixBuilder<T> mB){
        this.matrixBuilder = mB;
     }
 
     @Override
     public void train(List<T> x, List<Double> y) {
-
-       this.trainingX = x;
-
-        /*
-        Vector K = matrixBuilder.getXYVector(x, y);
-        System.out.println("Done calculating vector K");
-        Matrix C = matrixBuilder.getCMatrix(x);
-        System.out.println("Done getting the C matrix");
-        LinearSystemSolver solver = C.withSolver(LinearAlgebra.FORWARD_BACK_SUBSTITUTION);
-        System.out.println("Initialized the solver");
-        beta = solver.solve(K, LinearAlgebra.SPARSE_FACTORY);
-        System.out.println("Found the beta");
-        */
-
-     beta = matrixBuilder.getBetaMatrix(x, y);
-
-
+        this.trainingX = x;
+        beta = matrixBuilder.getBetaMatrix(x, y);
     }
 
     @Override
     public Double predict(T x) {
-        //Double prediction = matrixBuilder.getPrediction(x,beta);
-        //return prediction;
         return matrixBuilder.getPrediction(x,beta);
     }
 
