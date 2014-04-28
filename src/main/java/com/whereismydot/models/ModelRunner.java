@@ -94,16 +94,17 @@ public class ModelRunner implements Runnable{
 			= new ArrayList<Model<Map<String, Double>, Double>>();
 
 		regressionModels.add(new LastValueModel<Map<String, Double>, Double>());
-		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Linear(), 0));
+		regressionModels.add(new GaussianProcess(new Kernels.Linear(), 0));
 
-		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Gaussian(1), 0));
-		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Gaussian(10), 0));
-		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.Gaussian(100), 0));
+		regressionModels.add(new GaussianProcess(new Kernels.Gaussian(1), 0));
+		regressionModels.add(new GaussianProcess(new Kernels.Gaussian(10), 0));
+		regressionModels.add(new GaussianProcess(new Kernels.Gaussian(100), 0));
+		regressionModels.add(new GaussianProcess(new Kernels.Gaussian(400), 0));
 		
-		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.WaveKernel(1), 0));
-		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.WaveKernel(10), 0));
-		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.WaveKernel(100), 0));
-//        regressionModels.add(new LinearRegression<Map<String, Double>>(new MatrixBuilders.MatrixBuilderLinear()));
+		regressionModels.add(new GaussianProcess(new Kernels.WaveKernel(1), 0));
+		regressionModels.add(new GaussianProcess(new Kernels.WaveKernel(10), 0));
+		regressionModels.add(new GaussianProcess(new Kernels.WaveKernel(100), 0));
+        regressionModels.add(new LinearRegression(new MatrixBuilders.MatrixBuilderLinear()));
         regressionModels.add(new SVM<Map<String,Double>>(new SVMtrains.simple()));
 
         
