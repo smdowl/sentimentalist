@@ -631,6 +631,24 @@ clout
 .
 \end_layout
 
+\begin_layout Subsubsection
+Sentiment Weighted PageRank
+\end_layout
+
+\begin_layout Standard
+In order to emphasise the opinion of important users, we also included a
+ feature which takes the product of a user's sentiment score with the page
+ rank of that user.
+ We then sum this over a time bin to get a 
+\emph on
+sentiment weighted pagerank 
+\emph default
+for each company.
+ The idea behind this feature is that if important users are showing strong
+ opinions about a company then that sentiment should be more heavily considered
+ than if a user who no one cares about shows similar sentiment.
+\end_layout
+
 \begin_layout Section
 Stock Prediction
 \end_layout
