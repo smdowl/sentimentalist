@@ -3,11 +3,8 @@ package com.whereismydot.models;
 import java.util.*;
 
 import libsvm.*;
-import org.la4j.matrix.Matrix;
 
-/**
- * Created by Matthieu on 24/04/2014.
- */
+
 public class SVMtrains {
     public static class simple implements SVMtrain<Map<String, Double>>{
 
@@ -60,7 +57,6 @@ public class SVMtrains {
                namesIdx.put(name, idx++);
            }
            lengthOfFeatures = namesIdx.size();
-           System.out.println("namesIdx is equal to : " + namesIdx.size());
         }
 
     }

@@ -839,23 +839,25 @@ In order to train the model, we have to find the
 \end_inset
 
  which solves this for the training set.
- In practice, implementing this can be relatively hard since inverting a
- matrix is computationaly 
+ In practice, implementing this can be relatively tricking for a couple
+ of reasons, including dimensionality and singularity.
+ Since inverting a matrix is computationally done in 
 \begin_inset Formula $O(n^{3})$
 \end_inset
 
- operation.
- In some cases our feature vector was as long as 22,000 and so inverting
- a full square matrix with 22,000x22,000 is not feasable on our computers.
- In order to go around this problem, we can leverage the fact that our feature
- vectors are very sparse and use efficient algorithms such as Gaussian Eliminati
-on or Backward-Forward elimination to solve the linear system of equation
- above.
-\end_layout
+ operation, if the dimensions are to high, we have to make of the natural
+ sparsity of our feature vectors.
+ During the project, we had up to 22,000 features so we've had to use some
+ sparse linear algebra library in order to deal with the dimensionality.
+ Another problem we encountered was the singularity of matrices.
+ Singular matrices are not invertible, and hence we cannot compute the Least
+ Square Estimator 
+\begin_inset Formula $\beta$
+\end_inset
 
-\begin_layout Standard
-We use the 'la4j' library to build sparse matrices and perform the required
- linear algebra operations on them.
+ naturally.
+ To go around this problem, we implemented the Moore-Penrose pseudo-inverse
+ to approximate the non-tractable inverse.
 \end_layout
 
 \begin_layout Subsection
