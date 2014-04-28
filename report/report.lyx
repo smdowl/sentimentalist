@@ -391,24 +391,12 @@ Stanford Implementation
 
 \begin_layout Standard
 We made use of the Standford NLP library 
-\series bold
-\emph on
-
-\begin_inset Note Note
-status collapsed
-
-\begin_layout Plain Layout
-
-\series bold
-\emph on
-ref
-\end_layout
+\begin_inset CommandInset citation
+LatexCommand cite
+key "nlp-lib"
 
 \end_inset
 
-
-\series default
-\emph default
  to parse the text of each tweet during the feature extraction step.
  For every tweet parsed in for a particular company in a given time slice,
  we ran the text through the Stanford model to get an associated sentiment.
@@ -1674,6 +1662,18 @@ Chang CC, Lin CJ,
 LIBSVM
 \emph default
 , 2014
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "nlp-lib"
+
+\end_inset
+
+Stanford CoreNLP, The Stanford Natural Language Processing Group, 
+\emph on
+http://nlp.stanford.edu/software/corenlp.shtml
 \end_layout
 
 \end_body
