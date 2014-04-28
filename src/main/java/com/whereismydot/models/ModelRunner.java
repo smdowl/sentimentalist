@@ -1,6 +1,8 @@
 package com.whereismydot.models;
 
+import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -21,6 +23,7 @@ import org.apache.commons.math.stat.descriptive.summary.Product;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.whereismydot.utils.StockDataLoader;
@@ -114,8 +117,7 @@ public class ModelRunner implements Runnable{
 	static private List<String> getFileNames(List<String> paths){
 		List<String> result = new ArrayList<String>();
 		for(String path : paths){
-			String[] parts = path.split("/");
-			
+			String[] parts = path.split("/");			
 			result.add(parts[parts.length - 1].split("\\.")[0]);
 		}
 		
@@ -141,14 +143,19 @@ public class ModelRunner implements Runnable{
 	public void run() {
 		
 //		runRegressionModels();
-		runPredictAllDays();
+		try {
+			runPredictAllDays();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //		System.out.println("\n--------------------------------------------------------------------------------\n");
 //		
 //		double[][] classificationResults = runClassificationModels();
 //		printResult("Classification results", classificationResults);
 	}
 	
-	private void runPredictAllDays(){
+	private void runPredictAllDays() throws FileNotFoundException{
 		for(int stock = 0; stock < prices.size(); stock++){
 			List<List<Double>> result = new ArrayList<List<Double>>();
 			for(Model<Map<String, Double>, Double> model : regressionModels){
@@ -173,16 +180,39 @@ public class ModelRunner implements Runnable{
 		return result;
 	}
 	
-	private void printAllPricePrediction(List<List<Double>> result, int stockIdx){
-		System.out.println("\n\n" + tickers.get(stockIdx));
+	private void printAllPricePrediction(List<List<Double>> result, int stockIdx) throws FileNotFoundException{
+		PrintStream out = new PrintStream(new File("results/" + tickers.get(stockIdx)));
+
+		LocalDate to  = new LocalDate(2014, 3, 4);
+		List<String> dates = new ArrayList<String>();
+		
+		for(int i = 0; i < result.get(0).size(); i++){
+			dates.add("\"" + to.toString() + "\"");
+			to.plusDays(-1);
+		}
+		
+		for(String date : Lists.reverse(dates)){
+			out.print("," + date);
+		}
+				
+		
+
 		int model = 0;
 		for(List<Double> modelResult : result){
-			System.out.print("\nModel " + model);
+			out.print("\nModel " + model);
 			for(double prediction : modelResult){
-				System.out.print("," + prediction);
+				out.print("," + prediction);
 			}
 			model++;
 		}
+		out.print("\nTrue");
+		
+		int start = foldSize;
+		for(int i = 0; i < result.get(0).size(); i++){
+			out.print(", " + prices.get(stockIdx).get(start + i));
+		}
+		out.flush();
+		out.close();
 	}
 	
 	private void runRegressionModels(){
