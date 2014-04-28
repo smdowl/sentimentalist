@@ -181,14 +181,14 @@ public class ModelRunner implements Runnable{
 		double[][] meanMSE = new double[1][regressionModels.size()];
 		for(int model = 0; model < regressionModels.size(); model++){
 			for(int stock = 0; stock < prices.size(); stock++){
-				meanMSE[0][model] += results[stock][model] / ((double) regressionModels.size());
+				meanMSE[0][model] += results[stock][model] / ((double)prices.size());
 			}
 		}
 		
 		double[][] meanDirection = new double[1][regressionModels.size()];
 		for(int model = 0; model < regressionModels.size(); model++){
 			for(int stock = 0; stock < prices.size(); stock++){
-				meanDirection[0][model] += directionResult[stock][model] / ((double) regressionModels.size());
+				meanDirection[0][model] += directionResult[stock][model] / ((double) prices.size());
 			}
 		}
 				
