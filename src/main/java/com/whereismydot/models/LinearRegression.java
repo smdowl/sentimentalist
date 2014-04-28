@@ -28,13 +28,15 @@ public class LinearRegression<T> implements Model<T, Double>{
     public void train(List<T> x, List<Double> y) {
 
        this.trainingX = x;
-       double [][] sparseMatrix = new double [x.size()][];
 
         Vector K = matrixBuilder.getXYVector(x, y);
         System.out.println("Done calculating vector K");
         Matrix C = matrixBuilder.getCMatrix(x);
+        System.out.println("Done getting the C matrix");
         LinearSystemSolver solver = C.withSolver(LinearAlgebra.FORWARD_BACK_SUBSTITUTION);
+        System.out.println("Initialized the solver");
         beta = solver.solve(K, LinearAlgebra.SPARSE_FACTORY);
+        System.out.println("Found the beta");
 
     }
 
@@ -43,8 +45,6 @@ public class LinearRegression<T> implements Model<T, Double>{
         Double prediction = matrixBuilder.getPrediction(x,beta);
         return prediction;
     }
-
-
 
 
 }

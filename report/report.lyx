@@ -73,6 +73,29 @@ Shaun Dowling, Matthieu Louis, Alessandro Ialongo, Andrey Levushkin
 Introduction
 \end_layout
 
+\begin_layout Standard
+Trying to predict the future of stock markets has been tried multiple times
+ from very different scientific perspectives - whether it is by looking
+ at co-integration of multiple stock prices in order to bet against their
+ relationship diverging, or looking at repercusions and spread of macro-events
+ information within the financial markets.
+ A long standing belief is that stock markets are somehow related to the
+ mood of the general population.
+ More recently, with the rise of social media and user-created content on
+ the internet, it is possible to create an approximate measure of people's
+ impression of a company: a sentiment measure.
+ This information can be useful for example for PR departments of companies
+ to understand how they are perceived by the general opinion.
+ However, it is interesting to test out whether this information can be
+ useful to predict the future evolution of the companies' stock prices.
+ 
+\end_layout
+
+\begin_layout Standard
+We investigate this relationship trying to predict stock prices of Dow Jones
+ companies from relevant Twitter data.
+\end_layout
+
 \begin_layout Section
 Project Architecture
 \end_layout
@@ -178,7 +201,7 @@ reference "sec:Feature-Extraction"
 
 \end_inset
 
-) to the set of tweets it recieves and stores the result back in S3 in JSON
+) to the set of tweets it receives and stores the result back in S3 in JSON
  format.
  Each line in the output file is our feature representation of all tweets
  associated with a company and the full time series of tweets represents
@@ -191,14 +214,12 @@ In the feature extraction pipeline, we also considered global features that
  required processing of the entire data set to calculate.
  For example, we wanted to know how many retweets any particular user had
  had across all the data.
- We incorperated these features into the pipeline by running other Hadoop
+ We incorporated these features into the pipeline by running other Hadoop
  jobs to calculate the statistics we wanted, and then loaded these features
  maps into memory when we wanted to extract the features.
- It turned out that the speed increase from handling these types of features
- was necessary due to the large number of tweets we were processing and
- the cost of disk reads, hence these global features required us to use
- high memory AWS instances.
- 
+ High memory AWS instances were necessary for handling these types of features,
+ due to the large number of tweets we were processing and the cost of disk
+ reads.
 \end_layout
 
 \begin_layout Subsubsection
@@ -240,7 +261,7 @@ Firstly, we found we were having trouble parsing the data since the format
 \end_layout
 
 \begin_layout Subsubsection
-Feature Extraction
+Feature MapReduce
 \end_layout
 
 \begin_layout Standard
@@ -270,12 +291,82 @@ name "sec:Feature-Extraction"
 
 \end_layout
 
+\begin_layout Standard
+In order to provide our statistical models with information about the social
+ networking world, we processed the raw Twitter data and extracted all the
+ information that might be relevant to predicting the behaviour of the stock
+ market.
+ This information was then encoded numerically to be processed by our algorithms.
+ We decided to split the feature extraction task into three main components:
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Tweet features
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Sentiment Extraction
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Pagerank (and some other Global Features)
+\end_layout
+
 \begin_layout Subsection
 Tweet Features
 \end_layout
 
+\begin_layout Standard
+By tweet features we mean those features which are contained in each individual
+ tweet, independent of the others.
+ These are essentially all the relevant fields in the json file that encodes
+ a twitter4j Status object.
+ By examining our task, we considered the following local features to be
+ the “relevant” ones:
+\end_layout
+
+\begin_layout Itemize
+Number of times a tweet is favourited
+\end_layout
+
+\begin_layout Itemize
+Number of times a tweet is retweeted
+\end_layout
+
+\begin_layout Itemize
+Is a tweet favourited or not (Boolean)
+\end_layout
+
+\begin_layout Itemize
+Is a tweet retweeted or not (Boolean)
+\end_layout
+
+\begin_layout Itemize
+Is a tweet a retweet (Boolean)
+\end_layout
+
+\begin_layout Itemize
+Map of (Word, Count) pairs for each word in the tweet's text
+\end_layout
+
+\begin_layout Standard
+These features were computed for each tweet in the time-bin and then added
+ up over all tweets in the time-bin (for Boolean variables False = 0 and
+ True = 1).
+ Then both the raw counts and the average values were kept as features.
+ For the word count, an overall word count was computed for the text of
+ all the tweets in the time-bin combined.
+\end_layout
+
 \begin_layout Subsection
-Sentiment
+Sentiment Extraction
 \end_layout
 
 \begin_layout Standard
@@ -364,7 +455,38 @@ where
 \begin_inset Formula $N\left(t\right)$
 \end_inset
 
- is the number of words in a tweet.
+ is the number of sentiment-rated words in a tweet.
+ The sentiment for each word was calculated using the SentiWordNet 3.0 lexical
+ resource and the normaliser 
+\begin_inset Formula $N(t)$
+\end_inset
+
+ thus only counts the number of words in tweet 
+\begin_inset Formula $t$
+\end_inset
+
+ which are found in SentiWordNet.
+ This is because we did not want to penalise longer, mostly neutral tweets,
+ containing a short, but possibly strong, sentiment loaded remark.
+ 
+\series bold
+\emph on
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+
+\series bold
+\emph on
+To do: insert ref
+\end_layout
+
+\end_inset
+
+ (SentiWordNet 3.0: An Enhanced Lexical Resource for Sentiment Analysis and
+ Opinion Mining (2010), Stefano Baccianella , Andrea Esuli , Fabrizio Sebastiani
+)
 \end_layout
 
 \begin_layout Subsection
@@ -471,6 +593,42 @@ random surfer
 \end_inset
 
  virtually redundant.
+\end_layout
+
+\begin_layout Subsubsection
+
+\series bold
+Other
+\series default
+ Global Features
+\end_layout
+
+\begin_layout Standard
+By global features we mean features of our dataset which can only be computed
+ by processing the dataset as a whole, as opposed to each individual tweet
+ on its own.
+ These amount to general information about the unique users whose tweets
+ are contained in our dataset.
+ Thus Pagerank is clearly a Global Feature, and we also implemented a MapReduce
+ job to extract, for each user, the proportion of tweets that were originally
+ somebody else's (
+\begin_inset Quotes eld
+\end_inset
+
+retweets
+\begin_inset Quotes erd
+\end_inset
+
+), and the average number of retweets on the user's own tweets.
+ These, like Pagerank, also served as a measure of user 
+\begin_inset Quotes eld
+\end_inset
+
+clout
+\begin_inset Quotes erd
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Section
@@ -688,7 +846,7 @@ We use the 'la4j' library to build sparse matrices and perform the required
 \end_layout
 
 \begin_layout Subsection
-Support Vector Machines
+Support Vector Machine
 \end_layout
 
 \begin_layout Subsection
