@@ -867,6 +867,124 @@ We use the 'la4j' library to build sparse matrices and perform the required
 Support Vector Machine
 \end_layout
 
+\begin_layout Standard
+Support Vector Machines are models used for both classification and regression.
+ We will introduce the linear SVM for simplicity issue, but in practice
+ we wil be using SVM with non-linear Kernel, which allow us to identify
+ non-linear relationship in the data.
+ A Linear Support Vector Machine works by finding the seperating hyperplane
+ with largest distance possible from training points of the various classes.
+ It then looks on which side of this hyperplane testing points exist and
+ classifies then accordingly.
+ Mathematically, finding the seperating hyperplane defined by its weight
+ 
+\begin_inset Formula $\mathbf{w}$
+\end_inset
+
+ and bias 
+\begin_inset Formula $b$
+\end_inset
+
+ is equivalent to the problem:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+hfill 
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\min\frac{1}{2}\mathbf{w^{T}}\mathbf{w}$
+\end_inset
+
+ , subject to : 
+\begin_inset Formula $y^{n}(w^{T}x^{n}+b)\geq1$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+hfill 
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This is a simple quadratic problem which can be solved efficiently.
+\end_layout
+
+\begin_layout Standard
+However, in our case, we want to be able to capture more than just linear
+ relationships.
+ In order to do so, we must include Kernels into our hyperplane equations.
+ Without going into the details, we want to minimize the following Lagrangian:
+\end_layout
+
+\begin_layout Standard
+ 
+\begin_inset Formula $L(\alpha)=\sum_{n}\alpha^{n}-\frac{1}{2}\sum y^{n}y^{m}\alpha^{n}\alpha^{m}\left(K(x^{n},x^{m})+\frac{1}{C}\delta_{n,m}\right)$
+\end_inset
+
+ with the constrait: 
+\begin_inset Formula $\sum_{n}y^{n}\alpha^{n}=0,\alpha^{n}\geq0$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Where 
+\begin_inset Formula $C$
+\end_inset
+
+ is the number of allowed mis-classified data points and 
+\begin_inset Formula $K$
+\end_inset
+
+ is the Kernel we want to use.
+\end_layout
+
+\begin_layout Standard
+In our implementation, we use the LibSVM library, which gives us a range
+ of Kernel options for our non-linear SVM.
+ From our experimentations, we decide to use a Radial basis function Kernel
+ defined as : 
+\begin_inset Formula $K(x,x')=exp(\gamma\mbox{|\ensuremath{|x-x'\mbox{|\ensuremath{|_{2}^{2}}}}})$
+\end_inset
+
+.
+\end_layout
+
 \begin_layout Subsection
 Gaussian Processes
 \end_layout
