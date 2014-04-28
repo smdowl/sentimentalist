@@ -65,32 +65,28 @@ public class MatrixBuilders {
                 i++;
             }
             Jama.Matrix cMatrix = xMatrix.transpose().times(xMatrix);
-            Jama.Matrix cInv = pinv(cMatrix);
+            Jama.Matrix cInv = getPseudoInverse(cMatrix);
             Jama.Matrix resMatrix = cInv.times(xMatrix.transpose().times(yMatrix));
 
             return resMatrix;
         }
 
-        public static Jama.Matrix pinv(Jama.Matrix x) {
-            if (x.rank() < 1)
-                return null;
-            if (x.getColumnDimension() > x.getRowDimension())
-                return pinv(x.transpose()).transpose();
-            SingularValueDecomposition svdX = new SingularValueDecomposition(x);
-            double[] singularValues = svdX.getSingularValues();
-            double tol = Math.max(x.getColumnDimension(), x.getRowDimension()) * singularValues[0] * 2E-16;
-            double[] singularValueReciprocals = new double[singularValues.length];
-            for (int i = 0; i < singularValues.length; i++)
-                singularValueReciprocals[i] = Math.abs(singularValues[i]) < tol ? 0 : (1.0 / singularValues[i]);
-            double[][] u = svdX.getU().getArray();
-            double[][] v = svdX.getV().getArray();
-            int min = Math.min(x.getColumnDimension(), u[0].length);
-            double[][] inverse = new double[x.getColumnDimension()][x.getRowDimension()];
-            for (int i = 0; i < x.getColumnDimension(); i++)
-                for (int j = 0; j < u.length; j++)
-                    for (int k = 0; k < min; k++)
-                        inverse[i][j] += v[i][k] * singularValueReciprocals[k] * u[j][k];
-            return new Jama.Matrix(inverse);
+        public static Jama.Matrix getPseudoInverse(Jama.Matrix x) {
+            //in our case the matrix is square, hence :
+            double eps = 2E-16;
+            SingularValueDecomposition svd = new SingularValueDecomposition(x);
+            Jama.Matrix W = svd.getS();
+            for (int i = 0; i < W.getColumnDimension(); i++) {
+                System.out.println("This is the singular values: " + W.get(i,i));
+                double temp = W.get(i,i) < eps ? 0 : 1.0/W.get(i,i);
+                W.set(i,i,temp);
+
+            }
+            Jama.Matrix u = svd.getU();
+            Jama.Matrix v = svd.getV();
+
+            Jama.Matrix resMatrix = v.times(W.times(u.transpose()));
+            return resMatrix;
         }
 
 
@@ -113,84 +109,4 @@ public class MatrixBuilders {
 
     }
 
-
-
-        /*
-
-        private Map<String, Integer> namesIdx = new HashMap<String, Integer>();
-
-        @Override
-        public Matrix getCMatrix(List<Map<String, Double>> x) {
-            Set<String> featureNames = new HashSet<String>();
-            for (Map<String, Double> vector : x) {
-                featureNames.addAll(vector.keySet());
-            }
-
-            int idx = 0;
-            for (String name : featureNames) {
-                namesIdx.put(name, idx++);
-            }
-
-            //Matrix resMatrix = new CRSMatrix(new double[namesIdx.size()][namesIdx.size()]);
-            Matrix resMatrix = new CRSMatrix();
-
-            for( int i = 0 ; i < x.size(); i++) {
-
-                double[] sparseArray = new double[namesIdx.size()];
-
-                Map<String, Double> vector = x.get(i);
-                for (String featureName : vector.keySet()) {
-                    sparseArray[namesIdx.get(featureName)] = vector.get(featureName);
-                }
-                //double[][] sparseArrayMatrix = {sparseArray};
-                Vector a = new CompressedVector(sparseArray);
-                Vector b = new CompressedVector(sparseArray);
-                //Matrix m = new CRSMatrix();
-                Matrix m = a.outerProduct(b);
-                if ( i == 0 ) {
-                    resMatrix = m;
-                } else {
-                    resMatrix.add(m);
-                }
-                System.out.print(i);
-                //CRSMatrix a = new CRSMatrix(sparseArrayMatrix);
-                //CCSMatrix b = new CCSMatrix(sparseArrayMatrix);
-                //Matrix m = b.multiply(a);
-                //resMatrix.add(m);
-            }
-            //resMatrix = resMatrix.multiply(1.0/x.size());
-            return resMatrix;
-        }
-
-        @Override
-        public Vector getXYVector(List<Map<String, Double>> x, List<Double>y) {
-            Vector resVector = new CompressedVector(new double [namesIdx.size()]);
-
-            for (int i=0; i<x.size(); i++) {
-                double[] sparseArray = new double[namesIdx.size()];
-                Map<String, Double> vector = x.get(i);
-                for (String featureName : vector.keySet()) {
-                    if(namesIdx.containsKey(featureName)) {
-                        sparseArray[namesIdx.get(featureName)] = vector.get(featureName);
-                    }
-                }
-                Vector xi = new CompressedVector(sparseArray);
-                xi = xi.multiply(y.get(i));
-                resVector = resVector.add(xi);
-            }
-            resVector = resVector.multiply(1.0/y.size());
-            return resVector;
-        }
-        */
-//
-//        @Override
-//        public Double getPrediction(Map<String, Double> x, Vector beta) {
-//            double[] sparseArray = new double[namesIdx.size()];
-//            for (String featureName : x.keySet()) {
-//                sparseArray[namesIdx.get(featureName)] = x.get(featureName);
-//            }
-//            Vector xi = new CompressedVector(sparseArray);
-//            Double res = xi.innerProduct(beta);
-//            return res;
-//        }
-    }
+ }
