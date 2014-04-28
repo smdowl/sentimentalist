@@ -74,11 +74,11 @@ Introduction
 \end_layout
 
 \begin_layout Standard
-Trying to predict the future of stock markets has been tried multiple times
- from very different scientific perspectives - whether it is by looking
- at co-integration of multiple stock prices in order to bet against their
- relationship diverging, or looking at repercusions and spread of macro-events
- information within the financial markets.
+Predicting the behaviour of stock markets has been attempted with very different
+ statistical methods - whether it is by looking at co-integration of multiple
+ stock prices in order to bet against their relationship diverging, or looking
+ at repercussions and spread of macro-events information within the financial
+ markets.
  A long standing belief is that stock markets are somehow related to the
  mood of the general population.
  More recently, with the rise of social media and user-created content on
@@ -119,7 +119,7 @@ reference "fig:Project-Pipeline"
 \end_inset
 
  shows how we have modularised the project.
- In particular, the input the the machine learning algorithms are simply
+ In particular, the input of the machine learning algorithms are simply
  feature vectors that we can use for inference.
  
 \end_layout
@@ -186,7 +186,7 @@ Feature Extraction Pipeline
 \end_layout
 
 \begin_layout Standard
-Our feature extraction pipeline is where all the processing or raw tweets
+Our feature extraction pipeline is where all the processing of raw tweets
  happens.
  All this work is handled in a single Hadoop job that splits the incoming
  tweets according to which day they were posted, and which company they
@@ -227,13 +227,22 @@ Machine Learning
 \end_layout
 
 \begin_layout Standard
-Have produced a time series for each company we'd like to consider, we can
- then plug this data straight into any of a number of machine learning algorithm
-s.
- In particular we have chosen Linear Regression, Gaussian Processed, and
- Support Vector machines as our training methods to try and learn how these
+Having produced a time series for each company we'd like to consider, we
+ can then plug this data straight into any of a number of machine learning
+ algorithms.
+ In particular we have chosen Linear Regression, Support Vector Machines
+ and Gaussian Processes as our training methods to try and learn how these
  features correspond to changes in stock price.
- 
+ Linear Regression was originally chosen to give us a simply implemented
+ baseline which might pick out any linear relationships between our features
+ (including sentiment) and stock prices.
+ Support Vector Machines, instead, were used to deal with possible non-linear
+ relationships through the use of various kernels, since we would not a
+ priori expect the stock market to have a strong, simple linear relationship
+ with our Twitter-based features.
+ We also chose Gaussian Processes because they are a very powerful model
+ that combines the properties of kernels and the flexibility of a probabilistic
+ (Gaussian) approach to modelling data.
 \end_layout
 
 \begin_layout Subsection
@@ -256,18 +265,18 @@ Preprocessing
 Firstly, we found we were having trouble parsing the data since the format
  was not one JSON element per line.
  Hence, we uploaded the compressed data files to S3 so that we could access
- them quickly from an EC2 and used an EC2 instance to decompress and clean
+ them quickly from an EC2 instance and used one to decompress and clean
  the data files before transfering the uncompressed data back to S3.
 \end_layout
 
 \begin_layout Subsubsection
-Feature MapReduce
+Features MapReduce
 \end_layout
 
 \begin_layout Standard
-All feature extraction was performed via Hadoop on EMR so that we could
- explore the effectiveness of Hadoop in this context while also freeing
- us up from being constrained by long processing times.
+All feature extraction was performed via Hadoop on Elastic MapReduce (EMR)
+ so that we could explore the effectiveness of Hadoop in this context while
+ also freeing us up from being constrained by long processing times.
  Since we can scale the Hadoop implementation virtually linearly we could
  iterate on our features much faster by handling all processing in a distributed
  fashion, increasing the number of instances we used if we wanted the job
@@ -297,14 +306,26 @@ In order to provide our statistical models with information about the social
  information that might be relevant to predicting the behaviour of the stock
  market.
  This information was then encoded numerically to be processed by our algorithms.
- We decided to split the feature extraction task into three main components:
+ We decided to split the feature extraction task into five main components:
  
 \end_layout
 
 \begin_layout Itemize
 
 \series bold
-Tweet features
+Token features
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+User Features (some computed globally)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Company Features
 \end_layout
 
 \begin_layout Itemize
@@ -316,15 +337,15 @@ Sentiment Extraction
 \begin_layout Itemize
 
 \series bold
-Pagerank (and some other Global Features)
+Pagerank 
 \end_layout
 
 \begin_layout Subsection
-Tweet Features
+Token Features
 \end_layout
 
 \begin_layout Standard
-By tweet features we mean those features which are contained in each individual
+By token features we mean those features which are contained in each individual
  tweet, independent of the others.
  These are essentially all the relevant fields in the json file that encodes
  a twitter4j Status object.
@@ -363,6 +384,42 @@ These features were computed for each tweet in the time-bin and then added
  Then both the raw counts and the average values were kept as features.
  For the word count, an overall word count was computed for the text of
  all the tweets in the time-bin combined.
+\end_layout
+
+\begin_layout Subsection
+User Features
+\end_layout
+
+\begin_layout Standard
+By global features we mean features of our dataset which can only be computed
+ by processing the dataset as a whole, as opposed to each individual tweet
+ on its own.
+ These amount to general information about the unique users whose tweets
+ are contained in our dataset.
+ Thus Pagerank is clearly a Global Feature, and we also implemented a MapReduce
+ job to extract, for each user, the proportion of tweets that were originally
+ somebody else's (
+\begin_inset Quotes eld
+\end_inset
+
+retweets
+\begin_inset Quotes erd
+\end_inset
+
+), and the average number of retweets on the user's own tweets.
+ These, like Pagerank, also served as a measure of user 
+\begin_inset Quotes eld
+\end_inset
+
+clout
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Company Features
 \end_layout
 
 \begin_layout Subsection
@@ -593,42 +650,6 @@ random surfer
 \end_inset
 
  virtually redundant.
-\end_layout
-
-\begin_layout Subsubsection
-
-\series bold
-Other
-\series default
- Global Features
-\end_layout
-
-\begin_layout Standard
-By global features we mean features of our dataset which can only be computed
- by processing the dataset as a whole, as opposed to each individual tweet
- on its own.
- These amount to general information about the unique users whose tweets
- are contained in our dataset.
- Thus Pagerank is clearly a Global Feature, and we also implemented a MapReduce
- job to extract, for each user, the proportion of tweets that were originally
- somebody else's (
-\begin_inset Quotes eld
-\end_inset
-
-retweets
-\begin_inset Quotes erd
-\end_inset
-
-), and the average number of retweets on the user's own tweets.
- These, like Pagerank, also served as a measure of user 
-\begin_inset Quotes eld
-\end_inset
-
-clout
-\begin_inset Quotes erd
-\end_inset
-
-.
 \end_layout
 
 \begin_layout Subsubsection
@@ -1445,6 +1466,16 @@ Considerations and Improvements
 
 \begin_layout Subsection
 Feature Extraction
+\end_layout
+
+\begin_layout Standard
+While initially we included the word count for each word that had been tweeted
+ in a particular time-bin, along with statistics of all the user that posted
+ in it, we later decided to ignore these features because, for a daily binning,
+ we ended up with sixty data points and over twenty thousand features, thus
+ largely underdetermining possibly interesting feature interactions.
+ We thus reduced our features to those Token Features computed over a whole
+ time-bin.
 \end_layout
 
 \begin_layout Subsection
