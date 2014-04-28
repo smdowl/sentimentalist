@@ -1287,41 +1287,41 @@ In order to check if our models are performing well we developed a benchmark
 Evaluation
 \end_layout
 
+\begin_layout Standard
+In this section we summarise the results vs the bench mark as described
+ above.
+ We first analyse the performce when simply predicting the direction change
+ of the stocks before moving on to the more complex task of exact value
+ prediction.
+ We trained our models using features extracted from the full set of provided
+ Tweets and considered every the performance of each model on every company.
+\end_layout
+
 \begin_layout Subsection
 Increase/decrease
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename figures/direction-table.png
+Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:direction-summary"
 
 \end_inset
 
-
-\begin_inset Caption
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
+ shows the result for each model averaged over all the companies in the
+ dataset.
+ We can see how the range of all the models is actually very similar.
+ Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:direction-box"
 
 \end_inset
 
-
+ shows a box plot or the same results.
+ We can see how similarly all the models perform with any variation likely
+ being down to noise in the data.
 \end_layout
 
 \begin_layout Standard
@@ -1329,15 +1329,6 @@ status open
 wide false
 sideways false
 status open
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename figures/prediction-box.eps
-
-\end_inset
-
-
-\end_layout
 
 \begin_layout Plain Layout
 \begin_inset ERT
@@ -1356,9 +1347,83 @@ centering
 \end_layout
 
 \begin_layout Plain Layout
+\begin_inset Graphics
+	filename figures/direction-table.png
+	scale 50
+
+\end_inset
+
+
 \begin_inset Caption
 
 \begin_layout Plain Layout
+Summary of results for direction models
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:direction-summary"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename figures/prediction-box.eps
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Performance of each model when predicting direction change of stock price
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:direction-box"
+
+\end_inset
+
 
 \end_layout
 
@@ -1377,14 +1442,66 @@ Stock Value
 \end_layout
 
 \begin_layout Standard
+Predicting the actual future stock value is a much more challenging task,
+ as can be seen by the magnitude of some of the MSE values from the data
+ in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:prediction-summary"
+
+\end_inset
+
+.
+ All models, except for the SVM, have worst case errors in the hundreds
+ with Linear Regression achieving an MSE of 600,000 at one point.
+ All models still perform poorly, with average MSEs of at least 5 times
+ that of the bench mark, with some hundreds of times worse.
+ Since the magnitude of the errors for Linear Regression is so high, we
+ have exluded it from the box plot shown in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:regression-box"
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+We can see much more clearly how the different models perform in this task,
+ with the SVM coming up best out of our models followed by the Gaussian
+ Process with a wave kernel.
+ The other model results varied wildly within each set of results, and thus
+ show no predictive power.
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
 status open
 
 \begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
 \begin_inset Graphics
 	filename figures/regression-table.png
+	scale 50
 
 \end_inset
 
@@ -1392,6 +1509,13 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
+Summary of results for prediction models
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:prediction-summary"
+
+\end_inset
+
 
 \end_layout
 
@@ -1412,15 +1536,6 @@ sideways false
 status open
 
 \begin_layout Plain Layout
-\begin_inset Graphics
-	filename figures/regression-box.eps
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
 \begin_inset ERT
 status open
 
@@ -1437,9 +1552,26 @@ centering
 \end_layout
 
 \begin_layout Plain Layout
+\begin_inset Graphics
+	filename figures/regression-box.eps
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
 \begin_inset Caption
 
 \begin_layout Plain Layout
+Performance of each model when predicting future stock price value
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:regression-box"
+
+\end_inset
+
 
 \end_layout
 
