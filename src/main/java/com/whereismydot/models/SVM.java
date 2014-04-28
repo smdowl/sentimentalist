@@ -3,9 +3,6 @@ package com.whereismydot.models;
 import java.util.List;
 import libsvm.*;
 
-/**
- * Created by Matthieu on 24/04/2014.
- */
 
 public class SVM<T> implements Model<T,Double> {
 

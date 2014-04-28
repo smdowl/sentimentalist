@@ -1,16 +1,6 @@
 package com.whereismydot.models;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.List;
-import org.la4j.*;
-import org.la4j.linear.LinearSystemSolver;
-import org.la4j.matrix.dense.Basic2DMatrix;
-import org.la4j.vector.*;
-import org.la4j.matrix.*;
-import java.util.ArrayList;
-import Jama.Matrix.*;
 
 
 public class LinearRegression<T> implements Model<T, Double>{
