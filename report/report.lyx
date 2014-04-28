@@ -476,26 +476,8 @@ Stanford Implementation
 \end_layout
 
 \begin_layout Standard
-We made use of the Standford NLP library 
-\series bold
-\emph on
-
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-
-\series bold
-\emph on
-ref
-\end_layout
-
-\end_inset
-
-
-\series default
-\emph default
- to parse the text of each tweet during the feature extraction step.
+We made use of the Standford NLP library to parse the text of each tweet
+ during the feature extraction step.
  For every tweet parsed in for a particular company in a given time slice,
  we ran the text through the Stanford model to get an associated sentiment.
  This score ranged from 0 to 4 where an indifferent statement seemed to
@@ -1508,6 +1490,60 @@ We can see much more clearly how the different models perform in this task,
  Process with a wave kernel.
  The other model results varied wildly within each set of results, and thus
  show no predictive power.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename /Users/Matthieu/Desktop/Rplot01.eps
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+MMM Stock Price.
+ Real Value (red) vs SVM (blue), ProductKernel(purple), WaveGP(green).
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
