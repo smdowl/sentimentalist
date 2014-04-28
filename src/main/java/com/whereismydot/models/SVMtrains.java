@@ -60,6 +60,7 @@ public class SVMtrains {
                namesIdx.put(name, idx++);
            }
            lengthOfFeatures = namesIdx.size();
+           System.out.println("namesIdx is equal to : " + namesIdx.size());
         }
 
     }

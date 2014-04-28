@@ -71,7 +71,7 @@ public class MatrixBuilders {
             }
 
             //Matrix resMatrix = new CRSMatrix(new double[namesIdx.size()][namesIdx.size()]);
-            Matrix resMatrix = new CRSMatrix(new double[10][10]);
+            Matrix resMatrix = new CRSMatrix();
 
             for( int i = 0 ; i < x.size(); i++) {
 
@@ -84,8 +84,13 @@ public class MatrixBuilders {
                 //double[][] sparseArrayMatrix = {sparseArray};
                 Vector a = new CompressedVector(sparseArray);
                 Vector b = new CompressedVector(sparseArray);
-                Matrix m = new CRSMatrix();
-                m = a.outerProduct(b);
+                //Matrix m = new CRSMatrix();
+                Matrix m = a.outerProduct(b);
+                if ( i == 0 ) {
+                    resMatrix = m;
+                } else {
+                    resMatrix.add(m);
+                }
                 System.out.print(i);
                 //CRSMatrix a = new CRSMatrix(sparseArrayMatrix);
                 //CCSMatrix b = new CCSMatrix(sparseArrayMatrix);

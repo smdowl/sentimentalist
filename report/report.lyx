@@ -73,6 +73,29 @@ Shaun Dowling, Matthieu Louis, Alessandro Ialongo, Andrey Levushkin
 Introduction
 \end_layout
 
+\begin_layout Standard
+Trying to predict the future of stock markets has been tried multiple times
+ from very different scientific perspectives - whether it is by looking
+ at co-integration of multiple stock prices in order to bet against their
+ relationship diverging, or looking at repercusions and spread of macro-events
+ information within the financial markets.
+ A long standing belief is that stock markets are somehow related to the
+ mood of the general population.
+ More recently, with the rise of social media and user-created content on
+ the internet, it is possible to create an approximate measure of people's
+ impression of a company: a sentiment measure.
+ This information can be useful for example for PR departments of companies
+ to understand how they are perceived by the general opinion.
+ However, it is interesting to test out whether this information can be
+ useful to predict the future evolution of the companies' stock prices.
+ 
+\end_layout
+
+\begin_layout Standard
+We investigate this relationship trying to predict stock prices of Dow Jones
+ companies from relevant Twitter data.
+\end_layout
+
 \begin_layout Section
 Project Architecture
 \end_layout
@@ -688,7 +711,7 @@ We use the 'la4j' library to build sparse matrices and perform the required
 \end_layout
 
 \begin_layout Subsection
-Support Vector Machines
+Support Vector Machine
 \end_layout
 
 \begin_layout Subsection
