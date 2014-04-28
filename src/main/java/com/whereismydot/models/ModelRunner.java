@@ -19,7 +19,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.math.stat.descriptive.summary.Product;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
@@ -142,17 +141,14 @@ public class ModelRunner implements Runnable{
 	@Override
 	public void run() {
 		
-//		runRegressionModels();
 		try {
+			runRegressionModels();
 			runPredictAllDays();
+		
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		System.out.println("\n--------------------------------------------------------------------------------\n");
-//		
-//		double[][] classificationResults = runClassificationModels();
-//		printResult("Classification results", classificationResults);
+
 	}
 	
 	private void runPredictAllDays() throws FileNotFoundException{
@@ -167,8 +163,7 @@ public class ModelRunner implements Runnable{
 	
 	private List<Double> predictAllDays(Model<Map<String,Double>, Double> model, int stockIdx){
 		List<Double> result = new ArrayList<Double>();
-//		System.out.println("=======" + (features.size()) + "======");
-		
+	
 		for(int offset = 0; offset < prices.size() - foldSize; offset++){
 			Fold<Double> fold = regressionFold(offset, foldSize, stockIdx);
 			setOutputEnabled(false);
@@ -193,8 +188,7 @@ public class ModelRunner implements Runnable{
 		
 		for(String date : Lists.reverse(dates)){
 			out.print("," + date);
-		}
-				
+		}	
 		
 
 		int model = 0;
@@ -227,12 +221,9 @@ public class ModelRunner implements Runnable{
 				for(int modelIdx = 0; modelIdx < regressionModels.size(); modelIdx++){
 					Model<Map<String, Double>, Double> model = regressionModels.get(modelIdx);
 					
-//					setOutputEnabled(false);
 					model.train(fold.features, fold.prices);
 					
 					double prediction = model.predict(fold.x);
-//					setOutputEnabled(true);
-//					System.out.println("Pred:" + prediction + " actual:" + fold.y);
 					double error = fold.y - prediction;
 				
 					results[stockIdx][modelIdx] += error * error;
@@ -314,7 +305,7 @@ public class ModelRunner implements Runnable{
 	private void printResult(String title, double[][] results){
 		System.out.println("Results for:" + title);
 		
-		int colWidth = 24;
+		int colWidth = 0;
 		
 		System.out.print(pad("Ticker", colWidth));
 		for(int i = 0; i < results[0].length; i++){
@@ -338,12 +329,12 @@ public class ModelRunner implements Runnable{
 	 * @return
 	 */
 	private String pad(String str, int length){
-//		if(str.length() < length){
-//			int padding = length - str.length();
-//			for(int i = 0; i < padding; i++){
-//				str += " ";
-//			}
-//		}
+		if(str.length() < length){
+			int padding = length - str.length();
+			for(int i = 0; i < padding; i++){
+				str += " ";
+			}
+		}
 		return str;
 	}
 	
