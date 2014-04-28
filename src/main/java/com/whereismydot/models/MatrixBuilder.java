@@ -9,8 +9,9 @@ import org.la4j.vector.Vector;
  */
 
 public interface MatrixBuilder<T> {
-
-    public org.la4j.matrix.Matrix getCMatrix(List<T> x);
-    public Vector getXYVector(List<T> x, List<Double> y);
-    public Double getPrediction(T x, Vector beta);
+    public Jama.Matrix getBetaMatrix(List<T> x,List<Double> y);
+    public Double getPrediction(T x, Jama.Matrix beta);
+    //public org.la4j.matrix.Matrix getCMatrix(List<T> x);
+    //public Vector getXYVector(List<T> x, List<Double> y);
+    //public Double getPrediction(T x, Vector beta);
 }
