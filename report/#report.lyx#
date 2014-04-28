@@ -304,19 +304,7 @@ In order to provide our statistical models with information about the social
 \begin_layout Itemize
 
 \series bold
-Token features
-\end_layout
-
-\begin_layout Itemize
-
-\series bold
-User Features (some computed globally)
-\end_layout
-
-\begin_layout Itemize
-
-\series bold
-Company Features
+Tweet features
 \end_layout
 
 \begin_layout Itemize
@@ -328,15 +316,15 @@ Sentiment Extraction
 \begin_layout Itemize
 
 \series bold
-Pagerank 
+Pagerank (and some other Global Features)
 \end_layout
 
 \begin_layout Subsection
-Token Features
+Tweet Features
 \end_layout
 
 \begin_layout Standard
-By token features we mean those features which are contained in each individual
+By tweet features we mean those features which are contained in each individual
  tweet, independent of the others.
  These are essentially all the relevant fields in the json file that encodes
  a twitter4j Status object.
@@ -378,7 +366,7 @@ These features were computed for each tweet in the time-bin and then added
 \end_layout
 
 \begin_layout Subsection
-User Features
+<<<<<<< HEADUser Features
 \end_layout
 
 \begin_layout Standard
@@ -443,7 +431,7 @@ The company features simply pick out if a specific company (whose stock
 \end_layout
 
 \begin_layout Subsection
-Sentiment Extraction
+=======>>>>>>> FETCH_HEADSentiment Extraction
 \end_layout
 
 \begin_layout Standard
@@ -480,7 +468,7 @@ key "nlp-lib"
  This score ranged from 0 to 4 where an indifferent statement seemed to
  score around 2.
  However, from experimentation we noted than a large proportion of sentences
- where scored as 1 and thus shifted the score returned by the library by
+cmmere scored as 1 and thus shifted the score returned by the library by
  -1 to roughly center it on zero.
  
 \end_layout
@@ -658,6 +646,42 @@ random surfer
 \end_inset
 
  virtually redundant.
+\end_layout
+
+\begin_layout Subsubsection
+
+\series bold
+Other
+\series default
+ Global Features
+\end_layout
+
+\begin_layout Standard
+By global features we mean features of our dataset which can only be computed
+ by processing the dataset as a whole, as opposed to each individual tweet
+ on its own.
+ These amount to general information about the unique users whose tweets
+ are contained in our dataset.
+ Thus Pagerank is clearly a Global Feature, and we also implemented a MapReduce
+ job to extract, for each user, the proportion of tweets that were originally
+ somebody else's (
+\begin_inset Quotes eld
+\end_inset
+
+retweets
+\begin_inset Quotes erd
+\end_inset
+
+), and the average number of retweets on the user's own tweets.
+ These, like Pagerank, also served as a measure of user 
+\begin_inset Quotes eld
+\end_inset
+
+clout
+\begin_inset Quotes erd
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Subsubsection
@@ -1624,14 +1648,16 @@ Considerations and Improvements
 Feature Extraction
 \end_layout
 
+\begin_layout Subsection
+Prediction
+\end_layout
+
 \begin_layout Standard
-While initially we included the word count for each word that had been tweeted
- in a particular time-bin, along with statistics of all the user that posted
- in it, we later decided to ignore these features because, for a daily binning,
- we ended up with sixty data points and over twenty thousand features, thus
- largely underdetermining possibly interesting feature interactions.
- We thus reduced our features to those Token Features computed over a whole
- time-bin.
+We tried out 3 fairly popular Machine Learning models (Linear Regression,
+ SVM and Gaussian Processes) to predict stock prices.
+ However, there are many others models we could have used to forecast changes
+ in the stock prices.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -1657,15 +1683,7 @@ However, even with very good feature, it is unclear that the Twitter data
 \end_layout
 
 \begin_layout Subsection
-Prediction
-\end_layout
-
-\begin_layout Standard
-We tried out 3 fairly popular Machine Learning models (Linear Regression,
- SVM and Gaussian Processes) to predict stock prices.
- However, there are many others models we could have used to forecast changes
- in the stock prices.
- 
+Prediction=======
 \end_layout
 
 \begin_layout Itemize

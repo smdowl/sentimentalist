@@ -3,9 +3,6 @@ package com.whereismydot.models;
 import java.util.List;
 import libsvm.*;
 
-/**
- * Created by Matthieu on 24/04/2014.
- */
 
 public class SVM<T> implements Model<T,Double> {
 
@@ -27,7 +24,6 @@ public class SVM<T> implements Model<T,Double> {
         prob.x = new svm_node[x.size()][];
 
         param.probability = 1;
-        //param.gamma = 0.5;
         param.gamma = 0.5;
         param.nu = 0.5;
         param.C = 1;
@@ -35,7 +31,6 @@ public class SVM<T> implements Model<T,Double> {
         param.kernel_type = svm_parameter.RBF;
         param.cache_size = 20000;
         param.eps = 0.001;
-        //param.eps = 1;
 
         svmtrain.initialize(x);
 

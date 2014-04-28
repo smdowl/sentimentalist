@@ -1,28 +1,8 @@
 package com.whereismydot.models;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+
 import java.util.*;
 import java.util.Map.Entry;
-
-
-import com.google.common.collect.Sets;
-import org.apache.commons.math.linear.SparseRealVector;
-import org.la4j.*;
-import org.la4j.factory.Factory;
-import org.la4j.matrix.Matrix;
-import org.la4j.matrix.sparse.CCSMatrix;
-import org.la4j.matrix.sparse.CRSMatrix;
-import org.la4j.vector.*;
-import org.la4j.vector.Vector;
-import org.la4j.vector.functor.VectorAccumulator;
-import org.la4j.vector.functor.VectorFunction;
-import org.la4j.vector.functor.VectorPredicate;
-import org.la4j.vector.functor.VectorProcedure;
-import org.la4j.vector.sparse.CompressedVector;
-import org.la4j.vector.sparse.SparseVector;
-import Jama.Matrix.*;
 import Jama.SingularValueDecomposition;
 
 public class MatrixBuilders {
@@ -33,13 +13,13 @@ public class MatrixBuilders {
 
         @Override
         public Jama.Matrix getBetaMatrix(List<Map<String, Double>> x, List<Double> y) {
-        	
-        	// First compute feature indices 
+
+        	// First compute feature indices
         	Set<String> featureNames = new HashSet<String>();
         	for(Map<String, Double> vector : x){
         		featureNames.addAll(vector.keySet());
         	}
-        	
+
         	//namesIdx = new HashMap<String,Integer>();
         	int idx = 0;
         	for(String name : featureNames){
@@ -72,7 +52,8 @@ public class MatrixBuilders {
         }
 
         public static Jama.Matrix getPseudoInverse(Jama.Matrix x) {
-            //in our case the matrix is square, hence :
+            // We implement the Moore-Penrose pseudo-inverse for a square matrix.
+            // as given in the lecture notes of the module : Inverse Problems in Imaging.
             double eps = 2E-16;
             SingularValueDecomposition svd = new SingularValueDecomposition(x);
             Jama.Matrix W = svd.getS();
