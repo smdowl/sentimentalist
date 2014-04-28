@@ -72,7 +72,8 @@ public class MatrixBuilders {
         }
 
         public static Jama.Matrix getPseudoInverse(Jama.Matrix x) {
-            //in our case the matrix is square, hence :
+            // We implement the Moore-Penrose pseudo-inverse for a square matrix.
+            // as given in the lecture notes of the module : Inverse Problems in Imaging.
             double eps = 2E-16;
             SingularValueDecomposition svd = new SingularValueDecomposition(x);
             Jama.Matrix W = svd.getS();
