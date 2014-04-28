@@ -1,6 +1,10 @@
 package com.whereismydot.models;
 
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -99,9 +103,10 @@ public class ModelRunner implements Runnable{
 		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.WaveKernel(1), 0));
 		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.WaveKernel(10), 0));
 		regressionModels.add(new GaussianProcess<Map<String, Double>>(new Kernels.WaveKernel(100), 0));
-        //regressionModels.add(new LinearRegression<Map<String, Double>>(new MatrixBuilders.MatrixBuilderLinear()));
+//        regressionModels.add(new LinearRegression<Map<String, Double>>(new MatrixBuilders.MatrixBuilderLinear()));
         regressionModels.add(new SVM<Map<String,Double>>(new SVMtrains.simple()));
 
+        
 		// Specify which classification models should be evaluated.
 		List<Model<Map<String, Double>, Boolean>> classificationnModels
 			= new ArrayList<Model<Map<String, Double>, Boolean>>();
@@ -124,15 +129,14 @@ public class ModelRunner implements Runnable{
 
 		// Set how many folds to run what fold size to use. 
 		this.foldSize  = 20;
-		this.foldCount = 10;
+		this.foldCount = 30;
 		
 	}
 
 	@Override
 	public void run() {
 		
-		double[][] regressionResults = runRegressionModels();
-		printResult("Regression results", regressionResults);
+		runRegressionModels();
 		
 		System.out.println("\n--------------------------------------------------------------------------------\n");
 		
@@ -140,30 +144,52 @@ public class ModelRunner implements Runnable{
 		printResult("Classification results", classificationResults);
 	}
 	
-	private double[][] runRegressionModels(){
-		double[][] results = new double[prices.size()][regressionModels.size()];
-
+	private void runRegressionModels(){
+		double[][] results 		   = new double[prices.size()][regressionModels.size()];
+		double[][] directionResult = new double[prices.size()][regressionModels.size()];
+		
+		setOutputEnabled(true);
 		for(int stockIdx = 0; stockIdx < prices.size(); stockIdx++){
-			Fold<Double> fold = randomRegressionFold(foldSize, stockIdx);
+			for(int foldIdx = 0; foldIdx < foldCount; foldIdx++){
+
+				Fold<Double> fold = randomRegressionFold(foldSize, stockIdx);
 			
-			for(int modelIdx = 0; modelIdx < regressionModels.size(); modelIdx++){
+				for(int modelIdx = 0; modelIdx < regressionModels.size(); modelIdx++){
+					Model<Map<String, Double>, Double> model = regressionModels.get(modelIdx);
+					model.train(fold.features, fold.prices);
+					
+					double prediction = model.predict(fold.x);
 				
-				Model<Map<String, Double>, Double> model = regressionModels.get(modelIdx);
-				model.train(fold.features, fold.prices);
+					double error = fold.y - prediction;
 				
-				double error = fold.y - model.predict(fold.x);
+					results[stockIdx][modelIdx] += error * error;
 				
-				results[stockIdx][modelIdx] += error * error;
-			}
-			
-			//Normalise the MSE 
-			for(int i = 0; i < results.length; i++){
-				for(int j = 0; j < results[i].length; j++){
-					results[i][j] /= foldCount;
+					// Check if the price moved in the right direction
+					double prevPrice = fold.prices.get(fold.prices.size() - 1);
+					if(fold.y >= prevPrice && prediction >= prevPrice
+							|| fold.y <= prevPrice && prediction <= prevPrice){
+					
+						directionResult[stockIdx][modelIdx] += 1;
+					}
 				}
-			}
+			}			
 		}
-		return results;
+		setOutputEnabled(true);
+		
+		//Normalize the MSE and direction results
+		for(int i = 0; i < results.length; i++){
+			for(int j = 0; j < results[i].length; j++){
+				results[i][j] 	      /= foldCount;
+				directionResult[i][j] /= foldCount;
+			}
+		}	
+		
+		// Print the results
+		printResult("Regression", results);
+		System.out.println("\n--------------------------------------------------------------------------------\n");
+		// Print the results
+		printResult("Regression (Direction Only)", directionResult);
+
 	}
 	
 	private double[][] runClassificationModels(){
@@ -189,6 +215,8 @@ public class ModelRunner implements Runnable{
 				}
 			}
 		}
+		
+		
 		
 		return results;
 	}
@@ -277,6 +305,21 @@ public class ModelRunner implements Runnable{
 		
 		return new Fold<Boolean>(features, changes, fold.x, y);
 		
+	}
+	
+	private void setOutputEnabled(boolean enabled){
+		if(enabled){
+			System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
+
+		}else{
+			System.setOut(new PrintStream(new OutputStream() {
+				
+				@Override
+				public void write(int b) throws IOException {
+					
+				}
+			}));
+		}
 	}
 	
 	
